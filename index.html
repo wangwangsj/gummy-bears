@@ -407,6 +407,58 @@
     .hud-lv b{font-size:17px}
     .hud-score{top:calc(58px + env(safe-area-inset-top))}
   }
+
+  /* ---- game v2: goal card, verdict, map, shop, confetti ---- */
+  .chip.coins{cursor:default; font-variant-numeric:tabular-nums; font-weight:600}
+  .chip.soft{gap:10px; cursor:default}
+  .chip.soft input{width:min(34vw,150px); height:22px}
+  .chip.soft output{font-variant-numeric:tabular-nums; width:2.4em; text-align:right}
+  .stars-live i{width:72px}
+  .sheet.light{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; align-items:end; padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+  .sheet.light .panel{box-shadow:0 30px 80px -30px rgba(20,19,15,.45)}
+  .goal{display:flex; gap:10px; align-items:baseline; justify-content:center; margin:14px 0 10px; font-size:14px}
+  .goal b{font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--cherry)}
+  .devices{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-bottom:12px}
+  .devices span{padding:5px 10px; border-radius:999px; background:#f5f0e8; font-size:12px}
+  .thresh{display:flex; justify-content:center; gap:14px; font-size:12px; color:var(--ink-soft); margin-bottom:4px}
+  .thresh b{color:#e0a10f; font-weight:600}
+  .verdict{text-align:center; font:italic 400 40px/1 var(--serif); margin:-4px 0 12px}
+  .verdict.ok{color:#2f8f5b} .verdict.no{color:var(--ink-soft)}
+  .verdict small{display:block; margin-top:8px; font:500 12px/1.4 var(--sans); font-style:normal; letter-spacing:.04em; color:var(--ink-soft)}
+  .earn{text-align:center; font-size:13px; margin:-6px 0 14px; color:#b4780c; font-weight:600}
+  .row-links{display:flex; justify-content:center; gap:22px}
+  .row-links .linky{margin-top:12px}
+  .panel.wide{width:min(560px,100%)}
+  .coins-row{display:flex; justify-content:center; align-items:center; gap:12px; margin:12px 0 6px; font-weight:600; font-variant-numeric:tabular-nums}
+  .district{margin-top:16px; padding:14px; border-radius:16px; background:linear-gradient(160deg,#fff7ef,#f6eee4); border:1px solid var(--hair)}
+  .district header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px}
+  .district header b{font:italic 400 22px/1.1 var(--serif)}
+  .district header span{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft)}
+  .district.locked{opacity:.55; background:repeating-linear-gradient(135deg,#f6f2ec 0 12px,#f1ebe2 12px 24px)}
+  .district.locked p{margin:0; font-size:12.5px; color:var(--ink-soft)}
+  .path{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px}
+  .lv{min-height:88px}
+  .lv.cleared{border-color:#9fd8c3; background:linear-gradient(160deg,#fff,#eef8f3)}
+  .shop-row{display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; padding:14px 0; border-bottom:1px solid var(--hair)}
+  .shop-row .ic{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:22px; background:#f5f0e8}
+  .shop-row b{display:block; font-size:14px}
+  .shop-row small{display:block; font-size:11.5px; color:var(--ink-soft); margin-top:3px; line-height:1.4}
+  .pips{display:flex; gap:3px; margin-top:6px}
+  .pips i{width:14px; height:4px; border-radius:2px; background:var(--hair)}
+  .pips i.on{background:#f2b01b}
+  .shop-row button{height:38px; padding:0 12px; border-radius:10px; border:0; background:var(--ink); color:#fff; font:600 12px/1 var(--sans); cursor:pointer; white-space:nowrap}
+  .shop-row button:disabled{opacity:.3; cursor:default}
+  .end-text{text-align:center; font-size:14px; line-height:1.8; color:#3b382f; margin:12px 0 4px}
+  #confetti{position:fixed; inset:0; z-index:7; pointer-events:none; overflow:hidden}
+  #confetti i{position:absolute; top:-20px; width:9px; height:14px; border-radius:2px; animation:fall linear forwards}
+  @keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--r))}}
+  @media (max-width:760px), (max-aspect-ratio:4/5){
+    .hud-top{gap:6px}
+    .hud-top .chip{height:34px; padding:0 10px; font-size:11px}
+    .hud-top .chip.round{width:34px; padding:0}
+    #gBack span{display:none}
+    .verdict{font-size:34px}
+  }
 </style>
 </head>
 <body>
@@ -459,35 +511,71 @@
     <div class="hud-top">
       <button class="chip" id="gBack">← <span data-i18n="gBack">Sandbox</span></button>
       <div class="hud-lv"><span id="gLvNo">Level 1</span><b id="gLvName">Stairway</b></div>
+      <span class="chip coins" id="gCoins">🍬 0</span>
+      <button class="chip round" id="gMus" aria-label="music">🎵</button>
       <button class="chip round" id="gSnd" aria-label="sound">🔊</button>
-      <button class="chip round" id="gLevels" aria-label="levels">☰</button>
+      <button class="chip round" id="gLevels" aria-label="map">🗺</button>
     </div>
     <div class="hud-score">
       <b id="gScore">0</b><small data-i18n="gScoreLbl">Ordeal points</small>
-      <div class="stars-live"><i><u></u></i><i><u></u></i><i><u></u></i></div>
+      <div class="stars-live"><i><u></u></i><i><u></u></i></div>
       <span class="combo" id="gCombo">×1.5</span>
     </div>
-    <div class="hud-hint" id="gHint"><span>✋</span><span data-i18n="gHintAim">Pull back anywhere, let go to fling</span></div>
-    <div class="hud-bot"><button class="chip" id="gRetry">↺ <span data-i18n="gRetry">Retry</span></button></div>
+    <div class="hud-hint off" id="gHint"><span>✋</span><span data-i18n="gHintAim">Pull back anywhere, let go to fling</span></div>
+    <div class="hud-bot">
+      <label class="chip soft"><span data-i18n="wobble">Wobble</span><input id="gWob" type="range" min="0" max="1" step="0.01" value="0.42"><output id="gWobOut">0.42</output></label>
+      <button class="chip" id="gRetry">↺ <span data-i18n="gRetry">Retry</span></button>
+    </div>
   </div>
   <div id="pops"></div>
   <div id="flash"></div>
+  <div id="confetti"></div>
+  <div class="sheet light" id="sheetIntro"><div class="panel">
+    <h3 id="iLvNo">Level 1</h3><h4 id="iLvName">Stairway</h4>
+    <div class="goal"><b data-i18n="gGoal">Goal</b><span id="iGoal"></span></div>
+    <div class="devices" id="iDev"></div>
+    <div class="thresh" id="iStars"></div>
+    <div class="row-btns"><button class="pri" id="iGo" data-i18n="gGo">Start</button></div>
+  </div></div>
   <div class="sheet" id="sheetResult"><div class="panel">
+    <div class="verdict" id="rVerdict"></div>
     <h3 id="rLvNo">Level 1</h3><h4 id="rLvName">Stairway</h4>
     <div class="big-score" id="rScore">0</div>
     <span class="rec" id="rRec"></span>
     <div class="stars" id="rStars"><i>★</i><i>★</i><i>★</i></div>
+    <div class="earn" id="rCoins"></div>
     <div class="stats" id="rStats"></div>
     <div class="row-btns">
       <button id="rRetry" data-i18n="gRetry">Retry</button>
       <button id="rNext" class="pri" data-i18n="gNext">Next level</button>
     </div>
-    <button class="linky" id="rShare" data-i18n="gShare">Copy a brag + link</button>
+    <div class="row-links">
+      <button class="linky" id="rShop" data-i18n="gShop">Upgrades</button>
+      <button class="linky" id="rMap" data-i18n="gMap">Gummy City</button>
+      <button class="linky" id="rShare" data-i18n="gShare">Copy a brag + link</button>
+    </div>
   </div></div>
-  <div class="sheet" id="sheetLevels"><div class="panel">
-    <h3 data-i18n="gFactory">Gummy factory</h3><h4 data-i18n="gPick">Pick a workshop</h4>
-    <div class="levels" id="lvGrid"></div>
+  <div class="sheet" id="sheetLevels"><div class="panel wide">
+    <h3 data-i18n="gTitle">Gummy Adventures</h3><h4 data-i18n="gMap">Gummy City</h4>
+    <div class="coins-row"><span id="mCoins">🍬 0</span><button class="chip" id="mShop">🛠 <span data-i18n="gShop">Upgrades</span></button></div>
+    <div id="mapDistricts"></div>
     <button class="linky" id="lvClose" data-i18n="gClose">Close</button>
+  </div></div>
+  <div class="sheet" id="sheetShop"><div class="panel">
+    <h3 data-i18n="gWorkshop">Back-alley workshop</h3><h4 data-i18n="gShop">Upgrades</h4>
+    <div class="coins-row"><span id="sCoins">🍬 0</span></div>
+    <div id="shopList"></div>
+    <button class="linky" id="shopClose" data-i18n="gClose">Close</button>
+  </div></div>
+  <div class="sheet" id="sheetEnd"><div class="panel">
+    <div class="verdict ok" data-i18n="gEndTitle">Chapter clear!</div>
+    <h4 data-i18n="gEndHead">Escaped the Gummy Factory</h4>
+    <p class="end-text" id="eText"></p>
+    <div class="stars" id="eStars"></div>
+    <div class="row-btns">
+      <button id="eMap" data-i18n="gMap">Gummy City</button>
+      <button class="pri" id="eSandbox" data-i18n="gEndFree">Go play freely</button>
+    </div>
   </div></div>
   <div class="toast" id="toast"></div>
   <div id="coach"><i></i><b data-i18n="coach">Grab a bear</b></div>
@@ -513,6 +601,7 @@
 <script type="module">
 /* ================= GUMMY BEARS ================= */
 import * as THREE from './vendor/three.module.min.js';
+import { RoundedBoxGeometry } from './vendor/RoundedBoxGeometry.js';
 
 /* ============================================================
    0 · TUNING
@@ -525,6 +614,7 @@ const CFG = {
   wobble: 0.42,           // UI slider 0..1
   restitution: 0.36,
   air: 1,                 // scales air drag: the toy wants calm bears, a thrown one wants to fly
+  fragile: 1,             // how fast hits whiten and finally break a part (game only)
   upright: 0.15,          // righting torque: the original 1.0 stood every bear bolt upright, so nothing could pile
   pileUpright: 0.3,       // righting torque left to a bear that rests on other bears
   sepCap: 0.0015,         // fastest a contact fix may push two points apart, per substep (≈0.45 u/s)
@@ -692,6 +782,75 @@ class Bear {
     this.hop = 1.2 + Math.random() * 3.5; this.hopArm = 0; this.hopCool = 1 + Math.random() * 2.5;
     this.idle = 0; this.strain = 1; this.bounce = 0; this.hit = 0; this.perch = 0; this.onTop = 0;
     this.alive = true;
+    // pieces: every link can be cut; seg[i] says which fragment a point belongs to
+    this.seg = new Int8Array(n); this.segs = null;
+    this.lk = new Uint8Array(RIG.links.length).fill(1);
+    // strands: what is left of a cut limb, a long soft string of gummy that only pulls
+    this.strands = [];
+    this.up = [0, 1, 0];
+    // soft: a hit leaves it wobblier for a moment; stiff: frozen > 1, melted < 1
+    this.soft = 0; this.stiff = 1;
+    // per-point hit flash and lasting stress whitening, read by the shader
+    this.flash = new Float32Array(n); this.dmg = new Float32Array(n);
+    this.hitSp = 0; this.hitPart = -1; this.hitNx = 0; this.hitNy = 1;
+  }
+
+  /* a point took a hit of speed sp (m/s) along normal n */
+  bump(i, sp, nx, ny) {
+    if (sp < (CFG.world ? 2.2 : 5.5)) return;
+    this.flash[i] = Math.max(this.flash[i], Math.min(1, (sp - 2) / 9));
+    if (CFG.world) this.dmg[i] = Math.min(1.2, this.dmg[i] + sp * 0.02 * CFG.fragile);
+    this.soft = Math.max(this.soft, Math.min(1.2, sp / 11));
+    if (sp > this.hitSp) { this.hitSp = sp; this.hitPart = i; this.hitNx = nx; this.hitNy = ny; }
+  }
+
+  /* cut every live link the test says is crossed; returns how many.  With strand, the
+     main strand across the cut survives as a stretchy string, so the piece dangles */
+  cutWhere(test, strand) {
+    let any = 0, first = -1;
+    RIG.links.forEach((L, li) => {
+      if (!this.lk[li] || !test(L.i, L.j)) return;
+      this.lk[li] = 0; any++;
+      if (first < 0 && li < RIG.chains.length) first = li;
+    });
+    if (any) this.resegment();
+    if (any && strand && first >= 0) {
+      const L = RIG.links[first];
+      const s = { i: L.i, j: L.j, rest: L.rest * 1.1 };
+      this.strands.push(s);
+      return s;
+    }
+    return any;
+  }
+  resegment() {
+    const n = this.n, root = Array.from({ length: n }, (_, i) => i);
+    const find = (i) => (root[i] === i ? i : (root[i] = find(root[i])));
+    RIG.links.forEach((L, li) => { if (this.lk[li]) root[find(L.i)] = find(L.j); });
+    const id = new Map();
+    for (let i = 0; i < n; i++) { const r = find(i); if (!id.has(r)) id.set(r, id.size); this.seg[i] = id.get(r); }
+    // a link left between two fragments would pull them back together
+    RIG.links.forEach((L, li) => { if (this.seg[L.i] !== this.seg[L.j]) this.lk[li] = 0; });
+    if (id.size < 2) { this.segs = null; return; }
+    this.segs = [];
+    for (let s = 0; s < id.size; s++) {
+      const ids = [];
+      for (let i = 0; i < n; i++) if (this.seg[i] === s) ids.push(i);
+      let mx = 0, my = 0, mz = 0, mm = 0;
+      for (const i of ids) { const w = RIG.mass[i]; mm += w; mx += RIG.rest[i * 3] * w; my += RIG.rest[i * 3 + 1] * w; mz += RIG.rest[i * 3 + 2] * w; }
+      mx /= mm; my /= mm; mz /= mm;
+      const rec = new Float32Array(ids.length * 3);
+      ids.forEach((i, j) => { rec[j * 3] = RIG.rest[i * 3] - mx; rec[j * 3 + 1] = RIG.rest[i * 3 + 1] - my; rec[j * 3 + 2] = RIG.rest[i * 3 + 2] - mz; });
+      this.segs.push({ ids, n: ids.length, rec, mass: mm });
+    }
+  }
+  segCentre(s) {
+    let x = 0, y = 0, z = 0, m = 0;
+    for (let i = 0; i < this.n; i++) {
+      if (this.seg[i] !== s) continue;
+      const w = RIG.mass[i], k = i * 3;
+      x += this.p[k] * w; y += this.p[k + 1] * w; z += this.p[k + 2] * w; m += w;
+    }
+    return [x / m, y / m, z / m];
   }
 
   /* ---- one physics substep ---- */
@@ -716,12 +875,22 @@ class Bear {
     // how *fast* a bear was moving, which strangled every wobble and hop.
     this.idle = 1 - Math.min(1, (still / n) * 600);
     this.behave(h);
+    const soft = Math.min(1, this.soft);
+    this.soft = Math.max(0, this.soft - h * 2.2);
+    for (let i = 0; i < n; i++) {
+      this.flash[i] *= 0.986;
+      if (this.dmg[i] > 0) this.dmg[i] = Math.max(0, this.dmg[i] - h * 0.015);
+    }
+    const lam = Math.min(0.6, S.shape * this.stiff) * (1 - 0.7 * soft);
+    const kd = Math.min(1, S.dist * this.stiff) * (1 - 0.45 * soft);
     for (let it = 0; it < 2; it++) {
+      if (this.segs) { for (const sg of this.segs) if (sg.n >= 3) this.shapeMatchSeg(sg, lam); }
       // a bear lying on others lets go of standing up, so piles can form
-      this.shapeMatch(S.shape, this.onTop > 0 ? S.align * CFG.pileUpright : S.align);
-      this.links(S.dist);
+      else this.shapeMatch(lam, this.onTop > 0 ? S.align * CFG.pileUpright : S.align);
+      this.links(kd);
       if (this.grab >= 0) this.applyGrab();
     }
+    if (this.segs) this.selfCollide();
     this.collide(h);
   }
 
@@ -778,9 +947,57 @@ class Bear {
     }
   }
 
+  /* shape matching for one fragment of a cut bear: same maths, its own rest shape */
+  shapeMatchSeg(sg, lambda) {
+    const p = this.p, rest = RIG.rest, w = RIG.mass, ids = sg.ids;
+    let m = 0, cx = 0, cy = 0, cz = 0;
+    for (const i of ids) { const k = i * 3, wi = w[i]; m += wi; cx += p[k] * wi; cy += p[k + 1] * wi; cz += p[k + 2] * wi; }
+    cx /= m; cy /= m; cz /= m;
+    let a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0, a20 = 0, a21 = 0, a22 = 0;
+    for (const i of ids) {
+      const k = i * 3, wi = w[i];
+      const x = (p[k] - cx) * wi, y = (p[k + 1] - cy) * wi, z = (p[k + 2] - cz) * wi;
+      const rx = rest[k], ry = rest[k + 1], rz = rest[k + 2];
+      a00 += x * rx; a01 += x * ry; a02 += x * rz;
+      a10 += y * rx; a11 += y * ry; a12 += y * rz;
+      a20 += z * rx; a21 += z * ry; a22 += z * rz;
+    }
+    _A.set([a00, a01, a02, a10, a11, a12, a20, a21, a22]);
+    const dA = a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) + a02 * (a10 * a21 - a11 * a20);
+    if (!(Math.abs(dA) > 1e-12)) return;
+    const na = Math.cbrt(Math.abs(dA));
+    for (let i = 0; i < 9; i++) _A[i] /= na;
+    if (!polar3(_A, 6)) return;
+    const r0 = _A;
+    ids.forEach((i, j) => {
+      const rx = sg.rec[j * 3], ry = sg.rec[j * 3 + 1], rz = sg.rec[j * 3 + 2], k = i * 3;
+      p[k] += lambda * (cx + r0[0] * rx + r0[1] * ry + r0[2] * rz - p[k]);
+      p[k + 1] += lambda * (cy + r0[3] * rx + r0[4] * ry + r0[5] * rz - p[k + 1]);
+      p[k + 2] += lambda * (cz + r0[6] * rx + r0[7] * ry + r0[8] * rz - p[k + 2]);
+    });
+  }
+
+  /* fragments of one bear bump into each other instead of passing through */
+  selfCollide() {
+    const p = this.p, n = this.n;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      if (this.seg[i] === this.seg[j]) continue;
+      const A = i * 3, B = j * 3, min = (RIG.col[i] + RIG.col[j]) * 0.9;
+      const dx = p[A] - p[B], dy = p[A + 1] - p[B + 1], dz = p[A + 2] - p[B + 2];
+      const d2 = dx * dx + dy * dy + dz * dz;
+      if (d2 > min * min || d2 < 1e-10) continue;
+      const d = Math.sqrt(d2), pen = Math.min(min - d, 0.004);
+      const wa = RIG.inv[i] / (RIG.inv[i] + RIG.inv[j]), wb = 1 - wa;
+      p[A] += dx / d * pen * wa; p[A + 1] += dy / d * pen * wa; p[A + 2] += dz / d * pen * wa;
+      p[B] -= dx / d * pen * wb; p[B + 1] -= dy / d * pen * wb; p[B + 2] -= dz / d * pen * wb;
+    }
+  }
+
   links(k) {
-    const p = this.p, inv = RIG.inv;
-    for (const L of RIG.links) {
+    const p = this.p, inv = RIG.inv, lk = this.lk;
+    for (let li = 0; li < RIG.links.length; li++) {
+      if (!lk[li]) continue;
+      const L = RIG.links[li];
       const a = L.i * 3, b = L.j * 3;
       let dx = p[a] - p[b], dy = p[a + 1] - p[b + 1], dz = p[a + 2] - p[b + 2];
       const d = Math.hypot(dx, dy, dz);
@@ -790,6 +1007,20 @@ class Bear {
       if (C > 0) C = Math.min(C, L.rest * 1.15);        // soft limit on how far a limb can fly
       const s = (k * C) / (d * wi);
       const si = inv[L.i] * s, sj = inv[L.j] * s;
+      p[a] -= dx * si; p[a + 1] -= dy * si; p[a + 2] -= dz * si;
+      p[b] += dx * sj; p[b + 1] += dy * sj; p[b + 2] += dz * sj;
+    }
+    // strands only pull, and gently: the piece swings and stretches on its string
+    for (const S of this.strands) {
+      const a = S.i * 3, b = S.j * 3;
+      const dx = p[a] - p[b], dy = p[a + 1] - p[b + 1], dz = p[a + 2] - p[b + 2];
+      const d = Math.hypot(dx, dy, dz);
+      S.len = d;
+      if (d <= S.rest) continue;
+      // slack-ish up to ~2.5x its length, then it firms up like taffy before it snaps
+      const k = 0.004 + 0.05 * Math.min(1, Math.max(0, (d / S.rest - 2.5) / 1.5));
+      const s = (k * (d - S.rest)) / (d * (inv[S.i] + inv[S.j]));
+      const si = inv[S.i] * s, sj = inv[S.j] * s;
       p[a] -= dx * si; p[a + 1] -= dy * si; p[a + 2] -= dz * si;
       p[b] += dx * sj; p[b + 1] += dy * sj; p[b + 2] += dz * sj;
     }
@@ -844,6 +1075,7 @@ class Bear {
           q[k] = p[k] - (p[k] - q[k]) * (1 - CFG.friction);
           q[k + 2] = p[k + 2] - (p[k + 2] - q[k + 2]) * (1 - CFG.friction);
           hit = Math.max(hit, -vy / h);
+          this.bump(i, -vy / h, 0, 1);
         }
       }
       if (CFG.world) continue;                       // a level brings its own walls
@@ -929,6 +1161,7 @@ class Surface {
     this.vcap = 1 << 14;
     this.pos = new Float32Array(this.vcap * 3);
     this.nrm = new Float32Array(this.vcap * 3);
+    this.hv = new Float32Array(this.vcap * 2);   // per vertex: hit flash, stress whitening
     this.icap = 1 << 15;
     this.idx = new Uint32Array(this.icap);
     this.nv = 0; this.ni = 0;
@@ -940,8 +1173,8 @@ class Surface {
   ensureV(k) {
     if (k <= this.vcap) return;
     let cap = this.vcap; while (cap < k) cap *= 2;
-    const p = new Float32Array(cap * 3), n = new Float32Array(cap * 3);
-    p.set(this.pos); n.set(this.nrm); this.pos = p; this.nrm = n; this.vcap = cap;
+    const p = new Float32Array(cap * 3), n = new Float32Array(cap * 3), hv = new Float32Array(cap * 2);
+    p.set(this.pos); n.set(this.nrm); hv.set(this.hv); this.pos = p; this.nrm = n; this.hv = hv; this.vcap = cap;
   }
   ensureI(k) {
     if (k <= this.icap) return;
@@ -954,16 +1187,37 @@ class Surface {
     b.x[i] = x; b.y[i] = y; b.z[i] = z; b.r[i] = r;
   }
 
-  /* build the mesh for one bear: 10 points + stretch-thinned strands + molded face */
+  /* build the mesh for one bear: one isosurface per fragment, appended into one buffer,
+     so a cut-off limb never melts back into the body it left */
   build(bear, cell) {
     this.reset();
-    const p = bear.p;
-    for (let i = 0; i < bear.n; i++) this.ball(p[i * 3], p[i * 3 + 1], p[i * 3 + 2], RIG.rad[i]);
+    const ns = bear.segs ? bear.segs.length : 1;
+    let B = null;
+    for (let s = 0; s < ns; s++) {
+      if (!this.buildPart(bear, cell, bear.segs ? s : -1)) continue;
+      const b = this.bounds;
+      if (!B) B = b.slice();
+      else for (let k = 0; k < 3; k++) { B[k] = Math.min(B[k], b[k]); B[k + 3] = Math.max(B[k + 3], b[k + 3]); }
+    }
+    this.bounds = B || [0, 0, 0, 0.1, 0.1, 0.1];
+  }
+
+  /* 10 points + stretch-thinned strands + molded face, for the points of fragment s (-1: all) */
+  buildPart(bear, cell, s) {
+    this.balls.n = 0;
+    const nv0 = this.nv;
+    const p = bear.p, seg = bear.seg;
+    const inS = (i) => s < 0 || seg[i] === s;
+    const pts = [];
+    for (let i = 0; i < bear.n; i++) if (inS(i)) { pts.push(i); this.ball(p[i * 3], p[i * 3 + 1], p[i * 3 + 2], RIG.rad[i]); }
+    if (!this.balls.n) return false;
 
     // limbs, neck and snout as strands.  Sample count grows with length so the
     // chain never breaks, and the radius shrinks as the strand stretches:
     // a stretched limb reads as a thin waist in the isosurface.
-    for (const L of RIG.chains) {
+    for (let c = 0; c < RIG.chains.length; c++) {
+      const L = RIG.chains[c];
+      if (!bear.lk[c] || !inS(L.i) || !inS(L.j)) continue;
       const A = L.i * 3, B = L.j * 3;
       const dx = p[B] - p[A], dy = p[B + 1] - p[A + 1], dz = p[B + 2] - p[A + 2];
       const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
@@ -978,6 +1232,7 @@ class Surface {
 
     // the notches: crotch and armpits, riding the limbs they sit between
     for (const C of RIG.carve) {
+      if (!inS(C.i) || !inS(C.j)) continue;
       const A = C.i * 3, B = C.j * 3;
       this.ball(p[A] + (p[B] - p[A]) * C.t + C.off[0],
                 p[A + 1] + (p[B + 1] - p[A + 1]) * C.t + C.off[1],
@@ -985,9 +1240,16 @@ class Surface {
     }
 
     // molded face: nose + two eyes, riding the head's own frame
-    const sn = RIG.idx.snout, hd = RIG.idx.head, bd = RIG.idx.body;
-    let ux = p[hd * 3] - p[bd * 3], uy = p[hd * 3 + 1] - p[bd * 3 + 1], uz = p[hd * 3 + 2] - p[bd * 3 + 2];
+    const sn = RIG.idx.snout, hd = RIG.idx.head, bd = RIG.idx.body, el = RIG.idx.earL, er = RIG.idx.earR;
+    if (inS(hd) && inS(sn)) {
+    // the head's up: from the body while it has one, from the ears once it is off
+    let ux, uy, uz;
+    if (inS(bd) && bear.lk[0]) { ux = p[hd * 3] - p[bd * 3]; uy = p[hd * 3 + 1] - p[bd * 3 + 1]; uz = p[hd * 3 + 2] - p[bd * 3 + 2]; }
+    else if (inS(el) && inS(er)) {
+      ux = (p[el * 3] + p[er * 3]) / 2 - p[hd * 3]; uy = (p[el * 3 + 1] + p[er * 3 + 1]) / 2 - p[hd * 3 + 1]; uz = (p[el * 3 + 2] + p[er * 3 + 2]) / 2 - p[hd * 3 + 2];
+    } else [ux, uy, uz] = bear.up;
     let l = Math.hypot(ux, uy, uz) || 1; ux /= l; uy /= l; uz /= l;
+    bear.up[0] = ux; bear.up[1] = uy; bear.up[2] = uz;
     let fx = p[sn * 3] - p[hd * 3], fy = p[sn * 3 + 1] - p[hd * 3 + 1], fz = p[sn * 3 + 2] - p[hd * 3 + 2];
     let d = fx * ux + fy * uy + fz * uz;
     fx -= ux * d; fy -= uy * d; fz -= uz * d;
@@ -1007,6 +1269,7 @@ class Surface {
       this.ball(hx + rx * 0.092 * side + ux * 0.058 + fx * 0.256,
                 hy + ry * 0.092 * side + uy * 0.058 + fy * 0.256,
                 hz + rz * 0.092 * side + uz * 0.058 + fz * 0.256, 0.044);
+    }
     }
 
     // ---- bounds ----
@@ -1105,15 +1368,25 @@ class Surface {
 
     // ---- normals straight from the field gradient (smooth, no post-processing) ----
     const g = this.tmp;
-    for (let v = 0; v < this.nv; v++) {
+    for (let v = nv0; v < this.nv; v++) {
       const o = v * 3;
       this.fieldGrad(this.pos[o], this.pos[o + 1], this.pos[o + 2], g);
       let nx2 = g[0], ny2 = g[1], nz2 = g[2];
       const l = Math.hypot(nx2, ny2, nz2);
       if (l < 1e-7) { nx2 = 0; ny2 = 1; nz2 = 0; } else { nx2 /= l; ny2 /= l; nz2 /= l; }
       this.nrm[o] = nx2; this.nrm[o + 1] = ny2; this.nrm[o + 2] = nz2;
+      // the hit state of the nearest mass points, blended the way the field is
+      let ws = 0, fl = 0, dm = 0;
+      for (const i of pts) {
+        const ex = this.pos[o] - p[i * 3], ey = this.pos[o + 1] - p[i * 3 + 1], ez = this.pos[o + 2] - p[i * 3 + 2];
+        let w = RIG.rad[i] * RIG.rad[i] / (ex * ex + ey * ey + ez * ez + 1e-4);
+        w *= w;
+        ws += w; fl += w * bear.flash[i]; dm += w * bear.dmg[i];
+      }
+      this.hv[v * 2] = fl / ws; this.hv[v * 2 + 1] = dm / ws;
     }
     this.bounds = [x0, y0, z0, x1, y1, z1];
+    return true;
   }
 
   fieldGrad(x, y, z, out) {
@@ -1123,7 +1396,7 @@ class Surface {
       const dx = x - b.x[i], dy = y - b.y[i], dz = z - b.z[i];
       const d2 = dx * dx + dy * dy + dz * dz;
       if (d2 < 1e-8) continue;
-      const k = -2 * b.r[i] * b.r[i] / (d2 * d2);
+      const k = -2 * b.r[i] * b.r[i] / (d2 * d2);   // carved balls shade as bulges: softer eyes than the true gradient
       gx += k * dx; gy += k * dy; gz += k * dz;
     }
     out[0] = gx; out[1] = gy; out[2] = gz;
@@ -1476,8 +1749,11 @@ function gummyMaterial(f) {
      glow with its own colour while the thick middle goes deep and saturated. */
   m.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, m.userData.u);
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute vec2 aHit;\nvarying vec2 vHit;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvHit = aHit;');
     shader.fragmentShader =
-      'uniform vec3 uAbsorb;\nuniform float uThick;\nuniform float uRim;\n' + shader.fragmentShader;
+      'uniform vec3 uAbsorb;\nuniform float uThick;\nuniform float uRim;\nvarying vec2 vHit;\n' + shader.fragmentShader;
     shader.fragmentShader = shader.fragmentShader.replace(
       '#include <transmission_fragment>',
       `#include <transmission_fragment>
@@ -1494,6 +1770,9 @@ function gummyMaterial(f) {
          totalSpecular *= mix( vec3( 1.0 ), _deep, 0.6 );
          float _rim = pow( 1.0 - _face, 2.2 );
          totalDiffuse += material.diffuseColor * uRim * _rim * ( 0.55 + 0.45 * _deep );
+         // where it was hit: gummy goes milky under stress, and the hit itself flashes warm
+         totalDiffuse = mix( totalDiffuse, vec3( 0.93, 0.9, 0.86 ) * ( 0.45 + 0.55 * _face ), vHit.y * 0.6 );
+         totalDiffuse += vec3( 1.0, 0.9, 0.75 ) * vHit.x * 0.85;
        }`
     );
   };
@@ -1506,13 +1785,14 @@ const surf = new Surface();                 // one scratch buffer set, reused fo
 let bounceCount = 0;
 let cellScale = 1;                          // raised by the frame-rate governor on slow devices
 
+const _sa = new THREE.Vector3(), _sb = new THREE.Vector3(), _sm = new THREE.Vector3();
 /* per-bear render resources: implicit-surface mesh, coloured shadow */
 class View {
   constructor(bear) {
     this.bear = bear;
     this.geo = new THREE.BufferGeometry();
     this.vcap = 0; this.icap = 0;
-    this.pos = null; this.nrm = null; this.tri = null;
+    this.pos = null; this.nrm = null; this.tri = null; this.hv = null;
     this.mesh = new THREE.Mesh(this.geo, gummyMaterial(bear.f));
     this.mesh.frustumCulled = false;
     this.mesh.castShadow = true;           // only drawn into a shadow map inside the factory
@@ -1521,6 +1801,26 @@ class View {
     this.shadow.material.uniforms.uColor.value.setRGB(bear.f.sh[0], bear.f.sh[1], bear.f.sh[2]);
     shadowScene.add(this.shadow);
     this.bounds = [0, 0, 0, 1, 1, 1];
+    this.tubes = [];
+  }
+  /* gummy strings between cut pieces: a tube that sags when slack and thins as it stretches */
+  syncStrands() {
+    const b = this.bear, S = b.strands;
+    while (this.tubes.length > S.length) { const t = this.tubes.pop(); scene.remove(t); t.geometry.dispose(); }
+    S.forEach((s, k) => {
+      let t = this.tubes[k];
+      if (!t) {
+        t = new THREE.Mesh(new THREE.BufferGeometry(), this.mesh.material);
+        t.castShadow = true; t.frustumCulled = false; scene.add(t); this.tubes[k] = t;
+      }
+      const a = s.i * 3, c = s.j * 3, p = b.p;
+      _sa.set(p[a], p[a + 1], p[a + 2]); _sb.set(p[c], p[c + 1], p[c + 2]);
+      const len = _sa.distanceTo(_sb), slack = Math.max(0, s.rest * 1.15 - len);
+      _sm.addVectors(_sa, _sb).multiplyScalar(0.5); _sm.y -= slack * 0.8;
+      const r = Math.max(0.022, Math.min(0.075, 0.075 * Math.sqrt(s.rest / Math.max(len, 1e-3))));
+      t.geometry.dispose();
+      t.geometry = new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(_sa.clone(), _sm.clone(), _sb.clone()), 14, r, 8, false);
+    });
   }
   sync(cell) {
     surf.build(this.bear, cell);
@@ -1531,6 +1831,8 @@ class View {
       this.nrm = new Float32Array(this.vcap * 3);
       this.geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3));
       this.geo.setAttribute('normal', new THREE.BufferAttribute(this.nrm, 3));
+      this.hv = new Float32Array(this.vcap * 2);
+      this.geo.setAttribute('aHit', new THREE.BufferAttribute(this.hv, 2));
     }
     if (ni > this.icap) {
       this.icap = surf.icap;
@@ -1539,6 +1841,8 @@ class View {
     }
     this.pos.set(surf.pos.subarray(0, nv * 3));
     this.nrm.set(surf.nrm.subarray(0, nv * 3));
+    this.hv.set(surf.hv.subarray(0, nv * 2));
+    this.geo.attributes.aHit.needsUpdate = true;
     this.tri.set(surf.idx.subarray(0, ni));
     this.geo.setDrawRange(0, ni);
     this.geo.attributes.position.needsUpdate = true;
@@ -1557,6 +1861,7 @@ class View {
     this.shadow.material.uniforms.uOpacity.value = Math.max(0.06, 0.62 - h * 0.30);
   }
   dispose() {
+    for (const t of this.tubes) { scene.remove(t); t.geometry.dispose(); }
     scene.remove(this.mesh); shadowScene.remove(this.shadow);
     this.geo.dispose(); this.mesh.material.dispose(); this.shadow.material.dispose();
   }
@@ -1950,8 +2255,9 @@ function simulate(dt) {
 function maxStrain() {
   let s = 1;
   for (const b of bears) {
-    for (const Lk of RIG.links) {
-      const a = Lk.i * 3, c = Lk.j * 3;
+    for (let li = 0; li < RIG.links.length; li++) {
+      if (!b.lk[li]) continue;
+      const Lk = RIG.links[li], a = Lk.i * 3, c = Lk.j * 3;
       const d = Math.hypot(b.p[a] - b.p[c], b.p[a + 1] - b.p[c + 1], b.p[a + 2] - b.p[c + 2]);
       s = Math.max(s, d / Lk.rest);
     }
@@ -1994,7 +2300,7 @@ function frame(now) {
 
   /* coarse grid when the pile gets big, fine grid when it is small */
   const cell = CFG.cell * cellScale * (bears.length > 7 ? 1.3 : 1);
-  for (const b of bears) { b.view.sync(cell); b.view.drawShadow(); }
+  for (const b of bears) { b.view.sync(cell); b.view.drawShadow(); if (b.strands.length || b.view.tubes.length) b.view.syncStrands(); }
   feedAO();
   if (GAME.on) gameFrame(dt);
   render();
@@ -2026,25 +2332,26 @@ document.addEventListener('visibilitychange', () => { last = performance.now(); 
 
 
 /* ============================ SOUND ============================ */
-/* Everything is synthesised: a sawtooth "voice" through vowel formants for the
-   gummy's squeals and screams, filtered noise for squish and splash.  No audio
-   files, and nothing plays until the first touch unlocks the context. */
+/* Everything is synthesised, and everything is soft: triangle and sine voices,
+   low formant Q, and a gentle low-pass on the master bus so nothing pierces.
+   Nothing plays until the first touch unlocks the context. */
 const SFX = (() => {
-  let ac = null, master = null, noise = null;
+  let ac = null, bus = null, noise = null;
   let on = true;
   try { on = localStorage.getItem('gummy-sound') !== '0'; } catch (e) { /* private mode */ }
-  const FORM = {          // [frequency, gain] per formant; scaled up because a gummy bear is tiny
-    a: [[850, 1], [1250, .7], [2900, .25]], i: [[320, 1], [2500, .5], [3300, .2]],
-    o: [[520, 1], [900, .6], [2600, .15]], u: [[380, 1], [850, .4], [2400, .1]], e: [[550, 1], [1900, .5], [2700, .2]],
+  const FORM = {          // [frequency, gain] per formant
+    a: [[800, 1], [1150, .5]], i: [[300, 1], [2200, .3]], o: [[500, 1], [850, .45]],
+    u: [[350, 1], [750, .35]], e: [[480, 1], [1700, .35]],
   };
   function ctx() {
     if (!ac) {
       const AC = window.AudioContext || window.webkitAudioContext;
       if (!AC) return null;
       ac = new AC();
-      const comp = ac.createDynamicsCompressor();
-      master = ac.createGain(); master.gain.value = 0.55;
-      master.connect(comp).connect(ac.destination);
+      const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 4200; lp.Q.value = 0.5;
+      const comp = ac.createDynamicsCompressor(); comp.threshold.value = -20; comp.ratio.value = 3;
+      bus = ac.createGain(); bus.gain.value = 0.5;
+      bus.connect(lp).connect(comp).connect(ac.destination);
       noise = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
       const d = noise.getChannelData(0);
       for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -2056,123 +2363,238 @@ const SFX = (() => {
   function env(g, t, vol, dur, atk = 0.02) {
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(vol, t + atk);
-    g.gain.setValueAtTime(vol, t + Math.max(atk, dur * 0.65));
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
   }
+  /* a small, round "voice": triangle through two broad formants */
   function voice(o) {
     if (!ok()) return;
     const t = ac.currentTime + 0.01, d = o.dur;
-    const src = ac.createOscillator(); src.type = 'sawtooth';
+    const src = ac.createOscillator(); src.type = 'triangle';
     src.frequency.setValueAtTime(o.f0, t);
     for (const [at, f] of o.pitch || []) src.frequency.exponentialRampToValueAtTime(f, t + at * d);
-    const lfo = ac.createOscillator(); lfo.frequency.value = o.vib || 6;
-    const lg = ac.createGain(); lg.gain.value = o.f0 * (o.vibAmt ?? 0.05);
+    const lfo = ac.createOscillator(); lfo.frequency.value = o.vib || 5;
+    const lg = ac.createGain(); lg.gain.value = o.f0 * (o.vibAmt ?? 0.03);
     lfo.connect(lg).connect(src.frequency);
     const sum = ac.createGain(), g = ac.createGain();
-    const A = FORM[o.vowel], B = FORM[o.to || o.vowel], fs = o.fs || 1.35;
+    const dry = ac.createGain(); dry.gain.value = 0.35; src.connect(dry).connect(sum);
+    const A = FORM[o.vowel], B = FORM[o.to || o.vowel];
     A.forEach(([f, k], j) => {
-      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 7;
-      bp.frequency.setValueAtTime(f * fs, t);
-      bp.frequency.linearRampToValueAtTime(B[j][0] * fs, t + d * 0.7);
-      const gg = ac.createGain(); gg.gain.value = k * 2.4;
+      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 3;
+      bp.frequency.setValueAtTime(f, t); bp.frequency.linearRampToValueAtTime(B[j][0], t + d * 0.7);
+      const gg = ac.createGain(); gg.gain.value = k * 1.4;
       src.connect(bp).connect(gg).connect(sum);
     });
-    env(g, t, o.vol, d);
-    sum.connect(g).connect(master);
+    env(g, t, o.vol, d, 0.03);
+    sum.connect(g).connect(bus);
     src.start(t); lfo.start(t); src.stop(t + d + 0.05); lfo.stop(t + d + 0.05);
   }
-  function tone(type, f0, f1, dur, vol, delay = 0) {
+  function tone(type, f0, f1, dur, vol, delay = 0, atk = 0.008) {
     if (!ok()) return;
     const t = ac.currentTime + 0.01 + delay;
     const o = ac.createOscillator(), g = ac.createGain();
     o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-    env(g, t, vol, dur, 0.008);
-    o.connect(g).connect(master); o.start(t); o.stop(t + dur + 0.05);
+    env(g, t, vol, dur, atk);
+    o.connect(g).connect(bus); o.start(t); o.stop(t + dur + 0.05);
   }
-  function hiss(f0, f1, dur, vol, q = 1.2) {
+  function thump(f0, f1, dur, vol, nlp = 600, nvol = 0) {
     if (!ok()) return;
+    tone('sine', f0, f1, dur, vol);
+    if (!nvol) return;
     const t = ac.currentTime + 0.01;
     const s = ac.createBufferSource(); s.buffer = noise;
-    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = q;
-    bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur);
-    const g = ac.createGain(); env(g, t, vol, dur, 0.005);
-    s.connect(bp).connect(g).connect(master); s.start(t); s.stop(t + dur + 0.05);
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(nlp, t); lp.frequency.exponentialRampToValueAtTime(120, t + dur);
+    const g = ac.createGain(); env(g, t, nvol, dur * 0.8, 0.004);
+    s.connect(lp).connect(g).connect(bus); s.start(t); s.stop(t + dur);
   }
   const r = (a, b) => a + Math.random() * (b - a);
   return {
     get on() { return on; },
+    get ctx() { return ok() ? ac : null; },
+    get out() { return bus; },
     toggle() {
       on = !on;
       try { localStorage.setItem('gummy-sound', on ? '1' : '0'); } catch (e) { /* private mode */ }
-      if (on) this.squeak();
+      if (on) this.boop();
       return on;
     },
-    unlock() { if (on) ctx(); },
-    squeak() { tone('triangle', r(900, 1100), r(1500, 1800), 0.09, 0.18); tone('triangle', r(1300, 1500), r(2000, 2300), 0.07, 0.12, 0.08); },
-    wheee() { voice({ vowel: 'i', f0: r(560, 640), pitch: [[1, r(1050, 1250)]], dur: 0.7, vib: 7, vol: 0.32 }); },
-    oof(k = 0.5) { voice({ vowel: 'o', to: 'u', f0: r(520, 680), pitch: [[1, r(300, 360)]], dur: 0.18 + 0.08 * k, vib: 2, vibAmt: 0.01, vol: 0.18 + 0.22 * k }); },
-    ouch() { voice({ vowel: 'a', to: 'u', f0: r(700, 820), pitch: [[0.3, r(880, 960)], [1, r(420, 480)]], dur: 0.38, vib: 9, vol: 0.38 }); },
-    scream() { voice({ vowel: 'a', to: 'e', f0: r(820, 960), pitch: [[0.12, r(1050, 1200)], [1, r(560, 640)]], dur: r(0.85, 1.1), vib: 10, vibAmt: 0.07, vol: 0.42 }); },
-    squish(k = 0.5) { hiss(r(1400, 1800), 260, 0.1 + 0.06 * k, 0.12 + 0.25 * k, 2); },
-    crunch() { tone('sine', 140, 45, 0.28, 0.5); hiss(900, 120, 0.22, 0.35, 0.8); },
-    boing() { tone('sine', 170, 520, 0.32, 0.32); tone('sine', 175, 540, 0.28, 0.12, 0.02); },
-    bonk() { tone('triangle', 640, 420, 0.14, 0.3); tone('sine', 1280, 1200, 0.25, 0.1, 0.01); },
-    roll() { hiss(500, 900, 0.12, 0.12, 3); },
-    splash() { hiss(1200, 180, 0.6, 0.35, 0.7); tone('sine', 320, 110, 0.35, 0.25, 0.05); },
-    ding(n = 0) { const f = 880 * Math.pow(2, n / 12); tone('sine', f, f, 0.45, 0.22); tone('sine', f * 2, f * 2, 0.3, 0.06); },
+    unlock() { ctx(); },
+    boop() { tone('sine', r(520, 600), r(720, 800), 0.12, 0.14); },
+    squeak() { tone('sine', r(480, 540), r(660, 720), 0.1, 0.12); tone('sine', r(620, 680), r(820, 880), 0.08, 0.08, 0.07); },
+    wheee() { voice({ vowel: 'i', f0: r(380, 420), pitch: [[1, r(620, 680)]], dur: 0.55, vib: 6, vol: 0.2 }); },
+    oof(k = 0.5) { voice({ vowel: 'o', to: 'u', f0: r(300, 360), pitch: [[1, r(200, 230)]], dur: 0.2 + 0.08 * k, vib: 2, vibAmt: 0.01, vol: 0.14 + 0.12 * k }); },
+    ouch() { voice({ vowel: 'a', to: 'u', f0: r(420, 470), pitch: [[0.3, r(500, 540)], [1, r(280, 310)]], dur: 0.36, vib: 6, vol: 0.22 }); },
+    wail() { voice({ vowel: 'a', to: 'o', f0: r(460, 520), pitch: [[0.15, r(560, 600)], [1, r(320, 360)]], dur: r(0.7, 0.85), vib: 6, vibAmt: 0.04, vol: 0.22 }); },
+    squish(k = 0.5) { thump(r(180, 220), 90, 0.12 + 0.05 * k, 0.08 + 0.12 * k, 900, 0.06 + 0.1 * k); },
+    thud(k = 0.5) { thump(r(110, 130), 48, 0.22 + 0.1 * k, 0.25 + 0.2 * k, 500, 0.08 + 0.12 * k); },
+    bonk() { tone('sine', r(300, 340), 240, 0.16, 0.2); tone('triangle', r(620, 680), 520, 0.08, 0.05); },
+    boing() { tone('sine', 150, 360, 0.3, 0.2); },
+    roll() { thump(260, 200, 0.1, 0.05, 700, 0.05); },
+    pop() { tone('sine', r(380, 440), 160, 0.14, 0.22); thump(220, 90, 0.08, 0.05, 1600, 0.08); },
+    burst() { thump(140, 40, 0.5, 0.35, 900, 0.25); tone('sine', 520, 180, 0.4, 0.12, 0.02); },
+    splash() { thump(220, 70, 0.6, 0.12, 700, 0.18); },
+    grind() { thump(r(90, 110), 60, 0.12, 0.12, 1200, 0.1); },
+    ding(n = 0) { const f = 660 * Math.pow(2, n / 12); tone('sine', f, f, 0.6, 0.12, 0, 0.004); tone('sine', f * 2, f * 2, 0.35, 0.025, 0, 0.004); },
     star(i) { this.ding(i * 4); },
+    coin() { tone('sine', 990, 990, 0.12, 0.08, 0, 0.003); tone('sine', 1320, 1320, 0.25, 0.07, 0.07, 0.003); },
+    fanfare() { [0, 4, 7, 12].forEach((n, i) => setTimeout(() => this.ding(n), i * 120)); },
+    sad() { tone('triangle', 330, 300, 0.35, 0.1); tone('triangle', 262, 240, 0.6, 0.1, 0.3); },
   };
 })();
 
-/* ============================ GAME · 软糖受难记 ============================ */
-/* A side-on candy factory.  Pull the bear back like a slingshot and fling it
-   through the machinery; it scores for every bump, every stretch and every
-   contraption it hits.  The level is 2.5-D: the bear lives between two glass
-   panes at z = ±DEPTH, the machines are boxes and cylinders extruded in z. */
+/* Background music: a gentle music-box loop, I–vi–IV–V in C, scheduled ahead on the
+   audio clock.  Plucks, a soft pad and a felt kick; quiet under everything else. */
+const MUSIC = (() => {
+  let on = true, playing = false, timer = 0, next = 0, step = 0, gain = null;
+  try { on = localStorage.getItem('gummy-music') !== '0'; } catch (e) { /* private mode */ }
+  const BPM = 88, S16 = 60 / BPM / 4;
+  const CH = [[48, 52, 55], [45, 48, 52], [41, 45, 48], [43, 47, 50]];          // C Am F G
+  const SCALE = [60, 62, 64, 67, 69, 72, 74, 76];
+  // two bars of melody, in scale steps (-1 = rest); fixed, so it is a tune you can hum
+  const MEL = [0, -1, 2, 4, -1, 3, 2, -1, 4, -1, 5, 4, -1, 2, 3, -1,
+               5, -1, 4, 2, -1, 1, 0, -1, 2, -1, 3, 1, -1, 0, 1, -1];
+  const hz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+  function note(ac, t, f, dur, vol, type, lp) {
+    const o = ac.createOscillator(), g = ac.createGain(), fl = ac.createBiquadFilter();
+    o.type = type; o.frequency.value = f; fl.type = 'lowpass'; fl.frequency.value = lp;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(fl).connect(g).connect(gain); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function tick() {
+    const ac = SFX.ctx;
+    if (!ac || !playing) return;
+    while (next < ac.currentTime + 0.25) {
+      const bar = Math.floor(step / 16) % 4, s = step % 16, chord = CH[bar];
+      if (s === 0) for (const m of chord) note(ac, next, hz(m), S16 * 15, 0.035, 'sine', 900);          // pad
+      if (s % 4 === 0) note(ac, next, hz(chord[0] - 12), S16 * 3, s === 0 ? 0.09 : 0.05, 'sine', 300); // bass, felt kick
+      if (s % 2 === 1) note(ac, next, hz(chord[(s >> 1) % 3] + 12), S16 * 1.6, 0.025, 'triangle', 1800); // arpeggio
+      const m = MEL[step % 32];
+      if (m >= 0) note(ac, next, hz(SCALE[m] + 12), S16 * 3, 0.05, 'triangle', 2600);                    // music box
+      next += S16; step++;
+    }
+  }
+  return {
+    get on() { return on; },
+    start() {
+      const ac = SFX.ctx;
+      if (!on || playing || !ac) return;
+      if (!gain) { gain = ac.createGain(); gain.connect(SFX.out); }
+      gain.gain.cancelScheduledValues(ac.currentTime);
+      gain.gain.setValueAtTime(0.0001, ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.55, ac.currentTime + 1.5);
+      playing = true; next = ac.currentTime + 0.1;
+      timer = setInterval(tick, 90);
+    },
+    stop() {
+      if (!playing) return;
+      playing = false; clearInterval(timer);
+      const ac = SFX.ctx;
+      if (ac && gain) { gain.gain.cancelScheduledValues(ac.currentTime); gain.gain.setTargetAtTime(0.0001, ac.currentTime, 0.3); }
+    },
+    toggle() {
+      on = !on;
+      try { localStorage.setItem('gummy-music', on ? '1' : '0'); } catch (e) { /* private mode */ }
+      if (on) this.start(); else this.stop();
+      return on;
+    },
+  };
+})();
+
+/* ============================ GAME · 软糖历险记 ============================ */
+/* A side-on candy factory, first stop of Gummy City.  Pull the bear back like a
+   slingshot and fling it through the machinery to the goal; it scores for every
+   bump, every stretch and every contraption on the way, earns candy coins, and
+   the coins buy a stronger sling.  The level is 2.5-D: the bear lives between
+   two glass panes at z = ±DEPTH, the machines are extruded in z. */
 Object.assign(I18N.en, {
-  play: 'Play · Gummy Ordeal', playSub: '5 levels', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
-  gHintAim: 'Pull back anywhere, let go to fling', gHintIntro: 'Tap to skip the tour', gRetry: 'Retry', gNext: 'Next level',
-  gShare: 'Copy a brag + link', gFactory: 'Gummy factory', gPick: 'Pick a workshop', gClose: 'Close',
-  lvNo: (n) => `Workshop ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
-  st: ['Impact', 'Stretch', 'Contraptions', 'Hardest hit', 'Longest stretch', 'Best combo'],
-  copied: 'Copied — paste it to a friend', brag: (n, lv, s) => `I put a gummy bear through ${s} ordeal points in "${lv}" (★${n}). Your turn: `,
+  snap: 'STRING SNAPPED',
+  play: 'Play · Gummy Adventures', playSub: 'chapter 1', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
+  gHintAim: 'Pull back anywhere, let go to fling', gRetry: 'Retry', gNext: 'Next level', gGo: 'Start', gGoal: 'Goal',
+  gShare: 'Copy a brag', gShop: 'Upgrades', gWorkshop: 'Back-alley workshop', gClose: 'Close',
+  gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Chapter clear!', gEndHead: 'Escaped the Gummy Factory', gEndFree: 'Go play freely',
+  lvNo: (n) => `Factory · ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
+  st: ['Impact', 'Stretch', 'Contraptions', 'Hardest hit', 'Pieces lost', 'Best combo'],
+  copied: 'Copied — paste it to a friend',
+  brag: (n, lv, s) => `I put a gummy bear through ${s} ordeal points in "${lv}" (★${n}). Your turn: `,
   big: ['CRIT!', 'OUCH!', 'AAAH!', 'SPLAT!'], combo: (m) => `COMBO ×${m}`,
-  lbl: { bumper: 'BONK', spring: 'BOING', roller: 'ROLLED', juice: 'JUICED', press: 'FLATTENED', syrup: 'SYRUP BATH', box: 'PACKED & SHIPPED', fly: 'ESCAPED', stretch: 'STREEETCH' },
+  goal: { box: 'Land the bear in the packing box', syrup: 'Drop the bear into the syrup vat', grinder: 'Feed the bear to the grinder' },
+  clear: 'Cleared!', fail: 'Not delivered…', why: { stuck: 'The bear got stuck.', out: 'It flew out of the factory.', time: 'Out of time.' },
+  coinsGot: (n) => `+${n} candy coins`, starsNeed: (a, b) => ['★ reach the goal', `★★ ${a}`, `★★★ ${b}`],
+  allClear: 'Chapter clear →', soon: 'Coming soon',
+  end: (s, c) => `The bear made it out of the factory with ${s} stars.<br>Next stop: Dessert Street — coming soon.<br>Your ${c} candy coins carry over.`,
+  part: { head: 'HEADBUTT', face: 'FACEPLANT', arm: 'ARM TWIST', leg: 'SHIN BANG', body: 'BODY SLAM', butt: 'BUTT FIRST', land: 'NICE LANDING' },
+  cut: { neck: 'OFF WITH ITS HEAD', armL: 'ARM OFF', armR: 'ARM OFF', legL: 'LEG OFF', legR: 'LEG OFF', waist: 'SLICED IN TWO' },
+  broke: 'SNAPPED!', burst: 'GUMMY BURST!', ground: 'GROUND UP',
+  lbl: { bumper: 'BONK', spring: 'BOING', roller: 'ROLLED', juice: 'JUICED', press: 'FLATTENED', crusher: 'STEAMROLLED', syrup: 'SYRUP BATH', box: 'DELIVERED', grinder: 'INTO THE GRINDER', stretch: 'STREEETCH' },
+  up: { sling: ['Stronger sling', 'Launch speed +8% per level'], bounce: ['Bouncy recipe', 'Bounces off everything harder'], magnet: ['Coin magnet', '+15% candy coins per level'] },
+  buy: (c) => `🍬 ${c}`, maxed: 'MAX', districts: [['Gummy Factory', 'Stop 1'], ['Dessert Street', 'Stop 2'], ['Fun Fair', 'Stop 3'], ['The Sewers', 'Stop 4']],
 });
 Object.assign(I18N.zh, {
-  play: '开始游戏 · 软糖受难记', playSub: '5 个车间', gBack: '自由玩', gScoreLbl: '受难值',
-  gHintAim: '按住屏幕往后拉，松手把小熊弹出去', gHintIntro: '点一下跳过参观', gRetry: '重来', gNext: '下一关',
-  gShare: '复制战绩 + 链接', gFactory: '黑心软糖厂', gPick: '选择车间', gClose: '关闭',
-  lvNo: (n) => `第 ${n} 车间`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
-  st: ['冲击分', '拉伸分', '机关分', '最大撞击', '最大拉伸', '最长连击'],
-  copied: '已复制，发给朋友吧', brag: (n, lv, s) => `我在《软糖受难记》「${lv}」把小熊折腾出 ${s} 受难值（★${n}），你来试试：`,
+  snap: '扯断了！',
+  play: '开始游戏 · 软糖历险记', playSub: '第一章', gBack: '自由玩', gScoreLbl: '受难值',
+  gHintAim: '按住屏幕往后拉，松手把小熊弹出去', gRetry: '重来', gNext: '下一关', gGo: '开始', gGoal: '目标',
+  gShare: '复制战绩', gShop: '升级', gWorkshop: '后巷工坊', gClose: '关闭',
+  gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '第一章 通关！', gEndHead: '逃出黑心软糖厂', gEndFree: '去自由玩',
+  lvNo: (n) => `黑心软糖厂 · 第 ${n} 关`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
+  st: ['冲击分', '拉伸分', '机关分', '最大撞击', '掉落部位', '最长连击'],
+  copied: '已复制，发给朋友吧',
+  brag: (n, lv, s) => `我在《软糖历险记》「${lv}」把小熊折腾出 ${s} 受难值（★${n}），你来试试：`,
   big: ['暴击！', '好痛！', '啊啊啊！', '粉身碎骨！'], combo: (m) => `连击 ×${m}`,
-  lbl: { bumper: '咚！', spring: '弹！', roller: '擀！', juice: '榨汁！', press: '压扁！', syrup: '糖浆浴', box: '装盒出厂', fly: '越狱成功', stretch: '拉——长' },
+  goal: { box: '把小熊弹进包装盒', syrup: '把小熊送进糖浆池', grinder: '把小熊送进碎糖机' },
+  clear: '通关！', fail: '没送到…', why: { stuck: '小熊卡住了', out: '小熊飞出了工厂', time: '时间到了' },
+  coinsGot: (n) => `+${n} 糖币`, starsNeed: (a, b) => ['★ 送达终点', `★★ ${a}`, `★★★ ${b}`],
+  allClear: '第一章通关 →', soon: '敬请期待',
+  end: (s, c) => `小熊带着 ${s} 颗星逃出了黑心软糖厂。<br>下一站：甜品街，敬请期待。<br>你的 ${c} 糖币会保留下来。`,
+  part: { head: '头槌！', face: '脸着地！', arm: '手臂扭了！', leg: '撞到腿了！', body: '侧腰重击！', butt: '屁股着地！', land: '稳稳落地' },
+  cut: { neck: '斩首！', armL: '断臂！', armR: '断臂！', legL: '断腿！', legR: '断腿！', waist: '腰斩！' },
+  broke: '撞断了！', burst: '软糖爆浆！', ground: '碎成渣了',
+  lbl: { bumper: '咚！', spring: '弹！', roller: '擀！', juice: '榨汁！', press: '压扁！', crusher: '碾过去了！', syrup: '糖浆浴', box: '装盒出厂', grinder: '进了碎糖机', stretch: '拉——长' },
+  up: { sling: ['加强弹弓', '每级发射速度 +8%'], bounce: ['弹力配方', '撞到什么都弹得更高'], magnet: ['糖币磁铁', '每级糖币收入 +15%'] },
+  buy: (c) => `🍬 ${c}`, maxed: '满级', districts: [['黑心软糖厂', '第一站'], ['甜品街', '第二站'], ['游乐园', '第三站'], ['下水道', '第四站']],
 });
 applyLang();
 
 RIG.total = RIG.mass.reduce((a, m) => a + m, 0);
 const DEPTH = 0.65;                          // the glass panes, front and back
 const PAL = { cream: 0xf3ead9, pink: 0xf2a7b8, mint: 0x9fd8c3, butter: 0xf5d36e, lilac: 0xc6b3e6,
-              ink: 0x2b2a27, metal: 0xb9bec7, rose: 0xe2667c, sky: 0x9cc7ef };
+              ink: 0x2b2a27, metal: 0xb9bec7, rose: 0xe2667c, sky: 0x9cc7ef, steel: 0x8d939c };
 
-/* level parts: box (static or spinning), roller/bumper (cylinders), spring, press, belt; zones: syrup, box
-   x/y centre, w/h size, a angle in degrees, spin rad/s, e restitution, mu friction per contact substep,
-   soft = how much of a mass point's radius the part sees (low lets a roller pair squeeze the bear) */
+/* body parts: which bone a point hangs on, and how a hit there is named and paid */
+const BONES = { neck: ['head', 'snout', 'earL', 'earR'], armL: ['handL'], armR: ['handR'],
+                legL: ['footL'], legR: ['footR'], waist: ['belly', 'footL', 'footR'] };
+const BONE_OF = { head: 'neck', snout: 'neck', earL: 'neck', earR: 'neck', handL: 'armL', handR: 'armR',
+                  footL: 'legL', footR: 'legR', body: 'waist', belly: 'waist' };
+const PART_OF = { head: 'head', earL: 'head', earR: 'head', snout: 'face', handL: 'arm', handR: 'arm',
+                  footL: 'leg', footR: 'leg', body: 'body', belly: 'body' };
+const PART_MUL = { head: 1.5, face: 1.7, arm: 1.2, leg: 0.9, body: 1.0, butt: 1.3, land: 0.6 };
+const NAME = RIG_DEF.map((d) => d[0]);
+const SIDE = Object.fromEntries(Object.entries(BONES).map(([k, v]) => [k, new Set(v.map((n) => RIG.idx[n]))]));
+
+/* levels.  parts: box (static, rotated or spinning), roller/bumper/saw (cylinders),
+   spring, press and blade (slam up and down), crusher (rolls back and forth), belt.
+   zones: box / syrup / grinder; the one marked goal ends the level.
+   x/y centre, w/h size, a angle in degrees, spin rad/s, e restitution, mu friction per
+   contact substep, soft = how much of a mass point's radius the part sees */
+const goalBox = (x0, x1, h = 0.5) => [
+  { t: 'box', x: x0 - 0.1, y: h / 2, w: 0.2, h, c: 'pink' },
+  { t: 'box', x: x1 + 0.1, y: 0.8, w: 0.2, h: 1.6, c: 'pink' },
+];
 const LEVELS = [
-  { name: { en: 'Stairway', zh: '下楼梯' }, tag: { en: 'Warm-up', zh: '先热热身' },
-    start: [-6.2, 5.4], stars: [1200, 2400, 3800], span: [-8.6, 10.2],
+  { name: { en: 'Stairway', zh: '下楼梯' }, tag: { en: 'Warm-up', zh: '先热热身' }, goal: 'box',
+    dev: { en: ['stairs', 'bumper'], zh: ['楼梯', '弹珠'] },
+    start: [-6.2, 5.4], stars: [3000, 4400], span: [-8.6, 8.4],
     parts: [
       { t: 'box', x: -6.2, y: 5.15, w: 2.4, h: 0.5, c: 'cream' },
       { t: 'box', x: -6.2, y: 2.45, w: 0.6, h: 4.9, c: 'lilac' },
       ...Array.from({ length: 8 }, (_, k) => ({ t: 'box', x: -4.35 + 1.1 * k, y: (4.8 - 0.6 * k) / 2, w: 1.1, h: 4.8 - 0.6 * k,
         c: k % 2 ? 'cream' : 'pink' })),
-      { t: 'spring', x: 5.3, y: 0.15, w: 1.3, h: 0.3, boost: 10, pts: 60, kind: 'spring' },
-      { t: 'bumper', x: 7.2, y: 3.2, r: 0.5, boost: 5, pts: 100 },
-      { t: 'box', x: 9.4, y: 2.6, w: 0.6, h: 5.2, c: 'mint' },
-    ] },
-  { name: { en: 'Rolling Pins', zh: '擀面杖' }, tag: { en: 'Roll with it', zh: '滚来滚去' },
-    start: [-6.5, 6.5], stars: [1800, 3000, 4200], span: [-8.6, 8.8],
+      ...goalBox(4.4, 6.8),
+      { t: 'bumper', x: 6.2, y: 3.4, r: 0.45, boost: 4, pts: 100 },
+      { t: 'box', x: 7.6, y: 2.6, w: 0.6, h: 5.2, c: 'mint' },
+    ],
+    zones: [{ kind: 'box', goal: true, x0: 4.4, x1: 6.8, y0: 0, y1: 1.5, pts: 500 }] },
+  { name: { en: 'Rolling Pins', zh: '擀面杖' }, tag: { en: 'Roll with it', zh: '滚来滚去' }, goal: 'box',
+    dev: { en: ['rolling pins', 'paddle'], zh: ['擀面杖', '旋转挡板'] },
+    start: [-6.5, 6.5], stars: [3600, 5200], span: [-8.6, 7.2],
     parts: [
       { t: 'box', x: -6.5, y: 6.25, w: 2.2, h: 0.5, c: 'cream' },
       { t: 'box', x: -6.5, y: 3.0, w: 0.6, h: 6.0, c: 'lilac' },
@@ -2180,13 +2602,16 @@ const LEVELS = [
       { t: 'roller', x: -1.3, y: 3.8, r: 0.52, spin: 6, pts: 40 },
       { t: 'roller', x: 1.0, y: 5.5, r: 0.42, spin: -7, pts: 40 },
       { t: 'roller', x: 2.6, y: 2.5, r: 0.55, spin: 5, pts: 40 },
-      { t: 'roller', x: 4.8, y: 4.3, r: 0.45, spin: -6, pts: 40 },
-      { t: 'box', x: 0.2, y: 1.2, w: 2.6, h: 0.22, spin: 2.2, c: 'mint', pts: 50, kind: 'bumper' },
-      { t: 'bumper', x: 6.2, y: 1.7, r: 0.45, boost: 5, pts: 100 },
-      { t: 'box', x: 8.2, y: 3.5, w: 0.6, h: 7.0, c: 'pink' },
-    ] },
-  { name: { en: 'The Juicer', zh: '榨汁机' }, tag: { en: 'Squeeze me', zh: '挤一挤更健康' },
-    start: [-6.0, 6.0], stars: [1500, 3200, 4800], span: [-8.4, 8.4],
+      { t: 'roller', x: 4.6, y: 4.3, r: 0.45, spin: -6, pts: 40 },
+      { t: 'box', x: 0.2, y: 1.75, w: 2.4, h: 0.22, spin: 2.2, c: 'mint', pts: 50, kind: 'bumper' },
+      { t: 'box', x: -2.6, y: 0.48, w: 9.8, h: 0.2, a: -4.5, c: 'butter', mu: 0.012 },
+      ...goalBox(2.4, 5.8, 0.12),
+      { t: 'box', x: 6.6, y: 3.5, w: 0.6, h: 7.0, c: 'pink' },
+    ],
+    zones: [{ kind: 'box', goal: true, x0: 2.4, x1: 5.8, y0: 0, y1: 1.5, pts: 500 }] },
+  { name: { en: 'The Juicer', zh: '榨汁机' }, tag: { en: 'Squeeze me', zh: '挤一挤更健康' }, goal: 'syrup',
+    dev: { en: ['funnel', 'juicer', 'belt'], zh: ['漏斗', '榨汁滚筒', '传送带'] },
+    start: [-6.0, 6.0], stars: [3400, 5000], span: [-8.4, 8.4],
     parts: [
       { t: 'box', x: -6.0, y: 5.75, w: 2.4, h: 0.5, c: 'cream' },
       { t: 'box', x: -6.0, y: 2.75, w: 0.6, h: 5.5, c: 'lilac' },
@@ -2195,50 +2620,99 @@ const LEVELS = [
       { t: 'box', x: 2.9, y: 6.2, w: 0.25, h: 1.6, c: 'butter' },
       { t: 'roller', x: -0.62, y: 3.6, r: 0.45, spin: -9, soft: 0.45, pts: 150, kind: 'juice', mu: 0.12 },
       { t: 'roller', x: 0.62, y: 3.6, r: 0.45, spin: 9, soft: 0.45, pts: 150, kind: 'juice', mu: 0.12 },
-      { t: 'belt', x: 1.9, y: 1.55, w: 5.4, h: 0.3, belt: 2.6, c: 'ink' },
+      { t: 'belt', x: 1.9, y: 1.55, w: 5.4, h: 0.3, belt: 2.6 },
       { t: 'bumper', x: -3.2, y: 2.0, r: 0.45, boost: 5, pts: 100 },
-      { t: 'box', x: 5.15, y: 0.8, w: 0.2, h: 1.6, c: 'metal' },
-      { t: 'box', x: 7.65, y: 0.8, w: 0.2, h: 1.6, c: 'metal' },
+      { t: 'box', x: 5.15, y: 0.6, w: 0.2, h: 1.2, c: 'metal' },
+      { t: 'box', x: 7.65, y: 1.0, w: 0.2, h: 2.0, c: 'metal' },
     ],
-    zones: [{ kind: 'syrup', x0: 5.25, x1: 7.55, y0: 0, y1: 1.45, pts: 400 }] },
-  { name: { en: 'Pinball Hell', zh: '弹珠台' }, tag: { en: 'Bonk bonk', zh: '弹到头晕' },
-    start: [-6.6, 2.0], stars: [1000, 2000, 3200], span: [-8.6, 7.6],
+    zones: [{ kind: 'syrup', goal: true, x0: 5.25, x1: 7.55, y0: 0, y1: 1.45, pts: 500 }] },
+  { name: { en: 'Pinball Hell', zh: '弹珠台' }, tag: { en: 'Bonk bonk', zh: '弹到头晕' }, goal: 'box',
+    dev: { en: ['bumpers', 'tilted table'], zh: ['弹珠', '倾斜台面'] },
+    start: [-6.6, 2.4], stars: [2800, 4200], span: [-8.6, 7.6],
     parts: [
-      { t: 'box', x: -6.6, y: 1.75, w: 2.0, h: 0.5, c: 'cream' },
-      { t: 'box', x: -6.6, y: 0.75, w: 0.6, h: 1.5, c: 'lilac' },
-      ...[[-3.2, 4.4], [-1.0, 6.0], [1.0, 4.0], [3.2, 6.2], [1.0, 7.9], [-2.2, 2.3], [2.6, 2.0], [4.8, 4.0], [-4.4, 6.8]]
+      { t: 'box', x: -6.6, y: 2.15, w: 2.0, h: 0.5, c: 'cream' },
+      { t: 'box', x: -6.6, y: 1.3, w: 0.6, h: 1.4, c: 'lilac' },
+      ...[[-3.2, 4.4], [-1.0, 6.0], [1.0, 4.0], [3.2, 6.2], [1.0, 7.9], [-2.2, 2.3], [2.4, 2.4], [4.8, 4.0], [-4.4, 6.8]]
         .map(([x, y]) => ({ t: 'bumper', x, y, r: 0.48, boost: 6, pts: 100 })),
       { t: 'box', x: -0.4, y: 9.3, w: 16.0, h: 0.4, c: 'pink' },
       { t: 'box', x: -8.6, y: 4.6, w: 0.5, h: 9.2, c: 'mint' },
       { t: 'box', x: 7.4, y: 4.6, w: 0.5, h: 9.2, c: 'mint' },
-      { t: 'spring', x: -1.6, y: 0.15, w: 1.4, h: 0.3, boost: 12, pts: 60 },
-      { t: 'spring', x: 4.2, y: 0.15, w: 1.4, h: 0.3, boost: 12, pts: 60 },
-    ] },
-  { name: { en: 'Stamping Line', zh: '压片线' }, tag: { en: 'Flat pack', zh: '压成薄片' },
-    start: [-7.0, 4.0], stars: [2000, 4500, 8000], span: [-8.6, 10.2],
+      { t: 'box', x: -2.0, y: 0.55, w: 12.6, h: 0.2, a: -4.5, c: 'butter', mu: 0.012 },
+      { t: 'spring', x: -5.0, y: 0.95, w: 1.2, h: 0.25, a: -4.5, boost: 11, pts: 60 },
+      ...goalBox(4.3, 6.9, 0.1),
+    ],
+    zones: [{ kind: 'box', goal: true, x0: 4.3, x1: 6.9, y0: 0, y1: 1.5, pts: 500 }] },
+  { name: { en: 'Steamroller', zh: '碾压线' }, tag: { en: 'Flat pack', zh: '压成薄片' }, goal: 'box',
+    dev: { en: ['belt', 'presses', 'steamroller'], zh: ['传送带', '冲压机', '压路滚筒'] },
+    start: [-7.0, 4.0], stars: [4200, 6000], span: [-8.6, 10.2],
     parts: [
       { t: 'box', x: -7.0, y: 3.75, w: 2.0, h: 0.5, c: 'cream' },
       { t: 'box', x: -7.0, y: 1.75, w: 0.6, h: 3.5, c: 'lilac' },
-      { t: 'belt', x: 0.6, y: 0.6, w: 13.6, h: 0.4, belt: 2.2, c: 'ink' },
-      { t: 'press', x: -3.2, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.7, off: 0.0, pts: 300, soft: 0.75 },
-      { t: 'press', x: 0.6, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.35, off: 0.45, pts: 300, soft: 0.75 },
-      { t: 'press', x: 4.3, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.1, off: 0.2, pts: 300, soft: 0.75 },
-      { t: 'roller', x: 2.5, y: 1.4, r: 0.32, spin: -8, pts: 40 },
-      { t: 'box', x: 7.65, y: 0.65, w: 0.2, h: 1.3, c: 'butter' },
-      { t: 'box', x: 9.85, y: 0.65, w: 0.2, h: 1.3, c: 'butter' },
+      { t: 'belt', x: 0.6, y: 0.6, w: 13.6, h: 0.4, belt: 2.2 },
+      { t: 'press', x: -3.4, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.7, off: 0.0, pts: 300, soft: 0.75 },
+      { t: 'crusher', x: 0.6, y: 1.72, r: 0.64, amp: 1.7, period: 2.6, off: 0.25, pts: 350, soft: 0.6 },
+      { t: 'press', x: 4.5, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.2, off: 0.2, pts: 300, soft: 0.75 },
+      ...goalBox(7.75, 9.75),
     ],
-    zones: [{ kind: 'box', x0: 7.75, x1: 9.75, y0: 0, y1: 1.6, pts: 600 }] },
+    zones: [{ kind: 'box', goal: true, x0: 7.75, x1: 9.75, y0: 0, y1: 1.6, pts: 500 }] },
+  { name: { en: 'The Slicer', zh: '切糖车间' }, tag: { en: 'Mind the blades', zh: '小心刀片' }, goal: 'box',
+    dev: { en: ['ramp', 'saw blades', 'guillotine'], zh: ['滑道', '圆锯', '铡刀'] },
+    start: [-7.0, 5.0], stars: [3600, 6000], span: [-8.6, 9.6],
+    parts: [
+      { t: 'box', x: -7.0, y: 4.75, w: 2.0, h: 0.5, c: 'cream' },
+      { t: 'box', x: -7.0, y: 2.25, w: 0.6, h: 4.5, c: 'lilac' },
+      { t: 'box', x: -3.7, y: 2.6, w: 4.6, h: 0.25, a: -32, c: 'butter' },
+      { t: 'belt', x: 2.0, y: 0.6, w: 7.4, h: 0.4, belt: 2.4 },
+      { t: 'saw', x: 0.4, y: 0.95, r: 0.5, spin: 16, cut: true, ghost: true, pts: 200 },
+      { t: 'blade', x: 2.2, y: 3.4, w: 0.14, h: 1.6, amp: 2.1, period: 1.5, off: 0.3, cut: true, ghost: true, pts: 250 },
+      { t: 'saw', x: 3.9, y: 0.95, r: 0.5, spin: -16, cut: true, ghost: true, pts: 200 },
+      ...goalBox(6.2, 8.2),
+    ],
+    zones: [{ kind: 'box', goal: true, x0: 6.2, x1: 8.2, y0: 0, y1: 1.6, pts: 500 }] },
+  { name: { en: 'The Grinder', zh: '终极碎糖机' }, tag: { en: 'Grand finale', zh: '最终车间' }, goal: 'grinder',
+    dev: { en: ['stairs', 'rolling pins', 'saw', 'steamroller', 'grinder'], zh: ['楼梯', '擀面杖', '圆锯', '压路滚筒', '碎糖机'] },
+    start: [-8.0, 7.2], stars: [7000, 9000], span: [-9.8, 13.6],
+    parts: [
+      { t: 'box', x: -8.0, y: 6.95, w: 2.2, h: 0.5, c: 'cream' },
+      { t: 'box', x: -8.0, y: 3.35, w: 0.6, h: 6.7, c: 'lilac' },
+      ...Array.from({ length: 4 }, (_, k) => ({ t: 'box', x: -6.1 + 1.2 * k, y: (6.2 - 0.8 * k) / 2, w: 1.2, h: 6.2 - 0.8 * k,
+        c: k % 2 ? 'cream' : 'pink' })),
+      { t: 'roller', x: -1.6, y: 4.4, r: 0.45, spin: 7, pts: 40 },
+      { t: 'roller', x: 0.4, y: 3.3, r: 0.5, spin: -6, pts: 40 },
+      { t: 'belt', x: 6.1, y: 1.4, w: 8.6, h: 0.4, belt: 2.4 },
+      { t: 'saw', x: 3.2, y: 1.75, r: 0.48, spin: 16, cut: true, ghost: true, pts: 200 },
+      { t: 'crusher', x: 6.6, y: 2.66, r: 0.64, amp: 1.2, period: 2.2, off: 0, pts: 350, soft: 0.6 },
+      { t: 'box', x: 9.85, y: 0.6, w: 0.25, h: 1.2, c: 'metal' },
+      { t: 'box', x: 12.95, y: 1.6, w: 0.25, h: 3.2, c: 'metal' },
+      { t: 'saw', x: 10.85, y: 0.55, r: 0.45, spin: -22, cut: true, ghost: true, pts: 0, kind: 'grind' },
+      { t: 'saw', x: 11.95, y: 0.55, r: 0.45, spin: 22, cut: true, ghost: true, pts: 0, kind: 'grind' },
+      { t: 'box', x: 14.2, y: 3.5, w: 0.6, h: 7.0, c: 'pink' },
+    ],
+    zones: [{ kind: 'grinder', goal: true, x0: 10.0, x1: 12.8, y0: 0, y1: 2.6, pts: 800 }] },
 ];
 
-const GAME = { on: false, state: 'off', slow: 1, li: 0, bear: null };
-let gSave = { best: [], stars: [] };
-try { gSave = Object.assign(gSave, JSON.parse(localStorage.getItem('gummy-game-v1') || '{}')); } catch (e) { /* fresh start */ }
-const saveGame = () => { try { localStorage.setItem('gummy-game-v1', JSON.stringify(gSave)); } catch (e) { /* private mode */ } };
-const unlocked = (i) => i === 0 || (gSave.stars[i - 1] || 0) > 0;
-const lname = (lv) => lv.name[document.documentElement.lang === 'zh' ? 'zh' : 'en'];
+/* ---- progress: best scores, stars, clears, candy coins, upgrades ---- */
+const UPS = [
+  { id: 'sling', icon: '🎯', base: 120, max: 5 },
+  { id: 'bounce', icon: '🟢', base: 150, max: 5 },
+  { id: 'magnet', icon: '🧲', base: 100, max: 5 },
+];
+let gSave = { best: [], stars: [], clear: [], coins: 0, up: { sling: 0, bounce: 0, magnet: 0 } };
+try {
+  const old = JSON.parse(localStorage.getItem('gummy-game-v2') || '{}');
+  gSave = Object.assign(gSave, old); gSave.up = Object.assign({ sling: 0, bounce: 0, magnet: 0 }, old.up);
+} catch (e) { /* fresh start */ }
+const saveGame = () => { try { localStorage.setItem('gummy-game-v2', JSON.stringify(gSave)); } catch (e) { /* private mode */ } };
+const unlocked = (i) => i === 0 || !!gSave.clear[i - 1];
+const zh = () => document.documentElement.lang === 'zh';
+const lname = (lv) => lv.name[zh() ? 'zh' : 'en'];
+const upCost = (u) => Math.round(u.base * Math.pow(gSave.up[u.id] + 1, 1.6));
+const vmax = () => 15 * (1 + 0.08 * gSave.up.sling);
+
+const GAME = { on: false, state: 'off', slow: 1, li: 0, bear: null, stopT: 0, slowT: 0 };
 
 /* ---- part kinematics and contact ---- */
-function pressCurve(P, t) {
+function slam(P, t) {
   const ph = ((t / P.period + P.off) % 1 + 1) % 1;
   if (ph < 0.14) { const u = ph / 0.14; return u * u; }                 // slam
   if (ph < 0.34) return 1;                                             // hold
@@ -2248,9 +2722,14 @@ function pressCurve(P, t) {
 function pose(P, t) {
   P.cx = P.x; P.cy = P.y; P.vx = 0; P.vy = 0;
   P.om = P.spin || 0; P.ang = (P.a || 0) * Math.PI / 180 + P.om * t;
-  if (P.t === 'press') {
-    P.cy = P.y - P.amp * pressCurve(P, t);
-    P.vy = -P.amp * (pressCurve(P, t + 0.004) - pressCurve(P, t - 0.004)) / 0.008;
+  if (P.t === 'press' || P.t === 'blade') {
+    P.cy = P.y - P.amp * slam(P, t);
+    P.vy = -P.amp * (slam(P, t + 0.004) - slam(P, t - 0.004)) / 0.008;
+  } else if (P.t === 'crusher') {
+    const w = 2 * Math.PI / P.period, ph = w * t + P.off * 2 * Math.PI;
+    P.cx = P.x + P.amp * Math.sin(ph); P.vx = P.amp * w * Math.cos(ph);
+    P.om = -P.vx / P.r;                                       // rolls, does not slide
+    P.ang = -(P.cx - P.x) / P.r;
   }
 }
 const C = { nx: 0, ny: 0, pen: 0, vx: 0, vy: 0 };
@@ -2259,7 +2738,7 @@ function touchCircle(P, x, y, r) {
   if (d2 >= R * R || d2 < 1e-12) return false;
   const d = Math.sqrt(d2);
   C.nx = dx / d; C.ny = dy / d; C.pen = R - d;
-  C.vx = -P.om * C.ny * P.r; C.vy = P.om * C.nx * P.r;
+  C.vx = P.vx - P.om * C.ny * P.r; C.vy = P.vy + P.om * C.nx * P.r;
   return true;
 }
 function touchBox(P, x, y, r) {
@@ -2291,6 +2770,7 @@ function collideWorld(b, h) {
   // which points were already touching a part last substep: a point that stays
   // pressed (resting, sliding, squeezed under a press) is not a new impact
   const was = b.wc || (b.wc = new Uint8Array(b.n));
+  const bounce = 0.06 * gSave.up.bounce;
   for (let i = 0; i < b.n; i++) {
     const k = i * 3, r0 = RIG.col[i];
     let touching = 0;
@@ -2302,15 +2782,19 @@ function collideWorld(b, h) {
     for (const P of W.parts) {
       const r = r0 * (P.soft || 0.92);
       if (!(P.round ? touchCircle(P, p[k], p[k + 1], r) : touchBox(P, p[k], p[k + 1], r))) continue;
+      if (P.ghost) { GAME.cuts.push(i, P); P.pulse = 1; continue; }   // a blade goes through: it cuts, it does not stop
+      if (P.t === 'crusher' && C.ny > -0.35) continue;               // a steamroller only presses down: it rolls over, never shoves
       let vx = p[k] - q[k] - C.vx * h, vy = p[k + 1] - q[k + 1] - C.vy * h;   // relative to the surface
       p[k] += C.nx * C.pen; p[k + 1] += C.ny * C.pen;
       const vn = vx * C.nx + vy * C.ny;
       const tx = vx - vn * C.nx, ty = vy - vn * C.ny, mu = P.mu ?? 0.04;
       touching = 1;
+      if (P.cut) GAME.cuts.push(i, P);
       if (vn < 0) {
-        const sp = -vn / h, e = P.e ?? 0.3, fresh = !was[i];
+        const sp = -vn / h, e = Math.min(0.9, (P.e ?? 0.3) + bounce), fresh = !was[i];
         if (fresh) {
           if (sp > hit) hit = sp;
+          b.bump(i, sp, C.nx, C.ny);
           if (sp > 1.2) partHit(P, sp);
         }
         vx = tx * (1 - mu) - vn * e * C.nx; vy = ty * (1 - mu) - vn * e * C.ny;
@@ -2324,13 +2808,13 @@ function collideWorld(b, h) {
 }
 function partHit(P, sp) {
   P.pulse = 1;
-  if (!P.pts || simT - P.last < 0.35) return;
-  if (P.t === 'press' && P.vy > -1.5) return;                 // only a falling press flattens
+  if (!P.pts || simT - P.last < (P.t === 'crusher' ? 0.9 : 0.35)) return;
+  if ((P.t === 'press' || P.t === 'blade') && P.vy > -1.5) return;   // only a falling press flattens
   P.last = simT;
   GAME.events.push(P);
 }
 
-/* ---- textures: candy stripes for springs and rollers, the factory wall and its posters ---- */
+/* ---- textures: candy stripes, the factory wall and its posters, signs ---- */
 function canvasTex(w, h, draw, repeat) {
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
   draw(cv.getContext('2d'), w, h);
@@ -2343,7 +2827,7 @@ function canvasTex(w, h, draw, repeat) {
 const hex = (n) => '#' + n.toString(16).padStart(6, '0');
 const TEX = {};
 function stripes(a, b, n = 8) {
-  const key = a + b + n;
+  const key = a + '-' + b + '-' + n;
   return TEX[key] || (TEX[key] = canvasTex(256, 64, (g, w, h) => {
     g.fillStyle = hex(a); g.fillRect(0, 0, w, h);
     g.fillStyle = hex(b);
@@ -2360,11 +2844,11 @@ function wallTex() {
       g.beginPath(); g.moveTo(x, row * 64); g.lineTo(x, row * 64 + 64); g.stroke(); }
   }, true));
 }
-function posterTex(lines, bg, fg, accent) {
-  return canvasTex(512, 640, (g, w, h) => {
+function posterTex(lines, bg, fg, accent, w = 512, h = 640) {
+  return canvasTex(w, h, (g) => {
     g.fillStyle = bg; g.fillRect(0, 0, w, h);
     g.strokeStyle = fg; g.lineWidth = 10; g.strokeRect(22, 22, w - 44, h - 44);
-    g.textAlign = 'center'; g.fillStyle = fg;
+    g.textAlign = 'center';
     // stack the lines from the top, then centre the block vertically
     const total = lines.reduce((t, [, size]) => t + size * 1.12, 0);
     let y = (h - total) / 2;
@@ -2383,38 +2867,34 @@ factory.visible = false;
 scene.add(factory);
 {
   const t = wallTex(); t.repeat.set(20, 6);
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(80, 24),
-    new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }));
+  const wall = new THREE.Mesh(new THREE.PlaneGeometry(80, 24), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }));
   wall.position.set(0, 12, -1.7); wall.receiveShadow = true;
   factory.add(wall);
-  const dado = new THREE.Mesh(new THREE.PlaneGeometry(80, 1.2),
-    new THREE.MeshStandardMaterial({ map: stripes(0xf2a7b8, 0xf7c7d2, 6), roughness: 0.9 }));
-  dado.material.map = dado.material.map.clone(); dado.material.map.repeat.set(60, 1); dado.material.map.needsUpdate = true;
+  const dt = stripes(0xf2a7b8, 0xf7c7d2, 6).clone(); dt.repeat.set(60, 1); dt.needsUpdate = true;
+  const dado = new THREE.Mesh(new THREE.PlaneGeometry(80, 1.2), new THREE.MeshStandardMaterial({ map: dt, roughness: 0.9 }));
   dado.position.set(0, 0.6, -1.69); dado.receiveShadow = true;
   factory.add(dado);
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 6).rotateX(-Math.PI / 2),
-    new THREE.ShadowMaterial({ opacity: 0.16 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 6).rotateX(-Math.PI / 2), new THREE.ShadowMaterial({ opacity: 0.16 }));
   ground.position.set(0, 0.002, 1.2); ground.receiveShadow = true;
   factory.add(ground);
 }
 const posters = [];
 function placePosters(lv, li) {
-  for (const m of posters) { factory.remove(m); m.material.map.dispose(); m.material.dispose(); }
+  for (const m of posters) { factory.remove(m); m.material.map.dispose(); m.material.dispose(); m.geometry.dispose(); }
   posters.length = 0;
-  const zh = document.documentElement.lang === 'zh';
   const add = (tex, x, y, s) => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(s * 0.8, s), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
     m.position.set(x, y, -1.66); m.receiveShadow = true;
     factory.add(m); posters.push(m);
   };
   const [x0, x1] = lv.span;
-  add(posterTex(zh ? [['黑心', 120, 'a'], ['软糖厂', 96], ['', 30], ['GUMMY FACTORY', 34], [`第 ${li + 1} 车间`, 44, 'a'], [lname(lv), 64]]
-                   : [['GUMMY', 104, 'a'], ['FACTORY', 84], ['', 30], ['since today', 34], [`WORKSHOP ${li + 1}`, 40, 'a'], [lname(lv), 58]],
+  add(posterTex(zh() ? [['黑心', 120, 'a'], ['软糖厂', 96], ['', 30], ['GUMMY FACTORY', 34], [`第 ${li + 1} 关`, 44, 'a'], [lname(lv), 64]]
+                     : [['GUMMY', 104, 'a'], ['FACTORY', 84], ['', 30], ['since today', 34], [`LEVEL ${li + 1}`, 40, 'a'], [lname(lv), 58]],
     '#2b2a27', '#f3ead9', '#f2a7b8'), x0 + 3.6, 6.3, 3.0);
-  add(posterTex(zh ? [['安全生产', 70], ['', 20], ['0', 300, 'a'], ['天', 70]] : [['DAYS WITHOUT', 52], ['AN ACCIDENT', 52], ['0', 300, 'a']],
+  add(posterTex(zh() ? [['安全生产', 70], ['', 20], ['0', 300, 'a'], ['天', 70]] : [['DAYS WITHOUT', 52], ['AN ACCIDENT', 52], ['0', 300, 'a']],
     '#f5d36e', '#2b2a27', '#e2667c'), (x0 + x1) / 2 + 0.6, 7.6, 2.4);
-  add(posterTex(zh ? [['今日产量', 64], ['', 10], ['99,999', 92, 'a'], ['只', 64], ['', 40], ['微笑服务 :)', 44]]
-                   : [['MADE TODAY', 52], ['', 10], ['99,999', 92, 'a'], ['bears', 52], ['', 40], ['service with', 40], ['a smile :)', 40]],
+  add(posterTex(zh() ? [['今日产量', 64], ['', 10], ['99,999', 92, 'a'], ['只', 64], ['', 40], ['微笑服务 :)', 44]]
+                     : [['MADE TODAY', 52], ['', 10], ['99,999', 92, 'a'], ['bears', 52], ['', 40], ['service with', 40], ['a smile :)', 40]],
     '#9fd8c3', '#2b2a27', '#e2667c'), x1 - 2.4, 6.8, 2.4);
 }
 
@@ -2422,45 +2902,91 @@ function placePosters(lv, li) {
 const level = new THREE.Group();
 scene.add(level);
 const matCache = {};
-const mat = (c) => matCache[c] || (matCache[c] = new THREE.MeshStandardMaterial({ color: PAL[c], roughness: c === 'metal' ? 0.3 : 0.55, metalness: c === 'metal' ? 0.6 : 0 }));
+const mat = (c) => matCache[c] || (matCache[c] = new THREE.MeshStandardMaterial({ color: PAL[c],
+  roughness: c === 'metal' || c === 'steel' ? 0.28 : 0.5, metalness: c === 'metal' || c === 'steel' ? 0.65 : 0 }));
+const D = 1.5;
+const rbox = (w, h, d) => new RoundedBoxGeometry(w, h, d, 3, Math.min(0.08, w / 2.5, h / 2.5));
 function partMesh(P) {
-  const D = 1.5, g = new THREE.Group();
+  const g = new THREE.Group();
   const add = (geo, m) => { const o = new THREE.Mesh(geo, m); o.castShadow = o.receiveShadow = true; g.add(o); return o; };
-  if (P.t === 'roller') {
-    const m = new THREE.MeshStandardMaterial({ map: stripes(P.kind === 'juice' ? 0xf5d36e : 0xf3ead9, P.kind === 'juice' ? 0xe2667c : 0xd9b98c, 10), roughness: 0.5 });
-    add(new THREE.CylinderGeometry(P.r, P.r, D, 40).rotateX(Math.PI / 2), m);
-    add(new THREE.CylinderGeometry(P.r * 0.28, P.r * 0.28, D + 0.9, 16).rotateX(Math.PI / 2), mat('cream'));
+  if (P.t === 'roller' || P.t === 'crusher') {
+    const juice = P.kind === 'juice', big = P.t === 'crusher';
+    const m = new THREE.MeshStandardMaterial({ map: stripes(juice ? 0xf5d36e : big ? 0xe2667c : 0xf3ead9, juice ? 0xe2667c : big ? 0xf7c7d2 : 0xd9b98c, 10), roughness: 0.45 });
+    add(new THREE.CylinderGeometry(P.r, P.r, D, 48).rotateX(Math.PI / 2), m);
+    add(new THREE.CylinderGeometry(P.r * 0.28, P.r * 0.28, D + 0.9, 16).rotateX(Math.PI / 2), mat(big ? 'steel' : 'cream'));
   } else if (P.t === 'bumper') {
     add(new THREE.CylinderGeometry(P.r, P.r, 0.9, 40).rotateX(Math.PI / 2), mat('rose'));
     add(new THREE.TorusGeometry(P.r * 0.78, P.r * 0.12, 12, 40), mat('cream')).position.z = 0.46;
+  } else if (P.t === 'saw') {
+    // a toothed disc: a star-shaped outline, extruded thin, polished steel
+    const sh = new THREE.Shape(), T = 18;
+    for (let i = 0; i <= T * 2; i++) {
+      const a = (i / (T * 2)) * Math.PI * 2, rr = i % 2 ? P.r : P.r * 0.84;
+      if (i === 0) sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); else sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+    }
+    const geo = new THREE.ExtrudeGeometry(sh, { depth: 0.08, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 1 });
+    geo.translate(0, 0, -0.04);
+    add(geo, mat('metal'));
+    add(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 16).rotateX(Math.PI / 2), mat('ink'));
   } else if (P.t === 'spring') {
-    add(new THREE.BoxGeometry(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: stripes(0xf5d36e, 0x2b2a27, 6), roughness: 0.5 }));
+    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: stripes(0xf5d36e, 0x2b2a27, 6), roughness: 0.5 }));
   } else if (P.t === 'press') {
-    add(new THREE.BoxGeometry(P.w, P.h, D), mat('metal'));
+    add(rbox(P.w, P.h, D), mat('metal'));
     add(new THREE.BoxGeometry(0.22, 8, 0.22), mat('ink')).position.y = 4 + P.h / 2;
+  } else if (P.t === 'blade') {
+    add(rbox(P.w, P.h, 1.2), mat('metal'));
+    add(rbox(0.5, 0.35, 1.25), mat('rose')).position.y = P.h / 2;
+    add(new THREE.BoxGeometry(0.1, 8, 0.1), mat('ink')).position.y = 4 + P.h / 2;
   } else if (P.t === 'belt') {
     const t = stripes(0x3a3835, 0x55524d, 12).clone(); t.repeat.set(P.w / 1.2, 1); t.needsUpdate = true;
     P.tex = t;
-    add(new THREE.BoxGeometry(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
+    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
   } else {
-    add(new THREE.BoxGeometry(P.w, P.h, D), mat(P.c || 'cream'));
+    add(rbox(P.w, P.h, D), mat(P.c || 'cream'));
     if (P.spin) add(new THREE.CylinderGeometry(0.16, 0.16, D + 0.3, 16).rotateX(Math.PI / 2), mat('ink'));
   }
   return g;
 }
+function signTex(text, sub, bg) {
+  return canvasTex(512, 256, (g, w, h) => {
+    g.fillStyle = bg; g.beginPath(); g.roundRect(12, 12, w - 24, h - 24, 40); g.fill();
+    g.fillStyle = '#fff'; g.textAlign = 'center';
+    g.font = '800 92px "PingFang SC","Microsoft YaHei",sans-serif'; g.fillText(text, w / 2, 130, w - 60);
+    g.font = '600 40px "PingFang SC","Microsoft YaHei",sans-serif'; g.fillText(sub, w / 2, 196, w - 60);
+  });
+}
 function zoneMesh(Z) {
-  const w = Z.x1 - Z.x0, h = Z.y1 - Z.y0;
-  const m = Z.kind === 'syrup'
-    ? new THREE.MeshStandardMaterial({ color: 0xd98a2b, transparent: true, opacity: 0.55, roughness: 0.15, depthWrite: false })
-    : new THREE.MeshStandardMaterial({ color: 0xf2a7b8, transparent: true, opacity: 0.18, roughness: 0.6, depthWrite: false });
-  const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.3), m);
-  o.position.set((Z.x0 + Z.x1) / 2, (Z.y0 + Z.y1) / 2, 0);
-  return o;
+  const w = Z.x1 - Z.x0, h = Z.y1 - Z.y0, g = new THREE.Group();
+  if (Z.kind === 'syrup') {
+    const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.3),
+      new THREE.MeshStandardMaterial({ color: 0xd98a2b, transparent: true, opacity: 0.55, roughness: 0.15, depthWrite: false }));
+    o.position.set((Z.x0 + Z.x1) / 2, (Z.y0 + Z.y1) / 2, 0); g.add(o);
+  } else if (Z.kind === 'grinder') {
+    const o = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, 1.4), mat('ink'));
+    o.position.set((Z.x0 + Z.x1) / 2, 0.15, 0); g.add(o);
+  } else {
+    const o = new THREE.Mesh(rbox(w, 0.12, 1.4), mat('pink'));
+    o.position.set((Z.x0 + Z.x1) / 2, 0.06, 0); o.receiveShadow = true; g.add(o);
+  }
+  if (Z.goal) {
+    // a bobbing sign over the goal, so nobody has to guess where the level ends
+    const words = zh() ? ['终点', Z.kind === 'syrup' ? '糖浆池 ↓' : Z.kind === 'grinder' ? '碎糖机 ↓' : '包装盒 ↓']
+                       : ['GOAL', Z.kind === 'syrup' ? 'syrup vat ↓' : Z.kind === 'grinder' ? 'grinder ↓' : 'packing box ↓'];
+    const s = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.9),
+      new THREE.MeshBasicMaterial({ map: signTex(words[0], words[1], '#2f8f5b'), transparent: true, toneMapped: false }));
+    s.position.set((Z.x0 + Z.x1) / 2, Z.y1 + 1.5, 0.3);
+    g.add(s); Z.sign = s;
+  }
+  return g;
 }
 function clearLevel() {
   for (const o of [...level.children]) {
     level.remove(o);
-    o.traverse((m) => { if (m.isMesh) { m.geometry.dispose(); if (!Object.values(matCache).includes(m.material)) m.material.dispose(); } });
+    o.traverse((m) => {
+      if (!m.isMesh) return;
+      m.geometry.dispose();
+      if (!Object.values(matCache).includes(m.material)) { m.material.map?.dispose?.(); m.material.dispose(); }
+    });
   }
 }
 function buildLevel(li) {
@@ -2468,7 +2994,7 @@ function buildLevel(li) {
   const lv = LEVELS[li];
   const W = { parts: [], zones: [], t: -1, lv };
   for (const def of lv.parts) {
-    const P = { ...def, round: def.t === 'roller' || def.t === 'bumper', off: def.off || 0, last: -9, pulse: 0 };
+    const P = { ...def, round: ['roller', 'bumper', 'saw', 'crusher'].includes(def.t), off: def.off || 0, last: -9, pulse: 0 };
     P.mesh = partMesh(P);
     level.add(P.mesh);
     pose(P, 0);
@@ -2488,45 +3014,139 @@ function syncLevel(dt) {
     if (P.t === 'spring') P.mesh.scale.set(1, 1 / s, 1); else P.mesh.scale.setScalar(s);
     if (P.tex) P.tex.offset.x = (P.tex.offset.x - P.belt * dt / 1.2) % 1;
   }
+  for (const Z of CFG.world.zones) if (Z.sign) Z.sign.position.y = Z.y1 + 1.5 + Math.sin(simT * 3) * 0.12;
+}
+
+/* ============================ FX: crumbs, rings, confetti ============================ */
+/* Sugar crumbs are little chipped crystals in the bear's own colour (and some white
+   sugar); they bounce, settle and stay on the floor a while before melting away. */
+const _m4 = new THREE.Matrix4();
+const PMAX = 260;
+const crumbs = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.034, 0),
+  new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0 }), PMAX);
+crumbs.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+crumbs.frustumCulled = false; crumbs.castShadow = true; crumbs.count = 0;
+crumbs.setColorAt(0, new THREE.Color(1, 1, 1));
+scene.add(crumbs);
+const CR_KEYS = ['x', 'y', 'z', 'vx', 'vy', 'vz', 'life', 's', 'rot', 'r', 'g', 'b'];
+const cr = Object.fromEntries(CR_KEYS.map((k) => [k, new Float32Array(PMAX)]));
+cr.n = 0;
+const _col = new THREE.Color(), _q = new THREE.Quaternion(), _e = new THREE.Euler(), _v3 = new THREE.Vector3(), _s3 = new THREE.Vector3();
+function crumble(x, y, z, nx, ny, n, colour, speed = 3) {
+  for (let k = 0; k < n; k++) {
+    const i = cr.n < PMAX ? cr.n++ : Math.floor(Math.random() * PMAX);
+    const a = Math.random() * Math.PI * 2, sp = speed * (0.4 + Math.random() * 0.8);
+    cr.x[i] = x; cr.y[i] = y; cr.z[i] = z + (Math.random() - 0.5) * 0.3;
+    cr.vx[i] = nx * sp + Math.cos(a) * sp * 0.6; cr.vy[i] = ny * sp + Math.abs(Math.sin(a)) * sp * 0.7 + 1;
+    cr.vz[i] = (Math.random() - 0.5) * sp * 0.6;
+    cr.life[i] = 3 + Math.random() * 2;
+    cr.s[i] = 0.5 + Math.random() * 0.9; cr.rot[i] = Math.random() * 6;
+    _col.set(Math.random() < 0.12 ? '#fff6ea' : colour);
+    cr.r[i] = _col.r; cr.g[i] = _col.g; cr.b[i] = _col.b;
+  }
+}
+function stepCrumbs(dt) {
+  let n = 0;
+  for (let i = 0; i < cr.n; i++) {
+    cr.life[i] -= dt;
+    if (cr.life[i] <= 0) continue;
+    cr.vy[i] -= 16 * dt;
+    cr.x[i] += cr.vx[i] * dt; cr.y[i] += cr.vy[i] * dt; cr.z[i] += cr.vz[i] * dt;
+    if (cr.y[i] < 0.03) { cr.y[i] = 0.03; cr.vy[i] *= -0.3; cr.vx[i] *= 0.6; cr.vz[i] *= 0.6; }
+    if (CFG.world) for (const P of CFG.world.parts) {         // crumbs settle on flat machine tops too
+      if (P.round || P.ang || P.t === 'blade') continue;
+      if (Math.abs(cr.x[i] - P.cx) < P.w / 2 && cr.y[i] < P.cy + P.h / 2 + 0.03 && cr.y[i] > P.cy) {
+        cr.y[i] = P.cy + P.h / 2 + 0.03; cr.vy[i] *= -0.3; cr.vx[i] = cr.vx[i] * 0.6 + (P.belt || 0) * 0.4;
+      }
+    }
+    if (n !== i) for (const k of CR_KEYS) cr[k][n] = cr[k][i];   // compact the live ones to the front
+    const s = cr.s[n] * Math.min(1, cr.life[n] / 0.6);
+    _e.set(cr.rot[n], cr.rot[n] * 1.3, 0); _q.setFromEuler(_e);
+    crumbs.setMatrixAt(n, _m4.compose(_v3.set(cr.x[n], cr.y[n], cr.z[n]), _q, _s3.set(s, s, s)));
+    crumbs.setColorAt(n, _col.setRGB(cr.r[n], cr.g[n], cr.b[n]));
+    n++;
+  }
+  cr.n = n; crumbs.count = n;
+  crumbs.instanceMatrix.needsUpdate = true;
+  if (crumbs.instanceColor) crumbs.instanceColor.needsUpdate = true;
+}
+function clearCrumbs() { cr.n = 0; crumbs.count = 0; }
+/* an expanding ring where a hit lands */
+const rings = Array.from({ length: 6 }, () => {
+  const m = new THREE.Mesh(new THREE.RingGeometry(0.78, 1, 40),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
+  m.visible = false; scene.add(m); m.userData.t = 1;
+  return m;
+});
+function ring(x, y, z, size) {
+  const m = rings.reduce((a, b) => (a.userData.t > b.userData.t ? a : b));
+  m.position.set(x, y, z + 0.5); m.userData.t = 0; m.userData.s = size; m.visible = true;
+}
+function stepRings(dt) {
+  for (const m of rings) {
+    if (m.userData.t >= 1) { m.visible = false; continue; }
+    m.userData.t = Math.min(1, m.userData.t + dt * 2.6);
+    const t = m.userData.t;
+    m.scale.setScalar(0.15 + m.userData.s * (1 - (1 - t) * (1 - t)));
+    m.material.opacity = 0.55 * (1 - t);
+    m.quaternion.copy(camera.quaternion);
+  }
+}
+const $ = (id) => document.getElementById(id);
+function confetti(n = 70) {
+  const box = $('confetti'), cols = ['#d3202c', '#f07a1d', '#f2c81b', '#3f9c3a', '#9cc7ef', '#f2a7b8'];
+  for (let k = 0; k < n; k++) {
+    const el = document.createElement('i');
+    el.style.left = `${Math.random() * 100}vw`;
+    el.style.background = cols[k % cols.length];
+    el.style.setProperty('--dx', `${(Math.random() - 0.5) * 30}vw`);
+    el.style.setProperty('--r', `${Math.random() * 900 - 450}deg`);
+    el.style.animationDuration = `${1.8 + Math.random() * 1.6}s`;
+    el.style.animationDelay = `${Math.random() * 0.4}s`;
+    box.appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
 }
 
 /* ---- aiming: dots along the throw ---- */
 const dots = new THREE.InstancedMesh(new THREE.SphereGeometry(0.055, 10, 8),
-  new THREE.MeshBasicMaterial({ color: 0x2b2a27, transparent: true, opacity: 0.55, depthWrite: false }), 28);
+  new THREE.MeshBasicMaterial({ color: 0x2b2a27, transparent: true, opacity: 0.55, depthWrite: false }), 34);
 dots.visible = false; dots.frustumCulled = false;
 scene.add(dots);
-const _m4 = new THREE.Matrix4();
 function showDots(x, y, vx, vy) {
   let n = 0;
-  for (let i = 1; i <= 28; i++) {
+  for (let i = 1; i <= 34; i++) {
     const t = i * 0.045, px = x + vx * t, py = y + vy * t + 0.5 * CFG.gravity * t * t;
     if (py < 0) break;
-    const s = 1 - i / 34;
+    const s = 1 - i / 40;
     dots.setMatrixAt(n++, _m4.makeScale(s, s, s).setPosition(px, py, DEPTH + 0.1));
   }
   dots.count = n; dots.instanceMatrix.needsUpdate = true; dots.visible = true;
 }
 
 /* ---- HUD ---- */
-const $ = (id) => document.getElementById(id);
 const hud = { score: $('gScore'), combo: $('gCombo'), hint: $('gHint'), lvNo: $('gLvNo'), lvName: $('gLvName'),
               bars: [...document.querySelectorAll('.stars-live u')] };
 const pops = $('pops'), flashEl = $('flash');
-let shownScore = 0, curPop = null;
+let shownScore = 0, curPop = null, recentPops = [];
 function screenOf(x, y, z = 0) {
   const v = new THREE.Vector3(x, y, z).project(camera);
   return [(v.x * 0.5 + 0.5) * innerWidth, (1 - (v.y * 0.5 + 0.5)) * innerHeight];
 }
-function pop(val, label, big) {
-  const c = GAME.bear.centre(), [sx, sy] = screenOf(c[0], c[1] + 0.9);
-  if (curPop && simT - curPop.t < 0.15 && !big && !label) {       // one collision spread over a few frames: one pop
+function pop(val, label, big, at) {
+  const c = at || mainC(GAME.bear), [sx, sy] = screenOf(c[0], c[1] + 0.9);
+  if (curPop && simT - curPop.t < 0.15 && !big && !label && curPop.el.isConnected) {   // one collision, one pop
     curPop.val += val; curPop.el.firstChild.textContent = `+${curPop.val}`; return;
   }
   const el = document.createElement('div');
   el.className = 'pop' + (big ? ' big' : '');
-  el.style.left = `${Math.max(60, Math.min(innerWidth - 60, sx))}px`;
-  el.style.top = `${Math.max(140, Math.min(innerHeight - 120, sy))}px`;
-  el.appendChild(document.createTextNode(`+${val}`));
+  const now = performance.now();
+  recentPops = recentPops.filter((t) => now - t < 700);
+  const lift = recentPops.length * (big ? 52 : 40);
+  recentPops.push(now);
+  el.style.left = `${Math.max(70, Math.min(innerWidth - 70, sx))}px`;
+  el.style.top = `${Math.max(150, Math.min(innerHeight - 120, sy) - lift)}px`;
+  el.appendChild(document.createTextNode(val ? `+${val}` : ''));
   if (label) { const s = document.createElement('small'); s.textContent = label; el.appendChild(s); }
   pops.appendChild(el);
   setTimeout(() => el.remove(), 1200);
@@ -2539,20 +3159,35 @@ function toast(msg) {
 function setHint(key) {
   if (key) { hud.hint.lastChild.textContent = L[key]; hud.hint.classList.remove('off'); } else hud.hint.classList.add('off');
 }
-function sndIcons() { for (const id of ['snd', 'gSnd']) $(id).textContent = SFX.on ? '🔊' : '🔇'; }
-sndIcons();
+function sndIcons() {
+  for (const id of ['snd', 'gSnd']) $(id).textContent = SFX.on ? '🔊' : '🔇';
+  $('gMus').style.opacity = MUSIC.on ? 1 : 0.4;
+}
+function coinIcons() { for (const id of ['gCoins', 'mCoins', 'sCoins']) $(id).textContent = `🍬 ${gSave.coins.toLocaleString()}`; }
+sndIcons(); coinIcons();
+
+/* the biggest fragment is "the bear": the camera follows it and it has to reach the goal */
+function mainC(b) {
+  if (!b.segs) return b.centre();
+  let best = 0;
+  b.segs.forEach((s, k) => { if (s.mass > b.segs[best].mass) best = k; });
+  return b.segCentre(best);
+}
 
 /* ---- run state ---- */
 const run = {};
 function resetRun() {
   for (const b of bears.slice()) drop(b);
+  clearCrumbs();
+  pops.textContent = '';
   const lv = LEVELS[GAME.li];
-  CFG.upright = 0.15; CFG.maxV = 0.022; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 1;
+  CFG.upright = 0.15; CFG.maxV = 0.022; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 1; CFG.restitution = 0.36;
   const b = spawn(lv.start[0], lv.start[1] - RIG.minY + 0.01, 0, 0, flavourIdx);
   b.hopCool = 1e9;
-  GAME.bear = b;
-  Object.assign(run, { pv: null, ev: 0, anchor: null, anchorT: 0, score: 0, impact: 0, stretch: 0, bonus: 0, maxHit: 0, maxStr: 1, combo: 0, bestCombo: 1,
-                       lastHit: -9, flyT: 0, still: 0, endT: 0, zoneHit: false, strPop: -9, done: false });
+  GAME.bear = b; GAME.cuts = []; GAME.events = [];
+  Object.assign(run, { pv: null, ev: 0, anchor: null, anchorT: 0, score: 0, impact: 0, stretch: 0, bonus: 0, maxHit: 0,
+                       combo: 0, bestCombo: 1, lastHit: -9, flyT: 0, still: 0, endT: 0, strPop: -9, done: false,
+                       cut: new Set(), lost: 0, goal: false, grindT: 0, why: 'stuck' });
   shownScore = 0; hud.score.textContent = '0';
   hud.combo.classList.remove('on');
   for (const u of hud.bars) u.style.width = '0%';
@@ -2562,22 +3197,33 @@ function resetRun() {
   GAME.state = 'aim';
   setHint('gHintAim');
 }
+function showIntro() {
+  const li = GAME.li, lv = LEVELS[li];
+  $('iLvNo').textContent = L.lvNo(li + 1); $('iLvName').textContent = lname(lv);
+  $('iGoal').textContent = L.goal[lv.goal];
+  $('iDev').innerHTML = lv.dev[zh() ? 'zh' : 'en'].map((d) => `<span>${d}</span>`).join('');
+  const need = L.starsNeed(lv.stars[0].toLocaleString(), lv.stars[1].toLocaleString());
+  $('iStars').innerHTML = need.map((t) => `<span>${t.replace(/^(★+)/, '<b>$1</b>')}</span>`).join('');
+  $('sheetIntro').classList.add('on');
+}
 function loadLevel(li) {
   GAME.li = li;
   CFG.world = buildLevel(li);
   hud.lvNo.textContent = L.lvNo(li + 1); hud.lvName.textContent = lname(LEVELS[li]);
+  closeSheets();
   resetRun();
   GAME.state = 'intro'; GAME.introT = 0;
-  setHint('gHintIntro');
+  setHint(null);
   const [x0, x1] = LEVELS[li].span;
   GAME.cam.set((x0 + x1) / 2, 4, 0); GAME.vw = x1 - x0 + 1;
-  closeSheets();
+  showIntro();
 }
-GAME.cam = new THREE.Vector3(); GAME.vw = 12; GAME.shake = 0; GAME.events = [];
+GAME.cam = new THREE.Vector3(); GAME.vw = 12; GAME.shake = 0; GAME.events = []; GAME.cuts = [];
+GAME.kick = new THREE.Vector2();
 
 const saved = {};
 function enterGame(li = 0) {
-  if (GAME.on) return;
+  if (GAME.on) { loadLevel(li); return; }
   GAME.on = true;
   dismissCoach();
   document.body.classList.add('game');
@@ -2590,22 +3236,23 @@ function enterGame(li = 0) {
   camera.fov = 36;
   loadLevel(li);
   gameLayout();
-  SFX.unlock(); SFX.ding(0);
+  SFX.unlock(); MUSIC.start();
 }
 function exitGame() {
   if (!GAME.on) return;
-  GAME.on = false; GAME.state = 'off'; GAME.slow = 1;
+  GAME.on = false; GAME.state = 'off'; GAME.slow = 1; GAME.stopT = 0; GAME.slowT = 0;
   document.body.classList.remove('game');
   closeSheets();
-  clearLevel();
+  clearLevel(); clearCrumbs();
   CFG.world = null;
-  CFG.upright = saved.upright; CFG.maxV = 0.022; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 1;
+  CFG.upright = saved.upright; CFG.maxV = 0.022; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 1; CFG.restitution = 0.36;
   factory.visible = false; dots.visible = false;
   keyLight.castShadow = false;
   keyLight.position.copy(saved.kp); keyLight.target.position.set(0, 0, 0); keyLight.target.updateMatrixWorld();
   shadowCam.position.set(0, 6, 0); shadowCam.updateMatrixWorld();
   floorMat.uniforms.uSC.value.set(0, 0); floorMat.uniforms.uPoolC.value.set(0, 0.25);
   pops.textContent = '';
+  MUSIC.stop();
   layout();
   scatter(5, true);
 }
@@ -2622,28 +3269,21 @@ function gameLayout() {
   camera.updateProjectionMatrix();
 }
 
-/* ---- input: pull back, let go ---- */
-function worldAt(e) {
-  setPointer(e);
-  ray.setFromCamera(ndc, camera);
-  const pt = new THREE.Vector3();
-  return ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), pt) ? pt : null;
-}
-const PULL_K = 4.0, VMAX = 15;
+/* ---- input: pull back, let go ----
+   The pull is measured on screen: about a third of the screen's short side is a full
+   pull on any device, so a narrow phone flings as far as a wide monitor. */
+const pullFull = () => Math.max(110, Math.min(innerWidth, innerHeight) * 0.34);
 function aimVel() {
-  const a = GAME.aim, px = a.start.x - a.now.x, py = a.start.y - a.now.y;
-  let vx = px * PULL_K, vy = py * PULL_K;
-  const s = Math.hypot(vx, vy);
-  if (s > VMAX) { vx *= VMAX / s; vy *= VMAX / s; }
-  return [vx, vy, Math.hypot(px, py)];
+  const a = GAME.aim, px = a.sx - a.nx, py = a.ny - a.sy;       // screen y grows downward
+  const len = Math.hypot(px, py), k = Math.min(1, len / pullFull());
+  if (len < 1e-3) return [0, 0, 0];
+  return [px / len * k * vmax(), py / len * k * vmax(), k];
 }
 function gameDown(e) {
-  if (GAME.state === 'intro') { GAME.state = 'aim'; setHint('gHintAim'); return; }
   if (GAME.state !== 'aim' || GAME.aim) return;
-  const w = worldAt(e);
-  if (!w) return;
   const b = GAME.bear, k = RIG.idx.body * 3;
-  GAME.aim = { id: e.pointerId, start: w, now: w.clone(), body: new THREE.Vector3(b.p[k], b.p[k + 1], b.p[k + 2]), target: new THREE.Vector3() };
+  GAME.aim = { id: e.pointerId, sx: e.clientX, sy: e.clientY, nx: e.clientX, ny: e.clientY,
+               body: new THREE.Vector3(b.p[k], b.p[k + 1], b.p[k + 2]), target: new THREE.Vector3() };
   GAME.aim.target.copy(GAME.aim.body);
   b.grab = RIG.idx.body; b.grabT = GAME.aim.target;
   try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* no capture */ }
@@ -2653,28 +3293,28 @@ function gameDown(e) {
 function gameMove(e) {
   const a = GAME.aim;
   if (!a || e.pointerId !== a.id) return;
-  const w = worldAt(e);
-  if (!w) return;
-  a.now.copy(w);
-  const [vx, vy, pull] = aimVel();
-  const back = Math.min(pull, 2.4) * 0.2 / Math.max(pull, 1e-3);   // the bear leans back into the sling
-  a.target.set(a.body.x - (a.start.x - a.now.x) * back, a.body.y - (a.start.y - a.now.y) * back, a.body.z);
+  a.nx = e.clientX; a.ny = e.clientY;
+  const [vx, vy, k] = aimVel();
+  // the bear leans back into the sling, against the throw
+  const sp = Math.hypot(vx, vy) || 1;
+  a.target.set(a.body.x - vx / sp * k * 0.42, a.body.y - vy / sp * k * 0.42, a.body.z);
   const c = GAME.bear.centre();
-  if (pull > 0.25) showDots(c[0], c[1], vx, vy); else dots.visible = false;
+  if (k > 0.06) showDots(c[0], c[1], vx, vy); else dots.visible = false;
 }
 function gameUp(e, cancel) {
   const a = GAME.aim;
   if (!a || e.pointerId !== a.id) return;
-  const [vx, vy, pull] = aimVel();
+  const [vx, vy, k] = aimVel();
   GAME.aim = null; dots.visible = false;
   const b = GAME.bear;
   b.grab = -1; b.grabT = null;
-  if (cancel || pull < 0.3) { setHint('gHintAim'); return; }
+  if (cancel || k < 0.08) { setHint('gHintAim'); return; }
   launch(vx, vy);
 }
 function launch(vx, vy) {
   const b = GAME.bear, h = CFG.subH, c = b.centre();
-  CFG.upright = 0; CFG.maxV = 0.065; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 0.06;
+  CFG.upright = 0; CFG.maxV = 0.075; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 0.06;
+  CFG.restitution = 0.36 + 0.05 * gSave.up.bounce;
   b.idle = 0;                                                 // an idle bear's damping would eat a third of the throw
   const spin = -Math.sign(vx || 1) * 2.5;                     // a little tumble reads better than a dart
   for (let i = 0; i < b.n; i++) {
@@ -2688,11 +3328,59 @@ function launch(vx, vy) {
   if (navigator.vibrate) navigator.vibrate(10);
 }
 
+/* ---- cutting ---- */
+function cutBone(b, bone, at, strand = true) {
+  if (run.cut.has(bone)) return false;
+  const side = SIDE[bone];
+  run.cut.add(bone);
+  const res = b.cutWhere((i, j) => side.has(i) !== side.has(j), strand);
+  if (!res) return false;
+  if (typeof res === 'object') { res.bone = bone; res.t = simT; }
+  run.lost++;
+  // the severed piece springs off the stump
+  let sx = 0, sy = 0, sm = 0, rx = 0, ry = 0, rm = 0;
+  for (let i = 0; i < b.n; i++) {
+    const w = RIG.mass[i];
+    if (side.has(i)) { sx += b.p[i * 3] * w; sy += b.p[i * 3 + 1] * w; sm += w; } else { rx += b.p[i * 3] * w; ry += b.p[i * 3 + 1] * w; rm += w; }
+  }
+  if (sm && rm) {
+    let dx = sx / sm - rx / rm, dy = sy / sm - ry / rm; const l = Math.hypot(dx, dy) || 1; dx /= l; dy /= l;
+    for (let i = 0; i < b.n; i++) {
+      const s = side.has(i) ? 2.6 : -0.6, k = i * 3;
+      b.q[k] -= dx * s * CFG.subH; b.q[k + 1] -= (dy * s + (side.has(i) ? 1.5 : 0)) * CFG.subH;
+    }
+  }
+  const k = (at ?? [...side][0]) * 3;
+  crumble(b.p[k], b.p[k + 1], b.p[k + 2], 0, 1, 12, b.f.css, 3);
+  ring(b.p[k], b.p[k + 1], b.p[k + 2], 1.4);
+  for (const i of side) b.flash[i] = 1;
+  return true;
+}
+function snapStrand(b, S) {
+  const k = b.strands.indexOf(S);
+  if (k < 0) return;
+  b.strands.splice(k, 1);
+  const a = S.i * 3, c = S.j * 3;
+  const mx = (b.p[a] + b.p[c]) / 2, my = (b.p[a + 1] + b.p[c + 1]) / 2, mz = (b.p[a + 2] + b.p[c + 2]) / 2;
+  crumble(mx, my, mz, 0, 1, 12, b.f.css, 2.5);
+  const pts = Math.round(140 * chain()); addPts(pts, 'bonus');
+  pop(pts, L.snap, false, [mx, my, mz]); SFX.pop();
+}
+function burst(b) {
+  for (const bone of ['neck', 'armL', 'armR', 'legL', 'legR', 'waist']) cutBone(b, bone, undefined, false);
+  b.strands.length = 0;
+  const c = b.centre();
+  crumble(c[0], c[1], c[2], 0, 1, 40, b.f.css, 5);
+  ring(c[0], c[1], c[2], 2.6);
+  for (let i = 0; i < b.n; i++) { b.flash[i] = 1; b.dmg[i] = Math.max(b.dmg[i], 0.7); }
+}
+
 /* ---- scoring ---- */
 function strainOf(b) {
   let s = 1;
-  for (const Lk of RIG.links) {
-    const a = Lk.i * 3, c = Lk.j * 3;
+  for (let li = 0; li < RIG.links.length; li++) {
+    if (!b.lk[li]) continue;
+    const Lk = RIG.links[li], a = Lk.i * 3, c = Lk.j * 3;
     s = Math.max(s, Math.hypot(b.p[a] - b.p[c], b.p[a + 1] - b.p[c + 1], b.p[a + 2] - b.p[c + 2]) / Lk.rest);
   }
   return s;
@@ -2705,19 +3393,42 @@ function chain() {
   if (run.combo > 1) { hud.combo.textContent = L.combo(m.toFixed(2).replace(/\.?0+$/, '')); hud.combo.classList.add('on'); }
   return m;
 }
-function addPts(n, kind) {
-  run.score += n; run[kind] += n;
+function addPts(n, kind) { run.score += n; run[kind] += n; }
+function freeze(t, slowAfter = 0) {
+  GAME.stopT = Math.max(GAME.stopT, t);
+  if (slowAfter) GAME.slowT = Math.max(GAME.slowT, slowAfter);
 }
-function bigHit(pts) {
-  GAME.slow = 0.3; GAME.slowT = 0.45; GAME.shake = 0.35;
-  flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go');
-  if (Math.random() < 0.5) SFX.scream(); else SFX.ouch();
-  SFX.crunch();
-  if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-  pop(pts, L.big[Math.floor(Math.random() * L.big.length)], true);
+/* name the part that took the hit; a bear landing on its feet or its bottom is told so */
+function partName(b) {
+  const nm = NAME[b.hitPart] || 'body', grp = PART_OF[nm];
+  const fromBelow = b.hitNy > 0.6, upright = b.up[1] > 0.4;
+  if (grp === 'body' && fromBelow && upright) return 'butt';
+  if (grp === 'leg' && fromBelow && upright) return 'land';
+  return grp;
+}
+function impactFx(b, raw, pts, part) {
+  const i = Math.max(0, b.hitPart), k = i * 3, at = [b.p[k], b.p[k + 1], b.p[k + 2]];
+  const n = Math.min(14, Math.round(raw / 40));
+  if (n > 0) crumble(at[0], at[1] - 0.05, at[2], b.hitNx, b.hitNy, n, b.f.css, 2 + raw / 160);
+  if (raw >= 60) ring(at[0], at[1], at[2], 0.5 + raw / 500);
+  GAME.kick.set(-b.hitNx, -b.hitNy).multiplyScalar(Math.min(0.32, raw / 1400));
+  const label = raw >= 60 ? L.part[part] : '';
+  if (raw >= 300) {
+    freeze(0.09, 0.4); GAME.shake = 0.4;
+    flashEl.classList.remove('go'); void flashEl.offsetWidth; flashEl.classList.add('go');
+    if (Math.random() < 0.5) SFX.wail(); else SFX.ouch();
+    SFX.thud(1);
+    if (navigator.vibrate) navigator.vibrate([18, 30, 18]);
+    pop(pts, `${L.big[Math.floor(Math.random() * L.big.length)]} ${label}`, true, at);
+  } else if (raw >= 60) {
+    freeze(0.045); GAME.shake = Math.max(GAME.shake, 0.15);
+    if (part === 'head' || part === 'face') SFX.bonk(); else SFX.thud(raw / 300);
+    SFX.oof(Math.min(1, raw / 300));
+    pop(pts, label, false, at);
+  } else { SFX.squish(raw / 60); if (raw >= 30) pop(pts, '', false, at); }
 }
 function scoreFrame(dt) {
-  const b = GAME.bear;
+  const b = GAME.bear, flying = GAME.state === 'fly' || GAME.state === 'settle';
   // impacts: how hard the bear's own velocity was changed.  A crash is the
   // velocity it lost (minus what gravity added), summed over the frames the
   // collision takes; resting, sliding and being squeezed change nothing.
@@ -2725,31 +3436,65 @@ function scoreFrame(dt) {
   for (let i = 0; i < b.n; i++) { const m = RIG.mass[i]; vx += (b.p[i * 3] - b.q[i * 3]) * m; vy += (b.p[i * 3 + 1] - b.q[i * 3 + 1]) * m; }
   vx /= RIG.total * CFG.subH; vy /= RIG.total * CFG.subH;
   const pv = run.pv; run.pv = [vx, vy];
-  if ((GAME.state === 'fly' || GAME.state === 'settle') && pv && dt > 0) {
+  if (flying && pv && dt > 0) {
     const dv = Math.hypot(vx - pv[0], vy - pv[1] - CFG.gravity * dt);
     if (dv > 1.4) run.ev += dv;
     else if (run.ev > 0) {
       const ev = run.ev; run.ev = 0;
-      const raw = Math.min(900, RIG.total * ev * ev * 0.3);
+      const part = partName(b);
+      const raw = Math.min(900, RIG.total * ev * ev * 0.3) * PART_MUL[part];
       run.maxHit = Math.max(run.maxHit, ev);
-      if (raw >= 14) {
+      b.hitSp = 0;
+      if (ev > 26 && run.cut.size < 6) {                          // too hard: the whole bear bursts
+        const pts = Math.round(900 * chain());
+        addPts(pts, 'bonus'); burst(b);
+        freeze(0.14, 0.6); GAME.shake = 0.6; SFX.burst(); SFX.wail();
+        pop(pts, L.burst, true);
+      } else if (raw >= 14) {
         const pts = Math.round(raw * chain());
         addPts(pts, 'impact');
-        if (raw >= 260) bigHit(pts);
-        else if (raw >= 60) { SFX.oof(Math.min(1, raw / 260)); pop(pts); }
-        else { SFX.squish(raw / 60); if (raw >= 30) pop(pts); }
+        impactFx(b, raw, pts, part);
       }
     }
-  }
-  if (GAME.state === 'fly' || GAME.state === 'settle') {
+  } else if (!flying) b.hitSp = 0;
+  if (flying) {
     // stretch: points for every second spent pulled long
     const s = strainOf(b);
-    run.maxStr = Math.max(run.maxStr, s);
     if (s > 1.08) {
       addPts(Math.round((s - 1.08) * dt * 1400), 'stretch');
       if (s > 1.4 && simT - run.strPop > 1.2) { run.strPop = simT; SFX.squeak(); pop(Math.round(s * 20), L.lbl.stretch); addPts(Math.round(s * 20), 'bonus'); }
     }
+    // a part that has taken enough hits snaps off; a battered one sheds sugar
+    for (const [bone, side] of Object.entries(SIDE)) {
+      if (run.cut.has(bone)) continue;
+      let d = 0; for (const i of side) d = Math.max(d, b.dmg[i]);
+      if (d >= 1 && cutBone(b, bone)) {
+        b.flash.fill(0.6);
+        const pts = Math.round(250 * chain()); addPts(pts, 'bonus');
+        pop(pts, L.broke + ' ' + L.cut[bone], true); SFX.pop(); SFX.ouch(); freeze(0.07);
+      }
+    }
+    for (let i = 0; i < b.n; i++) if (b.dmg[i] > 0.45 && Math.random() < dt * b.dmg[i] * 3) {
+      const k = i * 3; crumble(b.p[k], b.p[k + 1], b.p[k + 2], 0, -0.2, 1, b.f.css, 0.6);
+    }
   }
+  // strands that have been pulled too far let go
+  for (const S of b.strands.slice()) if (S.len > S.rest * 4.2) snapStrand(b, S);
+  // blades
+  for (let k = 0; k < GAME.cuts.length; k += 2) {
+    const i = GAME.cuts[k], P = GAME.cuts[k + 1], bone = BONE_OF[NAME[i]];
+    if (P.kind === 'grind' || !flying) continue;
+    if (run.cut.has(bone)) {                              // already hanging by a string: this one cuts it
+      const S = b.strands.find((x) => x.bone === bone && (x.i === i || x.j === i));
+      if (S && simT - (S.t || 0) > 0.4) snapStrand(b, S);
+      continue;
+    }
+    if (cutBone(b, bone, i)) {
+      const pts = Math.round(Math.max(150, P.pts) * chain()); addPts(pts, 'bonus');
+      pop(pts, L.cut[bone], true); SFX.pop(); SFX.ouch(); freeze(0.08, 0.35); GAME.shake = 0.3;
+    }
+  }
+  GAME.cuts.length = 0;
   // contraptions
   for (const P of GAME.events) {
     const pts = Math.round(P.pts * chain());
@@ -2757,120 +3502,208 @@ function scoreFrame(dt) {
     const kind = P.kind || P.t;
     pop(pts, L.lbl[kind] || L.lbl.bumper);
     if (kind === 'spring') SFX.boing(); else if (kind === 'roller') SFX.roll();
-    else if (kind === 'juice') { SFX.squish(1); SFX.ouch(); } else if (kind === 'press') { SFX.crunch(); SFX.scream(); GAME.shake = 0.3; }
-    else SFX.bonk();
+    else if (kind === 'juice') { SFX.squish(1); SFX.ouch(); }
+    else if (kind === 'press' || kind === 'crusher') {
+      SFX.thud(1); SFX.wail(); GAME.shake = 0.3; freeze(0.06);
+      const c = mainC(b); crumble(c[0], c[1], c[2], 0, 1, 18, b.f.css, 3);
+    } else SFX.bonk();
   }
   GAME.events.length = 0;
   // zones
-  const c = b.centre();
+  const c = mainC(b);
   for (const Z of CFG.world.zones) {
     if (c[0] < Z.x0 || c[0] > Z.x1 || c[1] < Z.y0 || c[1] > Z.y1) continue;
     if (Z.kind === 'syrup') for (let i = 0; i < b.n * 3; i++) b.q[i] = b.p[i] - (b.p[i] - b.q[i]) * 0.82;   // thick
+    if (Z.kind === 'grinder' && GAME.state !== 'over') {
+      // the grinder takes it apart one bone at a time, and pays for each
+      run.grindT -= dt;
+      if (run.grindT <= 0) {
+        run.grindT = 0.28;
+        const left = Object.keys(SIDE).filter((k) => !run.cut.has(k));
+        SFX.grind(); GAME.shake = Math.max(GAME.shake, 0.18);
+        crumble(c[0], c[1], c[2], 0, 1.2, 8, b.f.css, 4);
+        if (left.length) {
+          const bone = left[Math.floor(Math.random() * left.length)];
+          cutBone(b, bone, undefined, false);
+          b.strands.length = 0;
+          const pts = Math.round(160 * chain()); addPts(pts, 'bonus'); pop(pts, L.cut[bone]); SFX.ouch();
+        } else { const pts = Math.round(60 * chain()); addPts(pts, 'bonus'); pop(pts, L.ground); }
+      }
+    }
     if (!Z.hit && GAME.state === 'fly') {
       Z.hit = true;
       const pts = Math.round(Z.pts * chain());
       addPts(pts, 'bonus'); pop(pts, L.lbl[Z.kind], true);
-      if (Z.kind === 'syrup') SFX.splash(); else { SFX.ding(4); SFX.ding(7); }
-      GAME.state = 'settle'; run.endT = 1.4;
+      if (Z.kind === 'syrup') SFX.splash(); else SFX.ding(4);
+      if (Z.goal) { run.goal = true; GAME.state = 'settle'; run.endT = Z.kind === 'grinder' ? 2.6 : 1.4; }
     }
   }
   if (run.combo > 1 && simT - run.lastHit > 0.9) { hud.combo.classList.remove('on'); run.combo = 0; }
 }
 
 /* ---- results ---- */
-function starsFor(li, s) { return LEVELS[li].stars.filter((t) => s >= t).length; }
-function endRun() {
+function starsFor(li, s, cleared) {
+  if (!cleared) return 0;
+  const th = LEVELS[li].stars;
+  return 1 + (s >= th[0]) + (s >= th[1]);
+}
+function endRun(why) {
   if (run.done) return;
   run.done = true;
+  if (why) run.why = why;
   GAME.state = 'over';
-  const li = GAME.li, s = run.score, n = starsFor(li, s);
-  const isBest = s > (gSave.best[li] || 0);
+  const li = GAME.li, s = run.score, ok = run.goal, n = starsFor(li, s, ok);
+  const isBest = ok && s > (gSave.best[li] || 0);
   if (isBest) gSave.best[li] = s;
+  const first = ok && !gSave.clear[li];
+  if (ok) gSave.clear[li] = true;
   gSave.stars[li] = Math.max(gSave.stars[li] || 0, n);
+  // candy coins: from the score, clearing, first clears and stars; the magnet multiplies
+  const coins = Math.round((Math.floor(s / 25) + (ok ? 30 : 0) + (first ? 60 : 0) + n * 10) * (1 + 0.15 * gSave.up.magnet));
+  gSave.coins += coins;
   saveGame();
-  setTimeout(() => showResult(s, n, isBest), 700);
+  setTimeout(() => showResult(s, n, isBest, ok, coins), ok ? 900 : 700);
 }
-function showResult(s, n, isBest) {
+function showResult(s, n, isBest, ok, coins) {
   if (!GAME.on) return;
-  const li = GAME.li;
+  const li = GAME.li, last = li + 1 >= LEVELS.length;
+  const v = $('rVerdict');
+  v.className = 'verdict ' + (ok ? 'ok' : 'no');
+  v.innerHTML = ok ? L.clear : `${L.fail}<small>${L.why[run.why] || ''}</small>`;
   $('rLvNo').textContent = L.lvNo(li + 1);
   $('rLvName').textContent = lname(LEVELS[li]);
   $('rScore').textContent = s.toLocaleString();
   const rec = $('rRec');
-  rec.textContent = isBest ? L.newBest : L.best((gSave.best[li] || 0).toLocaleString());
+  rec.textContent = isBest ? L.newBest : (gSave.best[li] ? L.best(gSave.best[li].toLocaleString()) : '');
   rec.classList.toggle('new', isBest);
+  $('rCoins').textContent = L.coinsGot(coins);
   const st = L.st;
   $('rStats').innerHTML = [
     [st[0], run.impact], [st[1], run.stretch], [st[2], run.bonus],
-    [st[3], `${run.maxHit.toFixed(1)} m/s`], [st[4], `${run.maxStr.toFixed(2)}×`], [st[5], `×${run.bestCombo}`],
-  ].map(([k, v]) => `<span>${k}</span><b>${typeof v === 'number' ? v.toLocaleString() : v}</b>`).join('');
+    [st[3], `${run.maxHit.toFixed(1)} m/s`], [st[4], run.lost], [st[5], `×${run.bestCombo}`],
+  ].map(([k, val]) => `<span>${k}</span><b>${typeof val === 'number' ? val.toLocaleString() : val}</b>`).join('');
   const starEls = [...$('rStars').children];
   starEls.forEach((el) => el.classList.remove('on'));
   starEls.slice(0, n).forEach((el, i) => setTimeout(() => { el.classList.add('on'); SFX.star(i); }, 350 + i * 280));
-  $('rNext').disabled = li + 1 >= LEVELS.length || !unlocked(li + 1);
+  const next = $('rNext');
+  next.textContent = ok && last ? L.allClear : L.gNext;
+  next.disabled = !(ok && last) && (last || !unlocked(li + 1));
+  next.classList.toggle('pri', ok);
+  $('rRetry').classList.toggle('pri', !ok);
   $('sheetResult').classList.add('on');
+  coinIcons();
+  setTimeout(() => SFX.coin(), 250);
+  if (ok) { SFX.fanfare(); confetti(); } else SFX.sad();
+}
+function showEnd() {
+  closeSheets();
+  const total = gSave.stars.reduce((a, s) => a + (s || 0), 0);
+  $('eText').innerHTML = L.end(`${total}/${LEVELS.length * 3}`, gSave.coins.toLocaleString());
+  $('eStars').innerHTML = LEVELS.map((_, i) => `<i class="${gSave.stars[i] ? 'on' : ''}">★</i>`).join('');
+  $('sheetEnd').classList.add('on');
+  SFX.fanfare(); confetti(120);
 }
 function closeSheets() { for (const s of document.querySelectorAll('.sheet')) s.classList.remove('on'); }
-function showLevels() {
-  const grid = $('lvGrid');
-  grid.textContent = '';
-  LEVELS.forEach((lv, i) => {
-    const b = document.createElement('button');
-    b.className = 'lv';
-    const n = gSave.stars[i] || 0, zh = document.documentElement.lang === 'zh';
-    b.innerHTML = `<em>${String(i + 1).padStart(2, '0')}</em><b>${lname(lv)}</b><small>${lv.tag[zh ? 'zh' : 'en']}</small>` +
-      `<span>${'★'.repeat(n)}<s>${'★'.repeat(3 - n)}</s></span>`;
-    if (!unlocked(i)) b.disabled = true;
-    b.addEventListener('click', () => { if (!GAME.on) enterGame(i); else loadLevel(i); });
-    grid.appendChild(b);
+
+/* ---- Gummy City: the map of stops, the first one open ---- */
+function showMap() {
+  const box = $('mapDistricts');
+  box.textContent = '';
+  L.districts.forEach(([name, stop], di) => {
+    const d = document.createElement('section');
+    d.className = 'district' + (di ? ' locked' : '');
+    d.innerHTML = `<header><b>${name}</b><span>${stop}</span></header>`;
+    if (di) { const p = document.createElement('p'); p.textContent = L.soon; d.appendChild(p); box.appendChild(d); return; }
+    const path = document.createElement('div'); path.className = 'path';
+    LEVELS.forEach((lv, i) => {
+      const b = document.createElement('button');
+      b.className = 'lv' + (gSave.clear[i] ? ' cleared' : '');
+      const n = gSave.stars[i] || 0;
+      b.innerHTML = `<em>${String(i + 1).padStart(2, '0')}</em><b>${lname(lv)}</b><small>${lv.tag[zh() ? 'zh' : 'en']}</small>` +
+        `<span>${'★'.repeat(n)}<s>${'★'.repeat(3 - n)}</s></span>`;
+      if (!unlocked(i)) b.disabled = true;
+      b.addEventListener('click', () => enterGame(i));
+      path.appendChild(b);
+    });
+    d.appendChild(path); box.appendChild(d);
   });
+  coinIcons();
+  closeSheets();
   $('sheetLevels').classList.add('on');
+}
+function showShop() {
+  const list = $('shopList');
+  list.textContent = '';
+  for (const u of UPS) {
+    const lvl = gSave.up[u.id], [name, desc] = L.up[u.id], cost = upCost(u), max = lvl >= u.max;
+    const row = document.createElement('div'); row.className = 'shop-row';
+    row.innerHTML = `<span class="ic">${u.icon}</span><div><b>${name}</b><small>${desc}</small>` +
+      `<div class="pips">${Array.from({ length: u.max }, (_, k) => `<i class="${k < lvl ? 'on' : ''}"></i>`).join('')}</div></div>`;
+    const btn = document.createElement('button');
+    btn.textContent = max ? L.maxed : L.buy(cost);
+    btn.disabled = max || gSave.coins < cost;
+    btn.addEventListener('click', () => {
+      if (gSave.coins < cost || max) return;
+      gSave.coins -= cost; gSave.up[u.id]++; saveGame();
+      SFX.coin(); SFX.ding(7);
+      showShop();
+    });
+    row.appendChild(btn);
+    list.appendChild(row);
+  }
+  coinIcons();
+  closeSheets();
+  $('sheetShop').classList.add('on');
 }
 
 /* ---- per frame ---- */
 const _tgt = new THREE.Vector3();
 function gameFrame(dt) {
-  if (GAME.slowT > 0) { GAME.slowT -= dt; if (GAME.slowT <= 0) GAME.slow = 1; }
-  syncLevel(dt * GAME.slow);
-  const b = GAME.bear, c = b.centre();
-  scoreFrame(dt * GAME.slow);
+  // hit-stop, then slow motion, then normal time
+  if (GAME.stopT > 0) { GAME.stopT -= dt; GAME.slow = 0.03; }
+  else if (GAME.slowT > 0) { GAME.slowT -= dt; GAME.slow = 0.3; }
+  else GAME.slow = 1;
+  const sdt = dt * GAME.slow;
+  syncLevel(sdt);
+  stepCrumbs(sdt); stepRings(dt);
+  const b = GAME.bear;
+  scoreFrame(sdt);
+  const c = mainC(b);
 
-  // the end of a run: the bear has come to rest, left the factory, or run out of time
+  // the end of a run: goal reached, or the bear came to rest, left the factory, or ran out of time
   if (GAME.state === 'fly' || GAME.state === 'settle') {
-    run.flyT += dt * GAME.slow;
+    run.flyT += sdt;
     let v = 0;
     for (let i = 0; i < b.n * 3; i++) v = Math.max(v, Math.abs(b.p[i] - b.q[i]));
-    run.still = v / CFG.subH < 0.9 ? run.still + dt : 0;
+    run.still = v / CFG.subH < 0.9 ? run.still + sdt : 0;
     const [x0, x1] = LEVELS[GAME.li].span;
-    if (c[0] < x0 - 1.5 || c[0] > x1 + 1.5) {
-      if (GAME.state === 'fly') { const pts = Math.round(300 * chain()); addPts(pts, 'bonus'); pop(pts, L.lbl.fly, true); SFX.ding(7); }
-      endRun();
+    if (GAME.state === 'settle') { run.endT -= sdt; if (run.endT <= 0) endRun(); }
+    else {
+      if (c[0] < x0 - 1.5 || c[0] > x1 + 1.5) endRun('out');
+      // or it is jammed somewhere (rollers keep it jiggling, so it never reads as still)
+      if (!run.anchor || Math.hypot(c[0] - run.anchor[0], c[1] - run.anchor[1]) > 0.4) { run.anchor = c; run.anchorT = 0; }
+      else run.anchorT += sdt;
+      if ((run.flyT > 0.8 && run.still > 1.0) || (run.flyT > 1 && run.anchorT > 1.8)) endRun('stuck');
+      if (run.flyT > 15) endRun('time');
     }
-    if (GAME.state === 'settle') { run.endT -= dt; if (run.endT <= 0) endRun(); }
-    // or it is jammed somewhere (rollers keep it jiggling, so it never reads as still)
-    if (!run.anchor || Math.hypot(c[0] - run.anchor[0], c[1] - run.anchor[1]) > 0.4) { run.anchor = c; run.anchorT = 0; }
-    else run.anchorT += dt;
-    if ((run.flyT > 0.8 && run.still > 1.0) || (run.flyT > 1 && run.anchorT > 1.6) || run.flyT > 14) endRun();
   }
 
   // camera: a tour of the level, then the sling, then chase the bear
   const lv = LEVELS[GAME.li], [x0, x1] = lv.span;
-  const portrait = innerWidth / innerHeight < 0.9;
-  const base = portrait ? 6.4 : 9.5;
+  const aspect = innerWidth / innerHeight, portrait = aspect < 0.9;
+  const base = portrait ? 7.0 : 9.5;
   let vw = base;
   if (GAME.state === 'intro') {
-    GAME.introT += dt;
-    _tgt.set((x0 + x1) / 2, 4.2, 0); vw = Math.min(x1 - x0 + 1.5, portrait ? 12 : 20);
-    if (GAME.introT > 2.2) { GAME.state = 'aim'; setHint('gHintAim'); }
+    _tgt.set((x0 + x1) / 2, 4.2, 0); vw = Math.min(x1 - x0 + 1.5, portrait ? 13 : 21);
   } else if (GAME.state === 'aim') {
-    _tgt.set(lv.start[0] + base * 0.28, lv.start[1] + 0.2, 0);
+    _tgt.set(lv.start[0] + base * 0.2, lv.start[1] + 0.2, 0);    // the bear sits about a third in from the left
   } else {
-    let vx = 0, vy = 0;
-    for (let i = 0; i < b.n; i++) { vx += b.p[i * 3] - b.q[i * 3]; vy += b.p[i * 3 + 1] - b.q[i * 3 + 1]; }
-    vx /= b.n * CFG.subH; vy /= b.n * CFG.subH;
-    _tgt.set(c[0] + vx * 0.12, c[1] + vy * 0.06, 0);
+    let bx = 0, by = 0;
+    for (let i = 0; i < b.n; i++) { bx += b.p[i * 3] - b.q[i * 3]; by += b.p[i * 3 + 1] - b.q[i * 3 + 1]; }
+    bx /= b.n * CFG.subH; by /= b.n * CFG.subH;
+    _tgt.set(c[0] + bx * 0.12, c[1] + by * 0.06, 0);
   }
-  const tf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), aspect = innerWidth / innerHeight;
+  const tf = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
   const k = 1 - Math.exp(-dt * (GAME.state === 'intro' ? 1.6 : 3.2));
   GAME.vw += (vw - GAME.vw) * (1 - Math.exp(-dt * 2.2));
   GAME.cam.lerp(_tgt, k);
@@ -2878,9 +3711,10 @@ function gameFrame(dt) {
   const halfH = d * tf;
   const cy = Math.max(GAME.cam.y, halfH * 0.72 - 0.4);          // keep the floor near the bottom edge
   GAME.shake = Math.max(0, GAME.shake - dt * 1.4);
+  GAME.kick.multiplyScalar(Math.exp(-dt * 9));
   const sh = GAME.shake * GAME.shake;
-  camera.position.set(GAME.cam.x + (Math.random() - 0.5) * sh, cy + d * 0.09 + (Math.random() - 0.5) * sh, d);
-  camera.lookAt(GAME.cam.x, cy, 0);
+  camera.position.set(GAME.cam.x + GAME.kick.x + (Math.random() - 0.5) * sh, cy + d * 0.09 + GAME.kick.y + (Math.random() - 0.5) * sh, d);
+  camera.lookAt(GAME.cam.x + GAME.kick.x * 0.5, cy + GAME.kick.y * 0.5, 0);
 
   // light, contact shadows and the floor's pool of light follow the action
   keyLight.position.set(GAME.cam.x + 3.5, 11, 9);
@@ -2901,22 +3735,36 @@ function gameFrame(dt) {
   });
 }
 
+/* ---- softness: one setting for the sandbox and the levels ---- */
+const gWob = $('gWob'), gWobOut = $('gWobOut');
+function syncGameWobble() { gWob.value = CFG.wobble; gWobOut.textContent = CFG.wobble.toFixed(2); gWob.style.setProperty('--fill', `${CFG.wobble * 100}%`); }
+gWob.addEventListener('input', () => { wobbleInput.value = gWob.value; syncWobble(); syncGameWobble(); });
+wobbleInput.addEventListener('input', syncGameWobble);
+syncGameWobble();
+
 /* ---- buttons ---- */
 $('playBtn').addEventListener('click', () => {
   SFX.unlock();
-  const next = LEVELS.findIndex((_, i) => unlocked(i) && !(gSave.stars[i] > 0));
+  const next = LEVELS.findIndex((_, i) => unlocked(i) && !gSave.clear[i]);
   enterGame(next < 0 ? 0 : next);
 });
+$('iGo').addEventListener('click', () => { closeSheets(); GAME.state = 'aim'; setHint('gHintAim'); SFX.boop(); MUSIC.start(); });
 $('gBack').addEventListener('click', exitGame);
 $('gRetry').addEventListener('click', () => { closeSheets(); resetRun(); });
 $('rRetry').addEventListener('click', () => { closeSheets(); resetRun(); });
-$('rNext').addEventListener('click', () => loadLevel(GAME.li + 1));
-$('gLevels').addEventListener('click', showLevels);
+$('rNext').addEventListener('click', () => { if (GAME.li + 1 >= LEVELS.length) showEnd(); else loadLevel(GAME.li + 1); });
+$('rShop').addEventListener('click', showShop);
+$('rMap').addEventListener('click', showMap);
+$('gLevels').addEventListener('click', showMap);
+$('mShop').addEventListener('click', showShop);
 $('lvClose').addEventListener('click', closeSheets);
-for (const s of document.querySelectorAll('.sheet')) s.addEventListener('click', (e) => { if (e.target === s && s.id === 'sheetLevels') closeSheets(); });
+$('shopClose').addEventListener('click', () => { closeSheets(); if (GAME.state === 'over') $('sheetResult').classList.add('on'); });
+$('eMap').addEventListener('click', showMap);
+$('eSandbox').addEventListener('click', exitGame);
 for (const id of ['snd', 'gSnd']) $(id).addEventListener('click', () => { SFX.toggle(); sndIcons(); });
+$('gMus').addEventListener('click', () => { SFX.unlock(); MUSIC.toggle(); sndIcons(); });
 $('rShare').addEventListener('click', async () => {
-  const li = GAME.li, txt = L.brag(starsFor(li, run.score), lname(LEVELS[li]), run.score.toLocaleString()) + location.href.split('#')[0];
+  const li = GAME.li, txt = L.brag(starsFor(li, run.score, run.goal), lname(LEVELS[li]), run.score.toLocaleString()) + location.href.split('#')[0];
   try { await navigator.clipboard.writeText(txt); toast(L.copied); }
   catch (e) { prompt('', txt); }
 });
@@ -2931,6 +3779,7 @@ addEventListener('keydown', (e) => {
   if (e.key === 'Escape') exitGame();
   if (e.key === 'r' || e.key === 'R') { closeSheets(); resetRun(); }
 });
+document.addEventListener('visibilitychange', () => { if (document.hidden) MUSIC.stop(); else if (GAME.on && GAME.state !== 'off') MUSIC.start(); });
 
 /* ============================ START ============================ */
 layout();

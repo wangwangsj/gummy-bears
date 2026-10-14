@@ -363,6 +363,10 @@ const CFG = {
   maxSub: 8,
   wobble: 0.42,           // UI slider 0..1
   restitution: 0.36,
+  upright: 0.15,          // righting torque: the original 1.0 stood every bear bolt upright, so nothing could pile
+  pileUpright: 0.3,       // righting torque left to a bear that rests on other bears
+  sepCap: 0.0015,         // fastest a contact fix may push two points apart, per substep (≈0.45 u/s)
+  stick: 1.1,            // gummy-on-gummy friction coefficient (holds a slope of ~48°)
   friction: 0.012,       // per-substep tangential loss while in contact (τ ≈ 0.28 s)
   maxV: 0.022,           // top speed per substep (≈6.6 u/s): caps rocket launches
   maxV2: 0.022 * 0.022,
@@ -380,7 +384,7 @@ function solve(){
   return {
     shape: 0.26 - 0.20 * w,   // per-substep shape-match blend
     dist:  0.90 - 0.55 * w,   // distance-constraint stiffness
-    align: 0.16 - 0.14 * w,   // how fast the bear rights itself
+    align: (0.16 - 0.14 * w) * CFG.upright,   // how fast the bear rights itself
     drag:  0.006 - 0.004 * w, // per-substep air drag
     wob:   w,
   };
@@ -523,8 +527,8 @@ class Bear {
       }
     }
     this.grab = -1; this.grabT = null;
-    this.hop = 1.2 + Math.random() * 3.5; this.hopArm = 0; this.hopCool = 0;
-    this.idle = 0; this.strain = 1; this.bounce = 0; this.hit = 0;
+    this.hop = 1.2 + Math.random() * 3.5; this.hopArm = 0; this.hopCool = 1 + Math.random() * 2.5;
+    this.idle = 0; this.strain = 1; this.bounce = 0; this.hit = 0; this.perch = 0; this.onTop = 0;
     this.alive = true;
   }
 
@@ -551,7 +555,8 @@ class Bear {
     this.idle = 1 - Math.min(1, (still / n) * 600);
     this.behave(h);
     for (let it = 0; it < 2; it++) {
-      this.shapeMatch(S.shape, S.align);
+      // a bear lying on others lets go of standing up, so piles can form
+      this.shapeMatch(S.shape, this.onTop > 0 ? S.align * CFG.pileUpright : S.align);
       this.links(S.dist);
       if (this.grab >= 0) this.applyGrab();
     }
@@ -630,7 +635,7 @@ class Bear {
 
   /* ---- idle life: crouch, pancake, launch ---- */
   behave(h) {
-    this.hopCool -= h;
+    this.hopCool -= h; this.perch -= h; this.onTop -= h;
     const p = this.p, hd = RIG.idx.head * 3, bd = RIG.idx.body * 3;
     if (this.hopArm > 0) {                           // wind up: crouch, spread the limbs
       this.hopArm -= h;
@@ -646,7 +651,7 @@ class Bear {
       }
       return;
     }
-    if (this.grab < 0 && this.hopCool <= 0 && this.idle > 0.9) this.hopArm = 0.2;
+    if (this.grab < 0 && this.hopCool <= 0 && this.idle > 0.9 && this.perch <= 0) this.hopArm = 0.2;
   }
 
   applyGrab() {
@@ -700,29 +705,53 @@ class Bear {
   }
 }
 
-/* bear <-> bear: mass points never pass through one another */
+/* bear <-> bear: mass points never pass through one another.  Standard
+   position-based contact: the overlap is fixed on p alone, so the fix itself
+   becomes the (inelastic) contact velocity, and friction cancels the slip that
+   actually happened this substep.  The original moved q along with p, which
+   kept a deep fix from launching the pair but also hid every sideways creep
+   from friction, so nothing could ever rest on another bear.  The launch guard
+   survives as a cap on how fast a fix may push two points apart. */
 function separate(a, b) {
-  const pa = a.p, pb = b.p, n = a.n;
+  const pa = a.p, pb = b.p, qa = a.q, qb = b.q, n = a.n;
   for (let i = 0; i < n; i++) {
     const ri = RIG.col[i], wi = RIG.inv[i];
     for (let j = 0; j < n; j++) {
       const rj = RIG.col[j], wj = RIG.inv[j];
       const min = ri + rj;
       const A = i * 3, B = j * 3;
-      let dx = pa[A] - pb[B], dy = pa[A + 1] - pb[B + 1], dz = pa[A + 2] - pb[B + 2];
-      let d2 = dx * dx + dy * dy + dz * dz;
+      const dx = pa[A] - pb[B], dy = pa[A + 1] - pb[B + 1], dz = pa[A + 2] - pb[B + 2];
+      const d2 = dx * dx + dy * dy + dz * dz;
       if (d2 > min * min || d2 < 1e-9) continue;
-      const d = Math.sqrt(d2);
-      const s = (min - d) / d * 0.5;
-      const tot = wi + wj;
-      const sa = s * (wi / tot) * 2, sb = s * (wj / tot) * 2;
-      const ax = dx * sa, ay = dy * sa, az = dz * sa;
-      const bx = dx * sb, by = dy * sb, bz = dz * sb;
-      // both p and q move: a contact fix must not read as velocity
-      pa[A] += ax; pa[A + 1] += ay; pa[A + 2] += az;
-      a.q[A] += ax; a.q[A + 1] += ay; a.q[A + 2] += az;
-      pb[B] -= bx; pb[B + 1] -= by; pb[B + 2] -= bz;
-      b.q[B] -= bx; b.q[B + 1] -= by; b.q[B + 2] -= bz;
+      const d = Math.sqrt(d2), pen = min - d;
+      const nx = dx / d, ny = dy / d, nz = dz / d;  // from b's point to a's
+      const tot = wi + wj, wa = wi / tot, wb = wj / tot;
+      pa[A] += nx * pen * wa; pa[A + 1] += ny * pen * wa; pa[A + 2] += nz * pen * wa;
+      pb[B] -= nx * pen * wb; pb[B + 1] -= ny * pen * wb; pb[B + 2] -= nz * pen * wb;
+
+      // relative motion this substep, after the fix
+      let rx = (pa[A] - qa[A]) - (pb[B] - qb[B]),
+          ry = (pa[A + 1] - qa[A + 1]) - (pb[B + 1] - qb[B + 1]),
+          rz = (pa[A + 2] - qa[A + 2]) - (pb[B + 2] - qb[B + 2]);
+      let vn = rx * nx + ry * ny + rz * nz;
+      if (vn > CFG.sepCap) {                         // deep overlap: q soaks up the excess
+        const e = vn - CFG.sepCap;
+        qa[A] += nx * e * wa; qa[A + 1] += ny * e * wa; qa[A + 2] += nz * e * wa;
+        qb[B] -= nx * e * wb; qb[B + 1] -= ny * e * wb; qb[B + 2] -= nz * e * wb;
+        vn = CFG.sepCap;
+      }
+      // Coulomb friction on the slip: grip in proportion to how hard they press
+      const tx = rx - vn * nx, ty = ry - vn * ny, tz = rz - vn * nz;
+      const tl = Math.sqrt(tx * tx + ty * ty + tz * tz);
+      if (tl > 1e-9) {
+        const f = Math.min(1, CFG.stick * pen / tl);
+        pa[A] -= tx * f * wa; pa[A + 1] -= ty * f * wa; pa[A + 2] -= tz * f * wa;
+        pb[B] += tx * f * wb; pb[B + 1] += ty * f * wb; pb[B + 2] += tz * f * wb;
+      }
+      if (ny > 0.5 || ny < -0.5) {                   // stacked: nobody hops, the upper one lies down
+        a.perch = 0.6; b.perch = 0.6;
+        if (ny > 0) a.onTop = 0.4; else b.onTop = 0.4;
+      }
     }
   }
 }

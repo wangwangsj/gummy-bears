@@ -2808,15 +2808,25 @@ function collideWorld(b, h) {
       const r = r0 * (P.soft || 0.92);
       if (!(P.round ? touchCircle(P, p[k], p[k + 1], r) : touchBox(P, p[k], p[k + 1], r))) continue;
       if (P.ghost) { GAME.cuts.push(i, P); P.pulse = 1; continue; }   // a blade goes through: it cuts, it does not stop
-      if (P.t === 'crusher') {
-        // a steamroller only presses down: it rolls over, never shoves.  Points beside it are
-        // ignored, and points under it are pushed straight down to its underside, never forward
-        // along the contact normal (the front of the circle would bulldoze the bear along).
-        if (C.ny > -0.35) continue;
+      if (P.t === 'roller' || P.t === 'crusher') {
+        // Candy rollers feed the gummy underneath instead of acting like pinball bumpers.
+        // The travelling steamroller only presses its underside; fixed rollers also feed a
+        // gummy landing on top down through the nip. Never apply the generic bounce below.
+        if (P.t === 'crusher' && C.ny > -0.35) continue;
         const dx = p[k] - P.cx, R = P.r + r;
-        C.pen = p[k + 1] - (P.cy - Math.sqrt(Math.max(0, R * R - dx * dx)));
-        C.nx = 0; C.ny = -1; C.vx = 0; C.vy = P.vy;
-        if (C.pen <= 0) continue;
+        const bottom = P.cy - Math.sqrt(Math.max(0, R * R - dx * dx));
+        const vx = p[k] - q[k], vy = p[k + 1] - q[k + 1];
+        const sp = Math.max(0, vy / h, C.nx * vx / -h - C.ny * vy / h);
+        p[k + 1] = bottom;
+        const feed = P.t === 'roller' ? Math.max(vx, Math.min(2.4, Math.abs(P.om) * P.r) * h) : vx;
+        q[k] = p[k] - feed; q[k + 1] = bottom - Math.min(0, vy);
+        touching = 1;
+        if (!was[i]) {
+          b.bump(i, sp, 0, -1);
+          hit = Math.max(hit, sp);
+          partHit(P, sp);
+        }
+        continue;
       }
       let vx = p[k] - q[k] - C.vx * h, vy = p[k + 1] - q[k + 1] - C.vy * h;   // relative to the surface
       p[k] += C.nx * C.pen; p[k + 1] += C.ny * C.pen;

@@ -410,6 +410,7 @@
     opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
   }
   .toast.on{opacity:1; transform:translate(-50%,0)}
+  body.game .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
   @media (max-width:760px), (max-aspect-ratio:4/5){
     .cta{margin-top:14px; padding:11px 16px 11px 12px; font-size:11px; letter-spacing:.12em}
     .cta small{display:none}
@@ -2807,7 +2808,16 @@ function collideWorld(b, h) {
       const r = r0 * (P.soft || 0.92);
       if (!(P.round ? touchCircle(P, p[k], p[k + 1], r) : touchBox(P, p[k], p[k + 1], r))) continue;
       if (P.ghost) { GAME.cuts.push(i, P); P.pulse = 1; continue; }   // a blade goes through: it cuts, it does not stop
-      if (P.t === 'crusher' && C.ny > -0.35) continue;               // a steamroller only presses down: it rolls over, never shoves
+      if (P.t === 'crusher') {
+        // a steamroller only presses down: it rolls over, never shoves.  Points beside it are
+        // ignored, and points under it are pushed straight down to its underside, never forward
+        // along the contact normal (the front of the circle would bulldoze the bear along).
+        if (C.ny > -0.35) continue;
+        const dx = p[k] - P.cx, R = P.r + r;
+        C.pen = p[k + 1] - (P.cy - Math.sqrt(Math.max(0, R * R - dx * dx)));
+        C.nx = 0; C.ny = -1; C.vx = 0; C.vy = P.vy;
+        if (C.pen <= 0) continue;
+      }
       let vx = p[k] - q[k] - C.vx * h, vy = p[k + 1] - q[k + 1] - C.vy * h;   // relative to the surface
       p[k] += C.nx * C.pen; p[k + 1] += C.ny * C.pen;
       const vn = vx * C.nx + vy * C.ny;

@@ -335,6 +335,14 @@
     font:500 12.5px/1 var(--sans); letter-spacing:.04em; transition:opacity .3s; display:flex; align-items:center; gap:8px;
   }
   .hud-hint.off{opacity:0}
+  /* while aiming on a phone too narrow to show the goal: an arrow on the screen edge pointing at it */
+  .goal-mark{
+    position:absolute; left:0; top:0; display:flex; align-items:center; gap:4px; padding:7px 10px; border-radius:999px;
+    background:var(--cherry); color:#fff; font:700 11px/1 var(--sans); letter-spacing:.16em; transition:opacity .3s;
+  }
+  .goal-mark i{font-style:normal; font-size:14px; animation:nudge 1s ease-in-out infinite}
+  .goal-mark.off{opacity:0}
+  @keyframes nudge{50%{transform:translateX(4px)}}
   .hud-bot{
     position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; gap:10px;
     padding:0 14px calc(16px + env(safe-area-inset-bottom));
@@ -368,6 +376,7 @@
   .panel h3{margin:0; font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-soft); text-align:center}
   .panel h4{margin:8px 0 0; font:italic 400 30px/1.1 var(--serif); text-align:center}
   .big-score{text-align:center; margin:18px 0 4px; font:italic 400 64px/1 var(--serif); font-variant-numeric:tabular-nums}
+  .big-score.void{opacity:.3}
   .rec{display:block; text-align:center; font-size:11px; letter-spacing:.14em; color:var(--ink-soft); min-height:16px}
   .rec.new{color:var(--cherry); font-weight:700}
   .stars{display:flex; justify-content:center; gap:10px; margin:14px 0 18px}
@@ -420,11 +429,15 @@
   .goal b{font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--cherry)}
   .devices{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-bottom:12px}
   .devices span{padding:5px 10px; border-radius:999px; background:#f5f0e8; font-size:12px}
+  .rule{margin:0 0 12px; text-align:center; font-size:13px; line-height:1.5; color:var(--ink)}
+  .rule b{color:var(--cherry)}
   .thresh{display:flex; justify-content:center; gap:14px; font-size:12px; color:var(--ink-soft); margin-bottom:4px}
   .thresh b{color:#e0a10f; font-weight:600}
   .verdict{text-align:center; font:italic 400 40px/1 var(--serif); margin:-4px 0 12px}
   .verdict.ok{color:#2f8f5b} .verdict.no{color:var(--ink-soft)}
   .verdict small{display:block; margin-top:8px; font:500 12px/1.4 var(--sans); font-style:normal; letter-spacing:.04em; color:var(--ink-soft)}
+  .tip{text-align:center; font-size:12.5px; margin:-8px 0 12px; color:var(--ink-soft)}
+  .tip:empty{display:none}
   .earn{text-align:center; font-size:13px; margin:-6px 0 14px; color:#b4780c; font-weight:600}
   .row-links{display:flex; justify-content:center; gap:22px}
   .row-links .linky{margin-top:12px}
@@ -521,6 +534,7 @@
       <div class="stars-live"><i><u></u></i><i><u></u></i></div>
       <span class="combo" id="gCombo">×1.5</span>
     </div>
+    <div class="goal-mark off" id="gGoalMark"><b data-i18n="gGoalMark">Goal</b><i>➜</i></div>
     <div class="hud-hint off" id="gHint"><span>✋</span><span data-i18n="gHintAim">Pull back anywhere, let go to fling</span></div>
     <div class="hud-bot">
       <label class="chip soft"><span data-i18n="wobble">Wobble</span><input id="gWob" type="range" min="0" max="1" step="0.01" value="0.42"><output id="gWobOut">0.42</output></label>
@@ -533,6 +547,7 @@
   <div class="sheet light" id="sheetIntro"><div class="panel">
     <h3 id="iLvNo">Level 1</h3><h4 id="iLvName">Stairway</h4>
     <div class="goal"><b data-i18n="gGoal">Goal</b><span id="iGoal"></span></div>
+    <p class="rule" data-i18n-html="gRule"></p>
     <div class="devices" id="iDev"></div>
     <div class="thresh" id="iStars"></div>
     <div class="row-btns"><button class="pri" id="iGo" data-i18n="gGo">Start</button></div>
@@ -543,6 +558,7 @@
     <div class="big-score" id="rScore">0</div>
     <span class="rec" id="rRec"></span>
     <div class="stars" id="rStars"><i>★</i><i>★</i><i>★</i></div>
+    <div class="tip" id="rTip"></div>
     <div class="earn" id="rCoins"></div>
     <div class="stats" id="rStats"></div>
     <div class="row-btns">
@@ -2509,6 +2525,10 @@ Object.assign(I18N.en, {
   snap: 'STRING SNAPPED',
   play: 'Play · Gummy Adventures', playSub: 'chapter 1', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
   gHintAim: 'Pull back anywhere, let go to fling', gRetry: 'Retry', gNext: 'Next level', gGo: 'Start', gGoal: 'Goal',
+  gRule: 'Hit harder, stretch longer, break more pieces: <b>everything scores</b>', gGoalMark: 'GOAL',
+  tipBreak: 'Broken bits score too — the more it breaks, the more points',
+  nextStar: (n, s) => `${n} more points for ${s}`, failNote: 'Reach the goal to earn stars and set a best',
+  notCounted: 'Not delivered: this run doesn\'t count', coinsComfort: (n) => `+${n} consolation coins`,
   gShare: 'Copy a brag', gShop: 'Upgrades', gWorkshop: 'Back-alley workshop', gClose: 'Close',
   gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Chapter clear!', gEndHead: 'Escaped the Gummy Factory', gEndFree: 'Go play freely',
   lvNo: (n) => `Factory · ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
@@ -2532,6 +2552,10 @@ Object.assign(I18N.zh, {
   snap: '扯断了！',
   play: '开始游戏 · 软糖历险记', playSub: '第一章', gBack: '自由玩', gScoreLbl: '受难值',
   gHintAim: '按住屏幕往后拉，松手把小熊弹出去', gRetry: '重来', gNext: '下一关', gGo: '开始', gGoal: '目标',
+  gRule: '撞得越狠、拉得越长、切得越碎，<b>受难值越高</b>', gGoalMark: '终点',
+  tipBreak: '断了也加分！碎得越多，受难值越高',
+  nextStar: (n, s) => `再拿 ${n} 分到 ${s}`, failNote: '送达终点才计星和最佳纪录',
+  notCounted: '没送到，本局不计分', coinsComfort: (n) => `+${n} 安慰糖币`,
   gShare: '复制战绩', gShop: '升级', gWorkshop: '后巷工坊', gClose: '关闭',
   gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '第一章 通关！', gEndHead: '逃出黑心软糖厂', gEndFree: '去自由玩',
   lvNo: (n) => `黑心软糖厂 · 第 ${n} 关`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
@@ -3152,9 +3176,9 @@ function pop(val, label, big, at) {
   setTimeout(() => el.remove(), 1200);
   curPop = { el, val, t: simT };
 }
-function toast(msg) {
+function toast(msg, ms = 2200) {
   const t = $('toast'); t.textContent = msg; t.classList.add('on');
-  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 2200);
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), ms);
 }
 function setHint(key) {
   if (key) { hud.hint.lastChild.textContent = L[key]; hud.hint.classList.remove('off'); } else hud.hint.classList.add('off');
@@ -3337,6 +3361,7 @@ function cutBone(b, bone, at, strand = true) {
   if (!res) return false;
   if (typeof res === 'object') { res.bone = bone; res.t = simT; }
   run.lost++;
+  if (!gSave.tipBreak) { gSave.tipBreak = true; saveGame(); toast(L.tipBreak, 3800); }   // players assume a break is a failure
   // the severed piece springs off the stump
   let sx = 0, sy = 0, sm = 0, rx = 0, ry = 0, rm = 0;
   for (let i = 0; i < b.n; i++) {
@@ -3558,8 +3583,10 @@ function endRun(why) {
   const first = ok && !gSave.clear[li];
   if (ok) gSave.clear[li] = true;
   gSave.stars[li] = Math.max(gSave.stars[li] || 0, n);
-  // candy coins: from the score, clearing, first clears and stars; the magnet multiplies
-  const coins = Math.round((Math.floor(s / 25) + (ok ? 30 : 0) + (first ? 60 : 0) + n * 10) * (1 + 0.15 * gSave.up.magnet));
+  // candy coins: from the score, clearing, first clears and stars; the magnet multiplies.
+  // Reaching the goal is what counts: a run that missed it only gets a small consolation,
+  // so a wild crash that never arrives can't out-earn a delivery.
+  const coins = Math.round((Math.floor(s / (ok ? 25 : 100)) + (ok ? 30 : 0) + (first ? 60 : 0) + n * 10) * (1 + 0.15 * gSave.up.magnet));
   gSave.coins += coins;
   saveGame();
   setTimeout(() => showResult(s, n, isBest, ok, coins), ok ? 900 : 700);
@@ -3573,10 +3600,11 @@ function showResult(s, n, isBest, ok, coins) {
   $('rLvNo').textContent = L.lvNo(li + 1);
   $('rLvName').textContent = lname(LEVELS[li]);
   $('rScore').textContent = s.toLocaleString();
+  $('rScore').classList.toggle('void', !ok);
   const rec = $('rRec');
-  rec.textContent = isBest ? L.newBest : (gSave.best[li] ? L.best(gSave.best[li].toLocaleString()) : '');
+  rec.textContent = !ok ? L.notCounted : isBest ? L.newBest : (gSave.best[li] ? L.best(gSave.best[li].toLocaleString()) : '');
   rec.classList.toggle('new', isBest);
-  $('rCoins').textContent = L.coinsGot(coins);
+  $('rCoins').textContent = ok ? L.coinsGot(coins) : L.coinsComfort(coins);
   const st = L.st;
   $('rStats').innerHTML = [
     [st[0], run.impact], [st[1], run.stretch], [st[2], run.bonus],
@@ -3584,6 +3612,8 @@ function showResult(s, n, isBest, ok, coins) {
   ].map(([k, val]) => `<span>${k}</span><b>${typeof val === 'number' ? val.toLocaleString() : val}</b>`).join('');
   const starEls = [...$('rStars').children];
   starEls.forEach((el) => el.classList.remove('on'));
+  const th = LEVELS[li].stars;
+  $('rTip').textContent = !ok ? L.failNote : n < 3 ? L.nextStar((th[n - 1] - s).toLocaleString(), '★'.repeat(n + 1)) : '';
   starEls.slice(0, n).forEach((el, i) => setTimeout(() => { el.classList.add('on'); SFX.star(i); }, 350 + i * 280));
   const next = $('rNext');
   next.textContent = ok && last ? L.allClear : L.gNext;
@@ -3656,6 +3686,22 @@ function showShop() {
   $('sheetShop').classList.add('on');
 }
 
+/* ---- while aiming, a goal whose sign is off screen (narrow phones) gets an arrow on the screen edge ---- */
+const goalOf = (lv) => lv.zones.find((z) => z.goal);
+const goalMark = $('gGoalMark');
+function markGoal(lv) {
+  const G = goalOf(lv);
+  let off = GAME.state !== 'aim';
+  if (!off) {
+    camera.updateMatrixWorld();
+    const [sx, sy] = screenOf((G.x0 + G.x1) / 2, G.y1 + 1.5);              // where the goal's own sign hangs
+    off = sx < innerWidth - 10;
+    if (!off) goalMark.style.transform =
+      `translate(${innerWidth - goalMark.offsetWidth - 12}px,${Math.max(130, Math.min(innerHeight - 150, sy))}px)`;
+  }
+  goalMark.classList.toggle('off', off);
+}
+
 /* ---- per frame ---- */
 const _tgt = new THREE.Vector3();
 function gameFrame(dt) {
@@ -3696,7 +3742,10 @@ function gameFrame(dt) {
   if (GAME.state === 'intro') {
     _tgt.set((x0 + x1) / 2, 4.2, 0); vw = Math.min(x1 - x0 + 1.5, portrait ? 13 : 21);
   } else if (GAME.state === 'aim') {
-    _tgt.set(lv.start[0] + base * 0.2, lv.start[1] + 0.2, 0);    // the bear sits about a third in from the left
+    // frame the sling and the goal together; a phone too narrow for both keeps the sling and points at the goal
+    const left = lv.start[0] - 1.4, right = goalOf(lv).x1 + 0.8;
+    vw = Math.max(base, Math.min(portrait ? 14 : 22, right - left));
+    _tgt.set(left + vw / 2, lv.start[1] + 0.2, 0);
   } else {
     let bx = 0, by = 0;
     for (let i = 0; i < b.n; i++) { bx += b.p[i * 3] - b.q[i * 3]; by += b.p[i * 3 + 1] - b.q[i * 3 + 1]; }
@@ -3715,6 +3764,7 @@ function gameFrame(dt) {
   const sh = GAME.shake * GAME.shake;
   camera.position.set(GAME.cam.x + GAME.kick.x + (Math.random() - 0.5) * sh, cy + d * 0.09 + GAME.kick.y + (Math.random() - 0.5) * sh, d);
   camera.lookAt(GAME.cam.x + GAME.kick.x * 0.5, cy + GAME.kick.y * 0.5, 0);
+  markGoal(lv);
 
   // light, contact shadows and the floor's pool of light follow the action
   keyLight.position.set(GAME.cam.x + 3.5, 11, 9);

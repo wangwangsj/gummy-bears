@@ -3244,15 +3244,15 @@ function buildLevel(li) {
 }
 function syncLevel(dt) {
   for (const P of CFG.world.parts) {
-    pose(P, simT);
+    pose(P, (GAME.machineTick || 0) / 300);
     P.mesh.position.set(P.cx, P.cy, 0);
     P.mesh.rotation.z = P.ang;
     P.pulse = Math.max(0, P.pulse - dt * 5);
     const s = 1 + (P.t === 'bumper' ? 0.18 : P.t === 'spring' ? 0.12 : 0.03) * P.pulse;
     if (P.t === 'spring') P.mesh.scale.set(1, 1 / s, 1); else P.mesh.scale.setScalar(s);
-    if (P.tex) P.tex.offset.x = (P.tex.offset.x - P.belt * dt / 1.2) % 1;
+    if (P.tex) P.tex.offset.x = (-(GAME.machineTick || 0) / 300 * P.belt / 1.2) % 1;
   }
-  for (const Z of CFG.world.zones) if (Z.sign) Z.sign.position.y = Z.y1 + 1.5 + Math.sin(simT * 3) * 0.12;
+  for (const Z of CFG.world.zones) if (Z.sign) Z.sign.position.y = Z.y1 + 1.5 + Math.sin((GAME.machineTick || 0) / 100) * 0.12;
 }
 
 /* ============================ FX: crumbs, rings, confetti ============================ */
@@ -3423,9 +3423,9 @@ const run = {};
 function resetRun() {
   for (const b of bears.slice()) drop(b);
   clearCrumbs();
-  pops.textContent = '';
+  pops.textContent = ''; $('confetti').replaceChildren();
   const lv = LEVELS[GAME.li];
-  GAME.sim = null; GAME.simAcc = 0;
+  GAME.sim = null; GAME.simAcc = 0; GAME.machineTick = 0; GAME.machineAcc = 0;
   GAME.seed = (crypto.getRandomValues(new Uint32Array(1))[0]);
   GAME.runConfig = GAME.ranked ? GAME.ranked.config : { sling: gSave.up.sling, bounce: gSave.up.bounce, wobble: CFG.wobble };
   if (GAME.ranked) GAME.seed = GAME.ranked.seed;
@@ -3581,11 +3581,13 @@ function launch(vx, vy) {
     b.q[k + 2] = b.p[k + 2];
   }
   GAME.sim = createSharedRun({ level: LEVELS[GAME.li], seed: GAME.seed, config: GAME.runConfig, flavour: flavourIdx });
-  const command = normalizeCommand({ vx, vy }, GAME.runConfig);
+  const command = normalizeCommand({ vx, vy, waitTicks: GAME.machineTick || 0 }, GAME.runConfig);
   GAME.command = command; GAME.sim.launch(command);
   GAME.simAcc = 0;
   GAME.state = 'fly'; run.flyT = 0;
-  applyRunSnapshot(GAME.sim.snapshot());
+  const launchSnapshot = GAME.sim.snapshot();
+  GAME.launchBlend = Float32Array.from(b.p, (value, i) => value - launchSnapshot.bears[0].p[i]);
+  applyRunSnapshot(launchSnapshot);
   const level = GAME.runConfig.sling;
   if (level) {
     const at = b.centre(); ring(at[0], at[1], at[2], .6 + level * .2);
@@ -3927,11 +3929,20 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) MUSIC
 function applyRunSnapshot(snapshot) {
   const state = snapshot.bears[0], b = GAME.bear;
   b.p.set(state.p); b.q.set(state.q); b.lk.set(state.lk); b.seg.set(state.seg);
+  if (GAME.launchBlend && snapshot.t < .12) {
+    // Release the finger's presentation deformation continuously into the authoritative
+    // pose. Collision/scoring stays on the shared run, never on this short visual blend.
+    const k = 1 - snapshot.t / .12;
+    for (let i = 0; i < b.p.length; i++) {
+      const d = GAME.launchBlend[i] * k * k;
+      b.p[i] += d; b.q[i] += d;
+    }
+  } else GAME.launchBlend = null;
   b.flash.set(state.flash); b.dmg.set(state.dmg); b.up = state.up;
   b.segs = state.segs; b.strands = state.strands;
   Object.assign(run, snapshot.run, { score: snapshot.score, goal: snapshot.goal, flyT: snapshot.t });
   run.cut = new Set(state.cut);
-  GAME.simTime = snapshot.t;
+  GAME.simTime = snapshot.physT; GAME.machineTick = snapshot.machineTick;
   for (const P of CFG.world.parts) {
     const p = snapshot.parts[P.index];
     if (!p) continue;
@@ -3939,6 +3950,7 @@ function applyRunSnapshot(snapshot) {
     P.mesh.position.set(p.cx, p.cy, 0); P.mesh.rotation.z = p.ang;
     if (P.tex) P.tex.offset.x = (-GAME.simTime * (P.belt || 0) / 1.2) % 1;
   }
+  for (const Z of CFG.world.zones) if (Z.sign) Z.sign.position.y = Z.y1 + 1.5 + Math.sin(snapshot.machineTick / 100) * .12;
   for (const C of snapshot.collectibles || []) {
     const c = CFG.world.collectibles?.[C.index]; if (c) c.mesh.visible = !C.hit;
   }
@@ -3968,6 +3980,22 @@ function presentRunEvent(e) {
   GAME.shake = Math.max(GAME.shake, e.fx?.shake || 0);
 }
 function simulateShared(dt) {
+  if (GAME.state === 'intro' || GAME.state === 'aim') {
+    GAME.machineAcc += dt * 300;
+    const ticks = Math.floor(GAME.machineAcc); GAME.machineAcc -= ticks;
+    GAME.machineTick = (GAME.machineTick || 0) + ticks;
+    if (GAME.state === 'aim' && GAME.bear) {
+      // The sling preview is presentation, not a scored simulation. Let its actual soft
+      // geometry react to the finger while the machinery keeps its own live clock.
+      const b = GAME.bear, solver = solve();
+      const preview = { ...solver, align: 0, shape: solver.shape * .45, dist: solver.dist * .5 };
+      for (let i = 0; i < Math.min(ticks, 60); i++) {
+        for (let it = 0; it < 2; it++) { b.shapeMatch(preview.shape, 0); b.links(preview.dist); if (b.grab >= 0) b.applyGrab(); }
+      }
+      b.q.set(b.p);
+    }
+    return;
+  }
   if (!GAME.sim || GAME.state !== 'fly') return;
   GAME.simAcc += Math.min(dt, .25);
   const ticks = Math.min(120, Math.floor(GAME.simAcc * 300));
@@ -4322,7 +4350,7 @@ function submitRankedRun(command, ticket) {
   if (t.promise) return t.promise;
   const c = t.command || command || GAME.command;
   if (!c || !Number.isFinite(c.vx) || !Number.isFinite(c.vy)) return Promise.resolve(null);
-  t.command = { vx: c.vx, vy: c.vy }; t.failed = false;
+  t.command = { vx: c.vx, vy: c.vy, ...(c.waitTicks !== undefined ? { waitTicks: c.waitTicks } : {}) }; t.failed = false;
   t.promise = (async () => {
     for (let n = 0; n < 4; n++) {
       try {

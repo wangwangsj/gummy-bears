@@ -43,7 +43,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
   bear.hopCool = 1e9;
 
   const run = {
-    state: "aim", tick: 0, done: false, reason: null, goal: false,
+    state: "aim", tick: 0, waitTicks: 0, done: false, reason: null, goal: false,
     score: 0, impact: 0, stretch: 0, bonus: 0, maxHit: 0, combo: 0, bestCombo: 1, lastHit: -9,
     pv: [0, 0], ev: 0, flyT: 0, still: 0, endT: 0, strPop: -9, lost: 0, grindT: 0,
     anchor: null, anchorT: 0, cut: new Set(), seq: 0, events: [],
@@ -287,7 +287,8 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
   /* ---- public surface ---- */
   function launch(cmd) {
     if (run.state !== "aim") throw new Error(`launch() needs state "aim", run is "${run.state}"`);
-    const { vx, vy } = checkCommand(cmd, cfgUser);
+    const { vx, vy, waitTicks = 0 } = checkCommand(cmd, cfgUser);
+    run.waitTicks = waitTicks; world.simT = waitTicks * TICK_DT; world.t = -1; poseAll(world);
     const b = bear, h = cfg.subH, c = b.centre();
     cfg.upright = LAUNCH_PHYSICS.upright; cfg.maxV = LAUNCH_PHYSICS.maxV; cfg.maxV2 = cfg.maxV * cfg.maxV; cfg.air = LAUNCH_PHYSICS.air;
     cfg.restitution = LAUNCH_PHYSICS.restitutionBase + LAUNCH_PHYSICS.restitutionPerBounce * cfgUser.bounce;
@@ -299,15 +300,18 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
       b.q[k + 1] = b.p[k + 1] - (vy + spin * rx) * h;
       b.q[k + 2] = b.p[k + 2];
     }
+    let mx = 0, my = 0;
+    for (let i = 0; i < b.n; i++) { mx += (b.p[i * 3] - b.q[i * 3]) * RIG.mass[i]; my += (b.p[i * 3 + 1] - b.q[i * 3 + 1]) * RIG.mass[i]; }
+    run.pv = [mx / (TOTAL_MASS * h), my / (TOTAL_MASS * h)]; run.ev = 0;
     run.state = "fly"; run.flyT = 0;
     emit("launch", { vx, vy });
   }
 
   function tickOnce() {
-    world.simT = run.tick * TICK_DT;
+    world.simT = (run.waitTicks + run.tick) * TICK_DT;
     bear.step(TICK_DT, solve(cfg));
     run.tick++;
-    world.simT = run.tick * TICK_DT;
+    world.simT = (run.waitTicks + run.tick) * TICK_DT;
     if (run.tick % SCORE_EVERY === 0) scoreStep(SCORE_DT);
     if (!run.done && run.tick >= MAX_RUN_TICKS) endRun("time");
   }
@@ -319,7 +323,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
 
   const arr = (a) => Array.from(a);
   function snapshot() {
-    world.simT = run.tick * TICK_DT;
+    world.simT = (run.waitTicks + run.tick) * TICK_DT;
     poseAll(world);
     const events = run.events; run.events = [];                 // consumed exactly once; step() never drops them
     return {
@@ -333,7 +337,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
         lk: arr(bear.lk), seg: arr(bear.seg), up: arr(bear.up),
         segs: bear.segs ? bear.segs.map((s) => ({ ids: arr(s.ids), n: s.n, mass: s.mass })) : null,
       }],
-      physT: world.simT,
+      physT: world.simT, machineTick: run.waitTicks + run.tick,
       run: { impact: run.impact, stretch: run.stretch, bonus: run.bonus, maxHit: run.maxHit, lost: run.lost, bestCombo: run.bestCombo, combo: run.combo },
       collectibles: world.collectibles.map((C) => ({ index: C.index, x: C.x, y: C.y, pts: C.pts, hit: C.hit })),
       brokenParts: world.parts.filter((P) => P.broken).map((P) => P.index),

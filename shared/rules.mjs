@@ -5,7 +5,7 @@ import { RIG } from "./physics.mjs";
 
 /* bump on ANY change that can alter a replay's score / outcome.  A server must refuse to
    compare runs across versions; leaderboards are bucketed by it. */
-export const RULES_VERSION = "gummy-rules-5";
+export const RULES_VERSION = "gummy-rules-6";
 
 export const TICK_HZ = 300;
 export const TICK_DT = 1 / TICK_HZ;            // fixed substep, same as the browser's CFG.subH
@@ -85,15 +85,16 @@ export function checkCommand(cmd, config) {
   }
   const lim = vmax(config.sling);
   if (Math.hypot(vx, vy) > lim + 1e-9) throw new RangeError(`launch speed ${Math.hypot(vx, vy).toFixed(3)} exceeds the sling limit ${lim.toFixed(3)}`);
-  return { vx, vy };
+  if (cmd.waitTicks !== undefined && (!Number.isSafeInteger(cmd.waitTicks) || cmd.waitTicks < 0)) throw new RangeError('waitTicks must be a non-negative safe integer');
+  return cmd.waitTicks === undefined ? { vx, vy } : { vx, vy, waitTicks: cmd.waitTicks };
 }
 /* convenience for callers that hold an over-long vector (older recorded tests): scale it down to the limit */
 export function normalizeCommand(cmd, config) {
   if (!cmd || typeof cmd !== "object" || !Number.isFinite(cmd.vx) || !Number.isFinite(cmd.vy)) throw new TypeError("command.vx / vy must be finite numbers");
   const lim = vmax(config.sling), len = Math.hypot(cmd.vx, cmd.vy);
-  if (len <= lim) return { vx: cmd.vx, vy: cmd.vy };
+  if (len <= lim) return checkCommand(cmd, config);
   const k = lim / len * (1 - 1e-12);
-  return { vx: cmd.vx * k, vy: cmd.vy * k };
+  return checkCommand({ ...cmd, vx: cmd.vx * k, vy: cmd.vy * k }, config);
 }
 
 /* 1 star for arriving, +1 per threshold passed; no goal, no stars */

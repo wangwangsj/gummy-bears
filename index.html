@@ -335,6 +335,11 @@
     font:500 12.5px/1 var(--sans); letter-spacing:.04em; transition:opacity .3s; display:flex; align-items:center; gap:8px;
   }
   .hud-hint.off{opacity:0}
+  .aim-power{position:absolute;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;padding:8px 14px;border-radius:20px;font:600 12px/1.2 var(--sans);color:var(--ink);box-shadow:0 3px 18px #0002}
+  .aim-power.off{display:none}
+  .aim-power i{display:block;width:140px;height:5px;background:var(--hair);border-radius:4px;margin-top:6px;overflow:hidden}
+  .aim-power u{display:block;height:100%;width:0;background:var(--cherry);text-decoration:none}
+  .panel{touch-action:pan-y;overscroll-behavior:contain}
   /* while aiming on a phone too narrow to show the goal: an arrow on the screen edge pointing at it */
   .goal-mark{
     position:absolute; left:0; top:0; display:flex; align-items:center; gap:4px; padding:7px 10px; border-radius:999px;
@@ -439,6 +444,13 @@
   .verdict small{display:block; margin-top:8px; font:500 12px/1.4 var(--sans); font-style:normal; letter-spacing:.04em; color:var(--ink-soft)}
   .tip{text-align:center; font-size:12.5px; margin:-8px 0 12px; color:var(--ink-soft)}
   .tip:empty{display:none}
+  .workshop-panel{width:min(900px,100%)}
+  .workshop-panel p{font-size:12px;line-height:1.6;color:var(--ink-soft)}
+  #wsCanvas{display:block;width:100%;max-height:48vh;background:#f5ede0;touch-action:none;border:1px solid var(--hair);border-radius:12px}
+  .ws-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:12px}
+  .ws-tools input{width:64px}.ws-tools button,.ws-tools select{padding:8px;border:1px solid var(--hair);background:#fff;border-radius:8px}
+  #wsName,#wsCode{box-sizing:border-box;width:100%;padding:10px;border:1px solid var(--hair);border-radius:8px;font:inherit;margin-top:10px}
+  [hidden]{display:none!important}
   .earn{text-align:center; font-size:13px; margin:-6px 0 14px; color:#b4780c; font-weight:600}
   .row-links{display:flex; justify-content:center; gap:22px}
   .row-links .linky{margin-top:12px}
@@ -485,6 +497,7 @@
       <p class="sub rise d3" data-i18n-html="sub">Ten mass points per bear, held together by <b>volume&#8209;preserving shape matching</b>, poured into one implicit surface. Grab a limb and pull — the whole bear leans after it.</p>
       <div class="hint rise d4"><s></s> <span data-i18n="hint">Drag to stretch &middot; fling to throw &middot; tap the table to drop one</span></div>
       <button class="cta rise d4" id="playBtn"><i>▶</i><span data-i18n="play">Play · Gummy Ordeal</span><small data-i18n="playSub">5 levels</small></button>
+      <button class="cta rise d4" id="workshopBtn" data-i18n="wsTitle">关卡创意工坊</button>
     </header>
 
     <aside class="card" aria-label="controls">
@@ -535,10 +548,12 @@
       <div class="stars-live"><i><u></u></i><i><u></u></i></div>
       <span class="combo" id="gCombo">×1.5</span>
     </div>
+    <div class="aim-power off" id="gPower"><b>0%</b><i><u></u></i></div>
     <div class="goal-mark off" id="gGoalMark"><b data-i18n="gGoalMark">Goal</b><i>➜</i></div>
     <div class="hud-hint off" id="gHint"><span>✋</span><span data-i18n="gHintAim">Pull back anywhere, let go to fling</span></div>
     <div class="hud-bot">
       <label class="chip soft"><span data-i18n="wobble">Wobble</span><input id="gWob" type="range" min="0" max="1" step="0.01" value="0.42"><output id="gWobOut">0.42</output></label>
+      <button class="chip" id="gEditorBack" data-i18n="wsBack" hidden>返回编辑</button>
       <button class="chip" id="gRetry">↺ <span data-i18n="gRetry">Retry</span></button>
     </div>
   </div>
@@ -594,6 +609,18 @@
       <button class="pri" id="eSandbox" data-i18n="gEndFree">Go play freely</button>
     </div>
   </div></div>
+  <div class="sheet" id="sheetWorkshop"><div class="panel workshop-panel">
+    <h3 data-i18n="wsTitle">Level workshop</h3>
+    <input id="wsName" maxlength="48" aria-label="level name">
+    <p data-i18n="wsHelp">Drag objects; red is the start and green is the goal. Custom levels earn no campaign coins.</p>
+    <svg id="wsCanvas" viewBox="-10 -16 30 16" role="img" aria-label="level editor"></svg>
+    <div class="ws-tools"><select id="wsType"><option>box</option><option>roller</option><option>bumper</option><option>spring</option><option>press</option><option>crusher</option><option>belt</option><option>saw</option><option>blade</option><option>glass</option><option>jar</option><option>star</option></select><button id="wsAdd" data-i18n="wsAdd">Add</button><button id="wsDelete" data-i18n="wsDelete">Delete</button><span id="wsCount"></span></div>
+    <div class="ws-tools"><label>X <input id="wsX" type="number" step=".5"></label><label>Y <input id="wsY" type="number" step=".5"></label><label>° <input id="wsAngle" type="number" step="15"></label><button id="wsApply" data-i18n="wsApply">Apply</button></div>
+    <div class="ws-tools"><label>W <input id="wsW" type="number" step=".1"></label><label>H <input id="wsH" type="number" step=".1"></label><label>R <input id="wsR" type="number" step=".1"></label><label>↻ <input id="wsSpeed" type="number" step=".5"></label><label>T <input id="wsPeriod" type="number" step=".2"></label></div>
+    <div class="row-btns"><button id="wsUndo" data-i18n="wsUndo">Undo</button><button id="wsRedo" data-i18n="wsRedo">Redo</button><button id="wsPlay" class="pri" data-i18n="wsPlay">Test play</button></div>
+    <textarea id="wsCode" rows="2" aria-label="share link or import code"></textarea>
+    <div class="row-btns"><button id="wsShare" data-i18n="wsShare">Share</button><button id="wsImport" data-i18n="wsImport">Import</button><button id="wsClose" data-i18n="gClose">Close</button></div>
+  </div></div>
   <div class="toast" id="toast"></div>
   <div id="coach"><i></i><b data-i18n="coach">Grab a bear</b></div>
   <div id="cursor"></div>
@@ -615,10 +642,19 @@
 <script nomodule>
   document.getElementById('loadMsg').textContent = 'This browser is too old for WebGL 2 · 浏览器版本过旧，请换用新版 Chrome / Safari';
 </script>
+<script src="./online-config.js"></script>
 <script type="module">
 /* ================= GUMMY BEARS ================= */
 import * as THREE from './vendor/three.module.min.js';
 import { RoundedBoxGeometry } from './vendor/RoundedBoxGeometry.js';
+import { fullPull, aimCommand, releaseAim } from './shared/input.mjs';
+import { LEVEL_IDS, migrateSave, exportLegacy } from './shared/save.mjs';
+import { validateLevel, encodeLevel, decodeLevel, makeDraft } from './shared/level-schema.mjs';
+import { Bear as SharedBear, RIG, solve as sharedSolve, separate as sharedSeparate } from './shared/physics.mjs';
+import { OFFICIAL_LEVELS } from './shared/levels.mjs';
+import { createRun as createSharedRun } from './shared/sim.mjs';
+import { normalizeCommand } from './shared/rules.mjs';
+import { pose as sharedPose, collideWorld as sharedCollideWorld, createWorld } from './shared/world.mjs';
 
 /* ============================================================
    0 · TUNING
@@ -647,529 +683,14 @@ const CFG = {
   maxCells: COARSE ? 40 : 52,    // per axis
   maxBears: COARSE ? 10 : 14,
 };
-// wobble -> solver stiffness.  low wobble = firm candy, high = jelly
-function solve(){
-  const w = CFG.wobble;
-  return {
-    shape: 0.26 - 0.20 * w,   // per-substep shape-match blend
-    dist:  0.90 - 0.55 * w,   // distance-constraint stiffness
-    align: (0.16 - 0.14 * w) * CFG.upright,   // how fast the bear rights itself
-    drag:  (0.006 - 0.004 * w) * CFG.air, // per-substep air drag
-    wob:   w,
-  };
-}
-
-/* ============================================================
-   1 · BEAR RIG — 10 mass points, y up, z toward the viewer
-   [name, x, y, z, fieldRadius]
-   ============================================================ */
-/* Classic gummy-bear proportions, rig height ~1.0.  Every value here is a
-   field ball, so the silhouette IS these numbers: the head is the widest thing
-   above the waist, the ears are bumps level with the skull, the muzzle stays
-   inside the head, and nothing fills the crotch between the legs. */
-const RIG_DEF = [
-  ['body',   0.000, 0.400,  0.000, 0.248],
-  ['belly',  0.000, 0.290,  0.092, 0.175],
-  ['head',   0.000, 0.720,  0.000, 0.242],
-  ['snout',  0.000, 0.648,  0.208, 0.118],
-  ['earL',  -0.198, 0.925, -0.012, 0.092],
-  ['earR',   0.198, 0.925, -0.012, 0.092],
-  ['handL', -0.335, 0.385,  0.058, 0.122],
-  ['handR',  0.335, 0.385,  0.058, 0.122],
-  ['footL', -0.198, 0.085,  0.072, 0.128],
-  ['footR',  0.198, 0.085,  0.072, 0.128],
-];
-// stretchy strands: rendered as interpolated field balls, thinned by stretch
-const CHAINS = [
-  ['body', 'head'], ['body', 'belly'], ['head', 'snout'], ['head', 'earL'], ['head', 'earR'],
-  ['body', 'handL'], ['body', 'handR'], ['body', 'footL'], ['body', 'footR'],
-];
-// subtractive field balls: the crotch between the legs and the hollow under
-// each arm. without them the metaball merges everything into one barrel.
-const CARVE = [
-  { a: 'footL', b: 'footR', t: 0.5,  off: [0, -0.020, 0.012], r: 0.235 }, // crotch
-  { a: 'body',  b: 'handL', t: 0.52, off: [0, -0.060, 0.0], r: 0.120 },   // armpit
-  { a: 'body',  b: 'handR', t: 0.52, off: [0, -0.060, 0.0], r: 0.120 },
-];
-// shear / bend guards so the bear cannot collapse into a puddle
-const BRACES = [
-  ['earL', 'earR'], ['handL', 'handR'], ['footL', 'footR'], ['head', 'belly'],
-  ['snout', 'body'], ['head', 'footL'], ['head', 'footR'], ['head', 'handL'], ['head', 'handR'],
-  ['belly', 'footL'], ['belly', 'footR'], ['belly', 'handL'], ['belly', 'handR'],
-  ['earL', 'snout'], ['earR', 'snout'],
-];
-const MASS = { body: 1.6, belly: 1.0, head: 1.15, snout: 0.25, earL: 0.18, earR: 0.18,
-               handL: 0.35, handR: 0.35, footL: 0.5, footR: 0.5 };
-
-const RIG = (() => {
-  const n = RIG_DEF.length;
-  const idx = Object.create(null);
-  const rest = new Float32Array(n * 3), rad = new Float32Array(n),
-        inv = new Float32Array(n), mass = new Float32Array(n), col = new Float32Array(n);
-  RIG_DEF.forEach((d, i) => {
-    idx[d[0]] = i;
-    rest[i * 3] = d[1]; rest[i * 3 + 1] = d[2]; rest[i * 3 + 2] = d[3];
-    rad[i] = d[4]; col[i] = d[4] * 1.02;   // the isosurface reaches past the ball, so bears stop a hair early
-    mass[i] = MASS[d[0]]; inv[i] = 1 / MASS[d[0]];
-  });
-  // shape matching needs the rest pose about its own centre of mass, otherwise the
-  // target is com + rest and every bear walks itself upward through the table
-  let mx = 0, my = 0, mz = 0, mm = 0;
-  for (let i = 0; i < n; i++) {
-    mm += mass[i];
-    mx += rest[i * 3] * mass[i]; my += rest[i * 3 + 1] * mass[i]; mz += rest[i * 3 + 2] * mass[i];
-  }
-  mx /= mm; my /= mm; mz /= mm;
-  const rec = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    rec[i * 3] = rest[i * 3] - mx; rec[i * 3 + 1] = rest[i * 3 + 1] - my; rec[i * 3 + 2] = rest[i * 3 + 2] - mz;
-  }
-  const restY = my;                              // rest centre-of-mass height above the floor
-  let minY = 1e9;                                // lowest point of the rest pose, incl. radius
-  for (let i = 0; i < n; i++) minY = Math.min(minY, rest[i * 3 + 1] - col[i]);
-  const link = (a, b, k) => {
-    const i = idx[a], j = idx[b];
-    const dx = rest[i * 3] - rest[j * 3], dy = rest[i * 3 + 1] - rest[j * 3 + 1],
-          dz = rest[i * 3 + 2] - rest[j * 3 + 2];
-    return { i, j, rest: Math.hypot(dx, dy, dz), k };
-  };
-  return {
-    n, idx, rest, rec, restY, minY, rad, col, inv, mass,
-    chains: CHAINS.map(([a, b]) => link(a, b, 1)),
-    carve: CARVE.map((c) => ({ i: idx[c.a], j: idx[c.b], t: c.t, off: c.off, r: c.r })),
-    braces: BRACES.map(([a, b]) => link(a, b, 1)),
-    links: [...CHAINS.map(([a, b]) => link(a, b, 1)), ...BRACES.map(([a, b]) => link(a, b, 1))],
-    // strand samples per chain, and the radius factor they carry
-    strandT: [0.34, 0.67],
-    strandR: 0.66,
-  };
-})();
-
-
-/* ============================================================
-   2 · SOFT BODY — volume-preserving shape matching + PBD links
-   ============================================================ */
-const _A = new Float32Array(9), _R = new Float32Array(9), _I = new Float32Array(9), _T = new Float32Array(9);
-
-function invert3(m, out) {
-  const a = m[0], b = m[1], c = m[2], d = m[3], e = m[4], f = m[5], g = m[6], h = m[7], i = m[8];
-  const A = e * i - f * h, B = -(d * i - f * g), C = d * h - e * g;
-  const det = a * A + b * B + c * C;
-  if (!(Math.abs(det) > 1e-9)) return 0;
-  const k = 1 / det;
-  out[0] = A * k; out[1] = (c * h - b * i) * k; out[2] = (b * f - c * e) * k;
-  out[3] = B * k; out[4] = (a * i - c * g) * k; out[5] = (c * d - a * f) * k;
-  out[6] = C * k; out[7] = (b * g - a * h) * k; out[8] = (a * e - b * d) * k;
-  return det;
-}
-// iterative polar decomposition: R <- 1/2 (R + R^-T)
-function polar3(m, iters) {
-  for (let k = 0; k < iters; k++) {
-    if (!invert3(m, _I)) { m.set([1, 0, 0, 0, 1, 0, 0, 0, 1]); return false; }
-    for (let i = 0; i < 9; i++) m[i] = 0.5 * (m[i] + _I[(i % 3) * 3 + ((i / 3) | 0)]);
-  }
-  return true;
-}
-
-class Bear {
+// Physics is shared with Node; this file only owns the implicit-surface renderer.
+const solve = () => sharedSolve(CFG);
+const separate = (a, b) => sharedSeparate(a, b);
+class Bear extends SharedBear {
   constructor(x, y, z, yaw, flavour, vx, vy, vz) {
-    const n = this.n = RIG.n;
-    this.f = flavour;
-    this.p = new Float32Array(n * 3);
-    this.q = new Float32Array(n * 3);
-    this.R0 = new Float32Array(9);
-    const c = Math.cos(yaw), s = Math.sin(yaw);
-    this.R0.set([c, 0, -s, 0, 1, 0, s, 0, c]);
-    for (let i = 0; i < n; i++) {
-      const rx = RIG.rest[i * 3], ry = RIG.rest[i * 3 + 1], rz = RIG.rest[i * 3 + 2];
-      const px = c * rx - s * rz, pz = s * rx + c * rz;
-      const k = i * 3;
-      this.p[k] = this.q[k] = px + x;
-      this.p[k + 1] = this.q[k + 1] = ry + y;
-      this.p[k + 2] = this.q[k + 2] = pz + z;
-    }
-    if (vx || vy || vz) {                       // seed verlet history with a velocity
-      const h = CFG.subH;
-      for (let i = 0; i < n; i++) {
-        const k = i * 3;
-        this.q[k] -= vx * h; this.q[k + 1] -= vy * h; this.q[k + 2] -= vz * h;
-      }
-    }
-    this.grab = -1; this.grabT = null;
-    this.hop = 1.2 + Math.random() * 3.5; this.hopArm = 0; this.hopCool = 1 + Math.random() * 2.5;
-    this.idle = 0; this.strain = 1; this.bounce = 0; this.hit = 0; this.perch = 0; this.onTop = 0;
-    this.alive = true;
-    // pieces: every link can be cut; seg[i] says which fragment a point belongs to
-    this.seg = new Int8Array(n); this.segs = null;
-    this.lk = new Uint8Array(RIG.links.length).fill(1);
-    // strands: what is left of a cut limb, a long soft string of gummy that only pulls
-    this.strands = [];
-    this.up = [0, 1, 0];
-    // soft: a hit leaves it wobblier for a moment; stiff: frozen > 1, melted < 1
-    this.soft = 0; this.stiff = 1;
-    // per-point hit flash and lasting stress whitening, read by the shader
-    this.flash = new Float32Array(n); this.dmg = new Float32Array(n);
-    this.hitSp = 0; this.hitPart = -1; this.hitNx = 0; this.hitNy = 1;
-  }
-
-  /* a point took a hit of speed sp (m/s) along normal n */
-  bump(i, sp, nx, ny) {
-    if (sp < (CFG.world ? 2.2 : 5.5)) return;
-    this.flash[i] = Math.max(this.flash[i], Math.min(1, (sp - 2) / 9));
-    if (CFG.world) this.dmg[i] = Math.min(1.2, this.dmg[i] + sp * 0.02 * CFG.fragile);
-    this.soft = Math.max(this.soft, Math.min(1.2, sp / 11));
-    if (sp > this.hitSp) { this.hitSp = sp; this.hitPart = i; this.hitNx = nx; this.hitNy = ny; }
-  }
-
-  /* cut every live link the test says is crossed; returns how many.  With strand, the
-     main strand across the cut survives as a stretchy string, so the piece dangles */
-  cutWhere(test, strand) {
-    let any = 0, first = -1;
-    RIG.links.forEach((L, li) => {
-      if (!this.lk[li] || !test(L.i, L.j)) return;
-      this.lk[li] = 0; any++;
-      if (first < 0 && li < RIG.chains.length) first = li;
-    });
-    if (any) this.resegment();
-    if (any && strand && first >= 0) {
-      const L = RIG.links[first];
-      const s = { i: L.i, j: L.j, rest: L.rest * 1.1 };
-      this.strands.push(s);
-      return s;
-    }
-    return any;
-  }
-  resegment() {
-    const n = this.n, root = Array.from({ length: n }, (_, i) => i);
-    const find = (i) => (root[i] === i ? i : (root[i] = find(root[i])));
-    RIG.links.forEach((L, li) => { if (this.lk[li]) root[find(L.i)] = find(L.j); });
-    const id = new Map();
-    for (let i = 0; i < n; i++) { const r = find(i); if (!id.has(r)) id.set(r, id.size); this.seg[i] = id.get(r); }
-    // a link left between two fragments would pull them back together
-    RIG.links.forEach((L, li) => { if (this.seg[L.i] !== this.seg[L.j]) this.lk[li] = 0; });
-    if (id.size < 2) { this.segs = null; return; }
-    this.segs = [];
-    for (let s = 0; s < id.size; s++) {
-      const ids = [];
-      for (let i = 0; i < n; i++) if (this.seg[i] === s) ids.push(i);
-      let mx = 0, my = 0, mz = 0, mm = 0;
-      for (const i of ids) { const w = RIG.mass[i]; mm += w; mx += RIG.rest[i * 3] * w; my += RIG.rest[i * 3 + 1] * w; mz += RIG.rest[i * 3 + 2] * w; }
-      mx /= mm; my /= mm; mz /= mm;
-      const rec = new Float32Array(ids.length * 3);
-      ids.forEach((i, j) => { rec[j * 3] = RIG.rest[i * 3] - mx; rec[j * 3 + 1] = RIG.rest[i * 3 + 1] - my; rec[j * 3 + 2] = RIG.rest[i * 3 + 2] - mz; });
-      this.segs.push({ ids, n: ids.length, rec, mass: mm });
-    }
-  }
-  segCentre(s) {
-    let x = 0, y = 0, z = 0, m = 0;
-    for (let i = 0; i < this.n; i++) {
-      if (this.seg[i] !== s) continue;
-      const w = RIG.mass[i], k = i * 3;
-      x += this.p[k] * w; y += this.p[k + 1] * w; z += this.p[k + 2] * w; m += w;
-    }
-    return [x / m, y / m, z / m];
-  }
-
-  /* ---- one physics substep ---- */
-  step(h, S) {
-    const n = this.n, p = this.p, q = this.q, inv = RIG.inv;
-    const drag = 1 - S.drag;
-    const g = CFG.gravity * h * h;
-    let still = 0;
-    for (let i = 0; i < n; i++) {
-      const k = i * 3;
-      let vx = (p[k] - q[k]) * drag, vy = (p[k + 1] - q[k + 1]) * drag, vz = (p[k + 2] - q[k + 2]) * drag;
-      const sp2 = vx * vx + vy * vy + vz * vz;
-      if (sp2 > CFG.maxV2) {                        // a hard pancake must not rocket a bear off the table
-        const s = CFG.maxV / Math.sqrt(sp2); vx *= s; vy *= s; vz *= s;
-      }
-      if (this.idle > 0 && this.grab < 0) { const s = 1 - 0.35 * this.idle; vx *= s; vy *= s; vz *= s; }
-      q[k] = p[k]; q[k + 1] = p[k + 1]; q[k + 2] = p[k + 2];
-      p[k] += vx; p[k + 1] += vy + g; p[k + 2] += vz;
-      still += Math.abs(vx) + Math.abs(vy) + Math.abs(vz);
-    }
-    // idle = 1 only when the bear is genuinely at rest.  damping used to key off
-    // how *fast* a bear was moving, which strangled every wobble and hop.
-    this.idle = 1 - Math.min(1, (still / n) * 600);
-    this.behave(h);
-    const soft = Math.min(1, this.soft);
-    this.soft = Math.max(0, this.soft - h * 2.2);
-    for (let i = 0; i < n; i++) {
-      this.flash[i] *= 0.986;
-      if (this.dmg[i] > 0) this.dmg[i] = Math.max(0, this.dmg[i] - h * 0.015);
-    }
-    const lam = Math.min(0.6, S.shape * this.stiff) * (1 - 0.7 * soft);
-    const kd = Math.min(1, S.dist * this.stiff) * (1 - 0.45 * soft);
-    for (let it = 0; it < 2; it++) {
-      if (this.segs) { for (const sg of this.segs) if (sg.n >= 3) this.shapeMatchSeg(sg, lam); }
-      // a bear lying on others lets go of standing up, so piles can form
-      else this.shapeMatch(lam, this.onTop > 0 ? S.align * CFG.pileUpright : S.align);
-      this.links(kd);
-      if (this.grab >= 0) this.applyGrab();
-    }
-    if (this.segs) this.selfCollide();
-    this.collide(h);
-  }
-
-  /* ---- volume-preserving shape matching ---- */
-  shapeMatch(lambda, align) {
-    const n = this.n, p = this.p, rest = RIG.rest, w = RIG.mass;
-    let m = 0, cx = 0, cy = 0, cz = 0;
-    for (let i = 0; i < n; i++) {
-      const k = i * 3, wi = w[i];
-      m += wi; cx += p[k] * wi; cy += p[k + 1] * wi; cz += p[k + 2] * wi;
-    }
-    cx /= m; cy /= m; cz /= m;
-    let a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0, a20 = 0, a21 = 0, a22 = 0;
-    for (let i = 0; i < n; i++) {
-      const k = i * 3, wi = w[i];
-      const x = (p[k] - cx) * wi, y = (p[k + 1] - cy) * wi, z = (p[k + 2] - cz) * wi;
-      const rx = rest[k], ry = rest[k + 1], rz = rest[k + 2];
-      a00 += x * rx; a01 += x * ry; a02 += x * rz;
-      a10 += y * rx; a11 += y * ry; a12 += y * rz;
-      a20 += z * rx; a21 += z * ry; a22 += z * rz;
-    }
-    // bias the covariance toward the bear's own facing (it leans, then rights itself)
-    const R0 = this.R0, al = align;
-    a00 += al * (R0[0] - a00); a01 += al * (R0[1] - a01); a02 += al * (R0[2] - a02);
-    a10 += al * (R0[3] - a10); a11 += al * (R0[4] - a11); a12 += al * (R0[5] - a12);
-    a20 += al * (R0[6] - a20); a21 += al * (R0[7] - a21); a22 += al * (R0[8] - a22);
-    // The covariance is C·Rᵀ, not symmetric, and the rest shape is strongly
-    // elongated — so its singular values are far apart. Divide out det(A) first:
-    // that leaves a unit-determinant map whose polar factor is a true rotation,
-    // and the leftover stretch *is* the volume change we have to undo.
-    _A.set([a00, a01, a02, a10, a11, a12, a20, a21, a22]);
-    const dA = a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) +
-               a02 * (a10 * a21 - a11 * a20);
-    if (!(Math.abs(dA) > 1e-9)) return;
-    const na = Math.cbrt(Math.abs(dA));
-    for (let i = 0; i < 9; i++) _A[i] /= na;
-    if (!polar3(_A, 6)) return;
-    _R.set(_A);
-    // volume preservation: undo the area change of the linear map
-    const det = _R[0] * (_R[4] * _R[8] - _R[5] * _R[7]) - _R[1] * (_R[3] * _R[8] - _R[5] * _R[6]) +
-                _R[2] * (_R[3] * _R[7] - _R[4] * _R[6]);
-    let sc = Math.cbrt(1 / Math.max(0.05, Math.abs(det)));
-    sc = Math.max(0.72, Math.min(1.35, sc));
-    const r0 = _R;
-    for (let i = 0; i < n; i++) {
-      const rx = RIG.rec[i * 3] * sc, ry = RIG.rec[i * 3 + 1] * sc, rz = RIG.rec[i * 3 + 2] * sc;
-      const k = i * 3;
-      const tx = cx + r0[0] * rx + r0[1] * ry + r0[2] * rz;
-      const ty = cy + r0[3] * rx + r0[4] * ry + r0[5] * rz;
-      const tz = cz + r0[6] * rx + r0[7] * ry + r0[8] * rz;
-      p[k] += lambda * (tx - p[k]);
-      p[k + 1] += lambda * (ty - p[k + 1]);
-      p[k + 2] += lambda * (tz - p[k + 2]);
-    }
-  }
-
-  /* shape matching for one fragment of a cut bear: same maths, its own rest shape */
-  shapeMatchSeg(sg, lambda) {
-    const p = this.p, rest = RIG.rest, w = RIG.mass, ids = sg.ids;
-    let m = 0, cx = 0, cy = 0, cz = 0;
-    for (const i of ids) { const k = i * 3, wi = w[i]; m += wi; cx += p[k] * wi; cy += p[k + 1] * wi; cz += p[k + 2] * wi; }
-    cx /= m; cy /= m; cz /= m;
-    let a00 = 0, a01 = 0, a02 = 0, a10 = 0, a11 = 0, a12 = 0, a20 = 0, a21 = 0, a22 = 0;
-    for (const i of ids) {
-      const k = i * 3, wi = w[i];
-      const x = (p[k] - cx) * wi, y = (p[k + 1] - cy) * wi, z = (p[k + 2] - cz) * wi;
-      const rx = rest[k], ry = rest[k + 1], rz = rest[k + 2];
-      a00 += x * rx; a01 += x * ry; a02 += x * rz;
-      a10 += y * rx; a11 += y * ry; a12 += y * rz;
-      a20 += z * rx; a21 += z * ry; a22 += z * rz;
-    }
-    _A.set([a00, a01, a02, a10, a11, a12, a20, a21, a22]);
-    const dA = a00 * (a11 * a22 - a12 * a21) - a01 * (a10 * a22 - a12 * a20) + a02 * (a10 * a21 - a11 * a20);
-    if (!(Math.abs(dA) > 1e-12)) return;
-    const na = Math.cbrt(Math.abs(dA));
-    for (let i = 0; i < 9; i++) _A[i] /= na;
-    if (!polar3(_A, 6)) return;
-    const r0 = _A;
-    ids.forEach((i, j) => {
-      const rx = sg.rec[j * 3], ry = sg.rec[j * 3 + 1], rz = sg.rec[j * 3 + 2], k = i * 3;
-      p[k] += lambda * (cx + r0[0] * rx + r0[1] * ry + r0[2] * rz - p[k]);
-      p[k + 1] += lambda * (cy + r0[3] * rx + r0[4] * ry + r0[5] * rz - p[k + 1]);
-      p[k + 2] += lambda * (cz + r0[6] * rx + r0[7] * ry + r0[8] * rz - p[k + 2]);
-    });
-  }
-
-  /* fragments of one bear bump into each other instead of passing through */
-  selfCollide() {
-    const p = this.p, n = this.n;
-    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-      if (this.seg[i] === this.seg[j]) continue;
-      const A = i * 3, B = j * 3, min = (RIG.col[i] + RIG.col[j]) * 0.9;
-      const dx = p[A] - p[B], dy = p[A + 1] - p[B + 1], dz = p[A + 2] - p[B + 2];
-      const d2 = dx * dx + dy * dy + dz * dz;
-      if (d2 > min * min || d2 < 1e-10) continue;
-      const d = Math.sqrt(d2), pen = Math.min(min - d, 0.004);
-      const wa = RIG.inv[i] / (RIG.inv[i] + RIG.inv[j]), wb = 1 - wa;
-      p[A] += dx / d * pen * wa; p[A + 1] += dy / d * pen * wa; p[A + 2] += dz / d * pen * wa;
-      p[B] -= dx / d * pen * wb; p[B + 1] -= dy / d * pen * wb; p[B + 2] -= dz / d * pen * wb;
-    }
-  }
-
-  links(k) {
-    const p = this.p, inv = RIG.inv, lk = this.lk;
-    for (let li = 0; li < RIG.links.length; li++) {
-      if (!lk[li]) continue;
-      const L = RIG.links[li];
-      const a = L.i * 3, b = L.j * 3;
-      let dx = p[a] - p[b], dy = p[a + 1] - p[b + 1], dz = p[a + 2] - p[b + 2];
-      const d = Math.hypot(dx, dy, dz);
-      if (d < 1e-6) continue;
-      const wi = inv[L.i] + inv[L.j];
-      let C = d - L.rest;
-      if (C > 0) C = Math.min(C, L.rest * 1.15);        // soft limit on how far a limb can fly
-      const s = (k * C) / (d * wi);
-      const si = inv[L.i] * s, sj = inv[L.j] * s;
-      p[a] -= dx * si; p[a + 1] -= dy * si; p[a + 2] -= dz * si;
-      p[b] += dx * sj; p[b + 1] += dy * sj; p[b + 2] += dz * sj;
-    }
-    // strands only pull, and gently: the piece swings and stretches on its string
-    for (const S of this.strands) {
-      const a = S.i * 3, b = S.j * 3;
-      const dx = p[a] - p[b], dy = p[a + 1] - p[b + 1], dz = p[a + 2] - p[b + 2];
-      const d = Math.hypot(dx, dy, dz);
-      S.len = d;
-      if (d <= S.rest) continue;
-      // slack-ish up to ~2.5x its length, then it firms up like taffy before it snaps
-      const k = 0.004 + 0.05 * Math.min(1, Math.max(0, (d / S.rest - 2.5) / 1.5));
-      const s = (k * (d - S.rest)) / (d * (inv[S.i] + inv[S.j]));
-      const si = inv[S.i] * s, sj = inv[S.j] * s;
-      p[a] -= dx * si; p[a + 1] -= dy * si; p[a + 2] -= dz * si;
-      p[b] += dx * sj; p[b + 1] += dy * sj; p[b + 2] += dz * sj;
-    }
-  }
-
-  /* ---- idle life: crouch, pancake, launch ---- */
-  behave(h) {
-    this.hopCool -= h; this.perch -= h; this.onTop -= h;
-    if (CFG.world) return;                           // a launched ragdoll does not hop
-    const p = this.p, hd = RIG.idx.head * 3, bd = RIG.idx.body * 3;
-    if (this.hopArm > 0) {                           // wind up: crouch, spread the limbs
-      this.hopArm -= h;
-      p[hd + 1] -= 0.0075; p[bd + 1] -= 0.0026;
-      for (const nm of ['footL', 'footR', 'handL', 'handR']) {
-        const k = RIG.idx[nm] * 3, s = nm.charCodeAt(4) === 76 ? -1 : 1;
-        p[k] += s * 0.0022;
-      }
-      if (this.hopArm <= 0) {                        // one release impulse, then rest
-        this.hopCool = this.hop;
-        this.hop = 1.5 + Math.random() * 3.4;
-        for (let i = 0; i < this.n; i++) p[i * 3 + 1] += 0.0082;
-      }
-      return;
-    }
-    if (this.grab < 0 && this.hopCool <= 0 && this.idle > 0.9 && this.perch <= 0) this.hopArm = 0.2;
-  }
-
-  applyGrab() {
-    const i = this.grab, k = i * 3, t = this.grabT;
-    const stiff = 0.4;                                  // mass-independent: the limb follows the hand
-    this.p[k] += (t.x - this.p[k]) * stiff;
-    this.p[k + 1] += (t.y - this.p[k + 1]) * stiff;
-    this.p[k + 2] += (t.z - this.p[k + 2]) * stiff;
-  }
-
-  /* ---- floor + walls + other bears ---- */
-  collide(h) {
-    const n = this.n, p = this.p, q = this.q, inv = RIG.inv, rad = RIG.col;
-    let hit = 0;
-    for (let i = 0; i < n; i++) {
-      const k = i * 3, r = rad[i];
-      // floor
-      if (p[k + 1] < CFG.floorY + r) {
-        const vy = p[k + 1] - q[k + 1];
-        const fix = CFG.floorY + r - p[k + 1];
-        p[k + 1] = CFG.floorY + r;
-        // move the previous position by the same amount, otherwise Verlet reads
-        // the penetration fix as velocity and the bear launches off the table
-        q[k + 1] += fix;
-        if (vy < 0) {
-          q[k + 1] = p[k + 1] + vy * CFG.restitution;
-          q[k] = p[k] - (p[k] - q[k]) * (1 - CFG.friction);
-          q[k + 2] = p[k + 2] - (p[k + 2] - q[k + 2]) * (1 - CFG.friction);
-          hit = Math.max(hit, -vy / h);
-          this.bump(i, -vy / h, 0, 1);
-        }
-      }
-      if (CFG.world) continue;                       // a level brings its own walls
-      // soft elliptical wall: narrower across a portrait screen, deeper into it
-      const ax = CFG.wallX - r, az = CFG.wallZ - r;
-      const e2 = (p[k] * p[k]) / (ax * ax) + (p[k + 2] * p[k + 2]) / (az * az);
-      if (e2 > 1) {
-        const s = (1 - 1 / Math.sqrt(e2)) * 0.8;
-        const mx = p[k] * s, mz = p[k + 2] * s;
-        p[k] -= mx; p[k + 2] -= mz; q[k] -= mx; q[k + 2] -= mz;
-      }
-    }
-    if (CFG.world) hit = Math.max(hit, collideWorld(this, h));
-    this.hit = hit;
-  }
-
-  centre() {
-    let x = 0, y = 0, z = 0, m = 0;
-    for (let i = 0; i < this.n; i++) {
-      const w = RIG.mass[i], k = i * 3;
-      x += this.p[k] * w; y += this.p[k + 1] * w; z += this.p[k + 2] * w; m += w;
-    }
-    return [x / m, y / m, z / m];
+    super({ cfg: CFG, rng: Math.random, collideWorld: (b, h) => collideWorld(b, h) }, x, y, z, yaw, flavour, vx, vy, vz);
   }
 }
-
-/* bear <-> bear: mass points never pass through one another.  Standard
-   position-based contact: the overlap is fixed on p alone, so the fix itself
-   becomes the (inelastic) contact velocity, and friction cancels the slip that
-   actually happened this substep.  The original moved q along with p, which
-   kept a deep fix from launching the pair but also hid every sideways creep
-   from friction, so nothing could ever rest on another bear.  The launch guard
-   survives as a cap on how fast a fix may push two points apart. */
-function separate(a, b) {
-  const pa = a.p, pb = b.p, qa = a.q, qb = b.q, n = a.n;
-  for (let i = 0; i < n; i++) {
-    const ri = RIG.col[i], wi = RIG.inv[i];
-    for (let j = 0; j < n; j++) {
-      const rj = RIG.col[j], wj = RIG.inv[j];
-      const min = ri + rj;
-      const A = i * 3, B = j * 3;
-      const dx = pa[A] - pb[B], dy = pa[A + 1] - pb[B + 1], dz = pa[A + 2] - pb[B + 2];
-      const d2 = dx * dx + dy * dy + dz * dz;
-      if (d2 > min * min || d2 < 1e-9) continue;
-      const d = Math.sqrt(d2), pen = min - d;
-      const nx = dx / d, ny = dy / d, nz = dz / d;  // from b's point to a's
-      const tot = wi + wj, wa = wi / tot, wb = wj / tot;
-      pa[A] += nx * pen * wa; pa[A + 1] += ny * pen * wa; pa[A + 2] += nz * pen * wa;
-      pb[B] -= nx * pen * wb; pb[B + 1] -= ny * pen * wb; pb[B + 2] -= nz * pen * wb;
-
-      // relative motion this substep, after the fix
-      let rx = (pa[A] - qa[A]) - (pb[B] - qb[B]),
-          ry = (pa[A + 1] - qa[A + 1]) - (pb[B + 1] - qb[B + 1]),
-          rz = (pa[A + 2] - qa[A + 2]) - (pb[B + 2] - qb[B + 2]);
-      let vn = rx * nx + ry * ny + rz * nz;
-      if (vn > CFG.sepCap) {                         // deep overlap: q soaks up the excess
-        const e = vn - CFG.sepCap;
-        qa[A] += nx * e * wa; qa[A + 1] += ny * e * wa; qa[A + 2] += nz * e * wa;
-        qb[B] -= nx * e * wb; qb[B + 1] -= ny * e * wb; qb[B + 2] -= nz * e * wb;
-        vn = CFG.sepCap;
-      }
-      // Coulomb friction on the slip: grip in proportion to how hard they press
-      const tx = rx - vn * nx, ty = ry - vn * ny, tz = rz - vn * nz;
-      const tl = Math.sqrt(tx * tx + ty * ty + tz * tz);
-      if (tl > 1e-9) {
-        const f = Math.min(1, CFG.stick * pen / tl);
-        pa[A] -= tx * f * wa; pa[A + 1] -= ty * f * wa; pa[A + 2] -= tz * f * wa;
-        pb[B] += tx * f * wb; pb[B + 1] += ty * f * wb; pb[B + 2] += tz * f * wb;
-      }
-      if (ny > 0.5 || ny < -0.5) {                   // stacked: nobody hops, the upper one lies down
-        a.perch = 0.6; b.perch = 0.6;
-        if (ny > 0) a.onTop = 0.4; else b.onTop = 0.4;
-      }
-    }
-  }
-}
-
 /* ============================================================
    3 · IMPLICIT SURFACE — splat the field, then march the cubes
    ============================================================ */
@@ -2019,16 +1540,18 @@ document.getElementById('lang').addEventListener('click', () => {
 });
 flavourName.textContent = L.names[0];
 addEventListener('keydown', (e) => {
-  if (e.target instanceof HTMLInputElement || GAME.on) return;
+  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement || GAME.on || battleSceneOn) return;
   if (e.key === 'p' || e.key === 'P') pour(4);
   if (e.key === 'r' || e.key === 'R') resetAll();
 });
 
-/* stop iOS from rubber-banding the page when a drag starts on the dock */
+/* Only the canvas owns drag gestures; sheets must remain touch-scrollable. */
 document.addEventListener('touchmove', (e) => {
-  if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
+  if (e.target === renderer.domElement) e.preventDefault();
 }, { passive: false });
-document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('gesturestart', (e) => {
+  if (e.target === renderer.domElement) e.preventDefault();
+});
 
 /* ============================ GRABBING ============================ */
 const ray = new THREE.Raycaster();
@@ -2072,6 +1595,7 @@ const canvas = renderer.domElement;
 canvas.style.touchAction = 'none';
 canvas.addEventListener('pointerdown', (e) => {
   SFX.unlock();
+  if (battleSceneOn) { battlePointerDown(e); return; }
   if (GAME.on) { gameDown(e); return; }
   if (grabbed) return;                      // a second finger does not steal the bear
   setPointer(e);
@@ -2093,6 +1617,7 @@ canvas.addEventListener('pointerdown', (e) => {
   try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* no capture available */ }
 });
 canvas.addEventListener('pointermove', (e) => {
+  if (battleSceneOn) { battlePointerMove(e); return; }
   if (GAME.on) { gameMove(e); return; }
   if (grabbed && e.pointerId !== undefined && canvas.hasPointerCapture && !canvas.hasPointerCapture(e.pointerId)) return;
   setPointer(e);
@@ -2149,11 +1674,23 @@ function tapUp(e) {
   const b = spawn(at.x, 1.9 + Math.random() * 0.4, at.z, (Math.random() - .5) * 0.8, flavourIdx, 0, -1.5, 0);
   if (b) { lastTouched = b; pulse(); } else nudge(countEl);
 }
-canvas.addEventListener('pointerup', (e) => { if (GAME.on) { gameUp(e); return; } letGo(); tapUp(e); });
-canvas.addEventListener('pointercancel', (e) => { if (GAME.on) { gameUp(e, true); return; } letGo(); tap = null; });
+canvas.addEventListener('pointerup', (e) => { if (battleSceneOn) { battlePointerUp(e); return; } if (GAME.on) { gameUp(e); return; } letGo(); tapUp(e); });
+canvas.addEventListener('pointercancel', (e) => { if (battleSceneOn) { battlePointerUp(e, true); return; } if (GAME.on) { gameUp(e, true); return; } letGo(); tap = null; });
 canvas.addEventListener('pointerleave', (e) => {
   if (e.pointerType === 'mouse') { hover = false; cursor.classList.remove('on', 'grab'); }
 });
+canvas.addEventListener('lostpointercapture', (e) => {
+  if (battleSceneOn) { cancelBattleAim(); return; }
+  if (GAME.on) { gameUp(e, true); return; }
+  ptrTrail.length = 0; letGo(); tap = null;
+});
+function cancelPointer() {
+  if (battleSceneOn) cancelBattleAim();
+  if (GAME.on && GAME.aim) gameUp({ pointerId: GAME.aim.id }, true);
+  ptrTrail.length = 0; letGo(); tap = null;
+}
+addEventListener('blur', cancelPointer);
+document.addEventListener('visibilitychange', () => { if (document.hidden) cancelPointer(); });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
 /* coach mark: shown once the bears have landed, gone at the first touch */
@@ -2230,8 +1767,13 @@ function layout() {
   shadowCam.updateMatrixWorld();
   return wasDock !== dock;
 }
-addEventListener('resize', () => { if (layout() && bears.length && !GAME.on) resetAll(); });
-DOCK_Q.addEventListener?.('change', () => { if (layout() && !GAME.on) resetAll(); });
+function resizeBattle() {
+  renderer.setSize(innerWidth, innerHeight);
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  if (typeof BS !== 'undefined') BS.dirty = true;
+}
+addEventListener('resize', () => { if (battleSceneOn) { resizeBattle(); return; } if (layout() && bears.length && !GAME.on) resetAll(); });
+DOCK_Q.addEventListener?.('change', () => { if (battleSceneOn) { resizeBattle(); return; } if (layout() && !GAME.on) resetAll(); });
 
 /* ============================ SIM ============================ */
 const centres = [];
@@ -2313,7 +1855,8 @@ function frame(now) {
   clock += dt;
   govern(raw);
 
-  simulate(GAME.on ? dt * GAME.slow : dt);
+  const battle = window.GUMMY_BATTLE_FRAME?.(dt) === true;
+  if (!battle) { if (GAME.on) simulateShared(dt); else simulate(dt); }
 
   /* coarse grid when the pile gets big, fine grid when it is small */
   const cell = CFG.cell * cellScale * (bears.length > 7 ? 1.3 : 1);
@@ -2321,7 +1864,7 @@ function frame(now) {
   feedAO();
   if (GAME.on) gameFrame(dt);
   render();
-  if (GAME.on) return;
+  if (GAME.on || battle) return;
 
   /* a touch of parallax: the mouse on desktop, a slow drift on touch screens */
   const px = mouseSeen ? ndc.x * 0.16 : Math.sin(clock * 0.31) * 0.07;
@@ -2523,15 +2066,17 @@ const MUSIC = (() => {
    the coins buy a stronger sling.  The level is 2.5-D: the bear lives between
    two glass panes at z = ±DEPTH, the machines are extruded in z. */
 Object.assign(I18N.en, {
+  wsTitle: 'Level workshop', wsHelp: 'Drag objects; red is the start and green is the goal. Custom levels earn no campaign coins.',
+  wsAdd: 'Add', wsDelete: 'Delete', wsApply: 'Apply', wsUndo: 'Undo', wsRedo: 'Redo', wsPlay: 'Test play', wsShare: 'Copy link', wsImport: 'Import', wsBack: 'Back to editor',
   snap: 'STRING SNAPPED',
   play: 'Play · Gummy Adventures', playSub: 'chapter 1', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
-  gHintAim: 'Pull back anywhere, let go to fling', gRetry: 'Retry', gNext: 'Next level', gGo: 'Start', gGoal: 'Goal',
+  gHintAim: 'Short pull from the middle of the screen, release to fling', gRetry: 'Retry', gNext: 'Next level', gGo: 'Start', gGoal: 'Goal',
   gRule: 'Hit harder, stretch longer, break more pieces: <b>everything scores</b>', gGoalMark: 'GOAL',
   tipBreak: 'Broken bits score too — the more it breaks, the more points',
   nextStar: (n, s) => `${n} more points for ${s}`, failNote: 'Reach the goal to earn stars and set a best',
   notCounted: 'Not delivered: this run doesn\'t count', coinsComfort: (n) => `+${n} consolation coins`,
   gShare: 'Copy a brag', gShop: 'Upgrades', gWorkshop: 'Back-alley workshop', gClose: 'Close',
-  gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Chapter clear!', gEndHead: 'Escaped the Gummy Factory', gEndFree: 'Go play freely',
+  gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Chapter clear!', gEndHead: 'This batch is ready to ship', gEndFree: 'Go play freely',
   lvNo: (n) => `Factory · ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
   st: ['Impact', 'Stretch', 'Contraptions', 'Hardest hit', 'Pieces lost', 'Best combo'],
   copied: 'Copied — paste it to a friend',
@@ -2541,7 +2086,7 @@ Object.assign(I18N.en, {
   clear: 'Cleared!', fail: 'Not delivered…', why: { stuck: 'The bear got stuck.', out: 'It flew out of the factory.', time: 'Out of time.' },
   coinsGot: (n) => `+${n} candy coins`, starsNeed: (a, b) => ['★ reach the goal', `★★ ${a}`, `★★★ ${b}`],
   allClear: 'Chapter clear →', soon: 'Coming soon',
-  end: (s, c) => `The bear made it out of the factory with ${s} stars.<br>Next stop: Dessert Street — coming soon.<br>Your ${c} candy coins carry over.`,
+  end: (s, c) => `This batch survived the production line with ${s} stars and is ready to ship.<br>Next stop: Dessert Street — coming soon.<br>Your ${c} candy coins carry over.`,
   part: { head: 'HEADBUTT', face: 'FACEPLANT', arm: 'ARM TWIST', leg: 'SHIN BANG', body: 'BODY SLAM', butt: 'BUTT FIRST', land: 'NICE LANDING' },
   cut: { neck: 'OFF WITH ITS HEAD', armL: 'ARM OFF', armR: 'ARM OFF', legL: 'LEG OFF', legR: 'LEG OFF', waist: 'SLICED IN TWO' },
   broke: 'SNAPPED!', burst: 'GUMMY BURST!', ground: 'GROUND UP',
@@ -2550,15 +2095,17 @@ Object.assign(I18N.en, {
   buy: (c) => `🍬 ${c}`, maxed: 'MAX', districts: [['Gummy Factory', 'Stop 1'], ['Dessert Street', 'Stop 2'], ['Fun Fair', 'Stop 3'], ['The Sewers', 'Stop 4']],
 });
 Object.assign(I18N.zh, {
+  wsTitle: '关卡创意工坊', wsHelp: '拖动物件搭关卡；红点是起点，绿框是终点。自制关不获得主线糖币。',
+  wsAdd: '添加', wsDelete: '删除', wsApply: '应用', wsUndo: '撤销', wsRedo: '重做', wsPlay: '立即试玩', wsShare: '复制链接', wsImport: '导入', wsBack: '返回编辑',
   snap: '扯断了！',
   play: '开始游戏 · 软糖历险记', playSub: '第一章', gBack: '自由玩', gScoreLbl: '受难值',
-  gHintAim: '按住屏幕往后拉，松手把小熊弹出去', gRetry: '重来', gNext: '下一关', gGo: '开始', gGoal: '目标',
+  gHintAim: '在屏幕中间短短往后拉，松手发射', gRetry: '重来', gNext: '下一关', gGo: '开始', gGoal: '目标',
   gRule: '撞得越狠、拉得越长、切得越碎，<b>受难值越高</b>', gGoalMark: '终点',
   tipBreak: '断了也加分！碎得越多，受难值越高',
   nextStar: (n, s) => `再拿 ${n} 分到 ${s}`, failNote: '送达终点才计星和最佳纪录',
   notCounted: '没送到，本局不计分', coinsComfort: (n) => `+${n} 安慰糖币`,
   gShare: '复制战绩', gShop: '升级', gWorkshop: '后巷工坊', gClose: '关闭',
-  gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '第一章 通关！', gEndHead: '逃出黑心软糖厂', gEndFree: '去自由玩',
+  gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '第一章 通关！', gEndHead: '这批软糖出厂了', gEndFree: '去自由玩',
   lvNo: (n) => `黑心软糖厂 · 第 ${n} 关`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
   st: ['冲击分', '拉伸分', '机关分', '最大撞击', '掉落部位', '最长连击'],
   copied: '已复制，发给朋友吧',
@@ -2568,7 +2115,7 @@ Object.assign(I18N.zh, {
   clear: '通关！', fail: '没送到…', why: { stuck: '小熊卡住了', out: '小熊飞出了工厂', time: '时间到了' },
   coinsGot: (n) => `+${n} 糖币`, starsNeed: (a, b) => ['★ 送达终点', `★★ ${a}`, `★★★ ${b}`],
   allClear: '第一章通关 →', soon: '敬请期待',
-  end: (s, c) => `小熊带着 ${s} 颗星逃出了黑心软糖厂。<br>下一站：甜品街，敬请期待。<br>你的 ${c} 糖币会保留下来。`,
+  end: (s, c) => `这批软糖经过整条流水线，带着 ${s} 颗星出厂了。<br>下一站：甜品街，敬请期待。<br>你的 ${c} 糖币会保留下来。`,
   part: { head: '头槌！', face: '脸着地！', arm: '手臂扭了！', leg: '撞到腿了！', body: '侧腰重击！', butt: '屁股着地！', land: '稳稳落地' },
   cut: { neck: '斩首！', armL: '断臂！', armR: '断臂！', legL: '断腿！', legR: '断腿！', waist: '腰斩！' },
   broke: '撞断了！', burst: '软糖爆浆！', ground: '碎成渣了',
@@ -2591,7 +2138,7 @@ const BONE_OF = { head: 'neck', snout: 'neck', earL: 'neck', earR: 'neck', handL
 const PART_OF = { head: 'head', earL: 'head', earR: 'head', snout: 'face', handL: 'arm', handR: 'arm',
                   footL: 'leg', footR: 'leg', body: 'body', belly: 'body' };
 const PART_MUL = { head: 1.5, face: 1.7, arm: 1.2, leg: 0.9, body: 1.0, butt: 1.3, land: 0.6 };
-const NAME = RIG_DEF.map((d) => d[0]);
+const NAME = Object.keys(RIG.idx);
 const SIDE = Object.fromEntries(Object.entries(BONES).map(([k, v]) => [k, new Set(v.map((n) => RIG.idx[n]))]));
 
 /* levels.  parts: box (static, rotated or spinning), roller/bumper/saw (cylinders),
@@ -2599,263 +2146,44 @@ const SIDE = Object.fromEntries(Object.entries(BONES).map(([k, v]) => [k, new Se
    zones: box / syrup / grinder; the one marked goal ends the level.
    x/y centre, w/h size, a angle in degrees, spin rad/s, e restitution, mu friction per
    contact substep, soft = how much of a mass point's radius the part sees */
-const goalBox = (x0, x1, h = 0.5) => [
-  { t: 'box', x: x0 - 0.1, y: h / 2, w: 0.2, h, c: 'pink' },
-  { t: 'box', x: x1 + 0.1, y: 0.8, w: 0.2, h: 1.6, c: 'pink' },
-];
-const LEVELS = [
-  { name: { en: 'Stairway', zh: '下楼梯' }, tag: { en: 'Warm-up', zh: '先热热身' }, goal: 'box',
-    dev: { en: ['stairs', 'bumper'], zh: ['楼梯', '弹珠'] },
-    start: [-6.2, 5.4], stars: [3000, 4400], span: [-8.6, 8.4],
-    parts: [
-      { t: 'box', x: -6.2, y: 5.15, w: 2.4, h: 0.5, c: 'cream' },
-      { t: 'box', x: -6.2, y: 2.45, w: 0.6, h: 4.9, c: 'lilac' },
-      ...Array.from({ length: 8 }, (_, k) => ({ t: 'box', x: -4.35 + 1.1 * k, y: (4.8 - 0.6 * k) / 2, w: 1.1, h: 4.8 - 0.6 * k,
-        c: k % 2 ? 'cream' : 'pink' })),
-      ...goalBox(4.4, 6.8),
-      { t: 'bumper', x: 6.2, y: 3.4, r: 0.45, boost: 4, pts: 100 },
-      { t: 'box', x: 7.6, y: 2.6, w: 0.6, h: 5.2, c: 'mint' },
-    ],
-    zones: [{ kind: 'box', goal: true, x0: 4.4, x1: 6.8, y0: 0, y1: 1.5, pts: 500 }] },
-  { name: { en: 'Rolling Pins', zh: '擀面杖' }, tag: { en: 'Roll with it', zh: '滚来滚去' }, goal: 'box',
-    dev: { en: ['rolling pins', 'paddle'], zh: ['擀面杖', '旋转挡板'] },
-    start: [-6.5, 6.5], stars: [3600, 5200], span: [-8.6, 7.2],
-    parts: [
-      { t: 'box', x: -6.5, y: 6.25, w: 2.2, h: 0.5, c: 'cream' },
-      { t: 'box', x: -6.5, y: 3.0, w: 0.6, h: 6.0, c: 'lilac' },
-      { t: 'roller', x: -3.6, y: 5.2, r: 0.45, spin: -5, pts: 40 },
-      { t: 'roller', x: -1.3, y: 3.8, r: 0.52, spin: 6, pts: 40 },
-      { t: 'roller', x: 1.0, y: 5.5, r: 0.42, spin: -7, pts: 40 },
-      { t: 'roller', x: 2.6, y: 2.5, r: 0.55, spin: 5, pts: 40 },
-      { t: 'roller', x: 4.6, y: 4.3, r: 0.45, spin: -6, pts: 40 },
-      { t: 'box', x: 0.2, y: 1.75, w: 2.4, h: 0.22, spin: 2.2, c: 'mint', pts: 50, kind: 'bumper' },
-      { t: 'box', x: -2.6, y: 0.48, w: 9.8, h: 0.2, a: -4.5, c: 'butter', mu: 0.012 },
-      ...goalBox(2.4, 5.8, 0.12),
-      { t: 'box', x: 6.6, y: 3.5, w: 0.6, h: 7.0, c: 'pink' },
-    ],
-    zones: [{ kind: 'box', goal: true, x0: 2.4, x1: 5.8, y0: 0, y1: 1.5, pts: 500 }] },
-  { name: { en: 'The Juicer', zh: '榨汁机' }, tag: { en: 'Squeeze me', zh: '挤一挤更健康' }, goal: 'syrup',
-    dev: { en: ['funnel', 'juicer', 'belt'], zh: ['漏斗', '榨汁滚筒', '传送带'] },
-    start: [-6.0, 6.0], stars: [3400, 5000], span: [-8.4, 8.4],
-    parts: [
-      { t: 'box', x: -6.0, y: 5.75, w: 2.4, h: 0.5, c: 'cream' },
-      { t: 'box', x: -6.0, y: 2.75, w: 0.6, h: 5.5, c: 'lilac' },
-      { t: 'box', x: -1.65, y: 5.25, w: 2.6, h: 0.25, a: -35, c: 'butter' },
-      { t: 'box', x: 1.65, y: 5.25, w: 2.6, h: 0.25, a: 35, c: 'butter' },
-      { t: 'box', x: 2.9, y: 6.2, w: 0.25, h: 1.6, c: 'butter' },
-      { t: 'roller', x: -0.62, y: 3.6, r: 0.45, spin: -9, soft: 0.45, pts: 150, kind: 'juice', mu: 0.12 },
-      { t: 'roller', x: 0.62, y: 3.6, r: 0.45, spin: 9, soft: 0.45, pts: 150, kind: 'juice', mu: 0.12 },
-      { t: 'belt', x: 1.9, y: 1.55, w: 5.4, h: 0.3, belt: 2.6 },
-      { t: 'bumper', x: -3.2, y: 2.0, r: 0.45, boost: 5, pts: 100 },
-      { t: 'box', x: 5.15, y: 0.6, w: 0.2, h: 1.2, c: 'metal' },
-      { t: 'box', x: 7.65, y: 1.0, w: 0.2, h: 2.0, c: 'metal' },
-    ],
-    zones: [{ kind: 'syrup', goal: true, x0: 5.25, x1: 7.55, y0: 0, y1: 1.45, pts: 500 }] },
-  { name: { en: 'Pinball Hell', zh: '弹珠台' }, tag: { en: 'Bonk bonk', zh: '弹到头晕' }, goal: 'box',
-    dev: { en: ['bumpers', 'tilted table'], zh: ['弹珠', '倾斜台面'] },
-    start: [-6.6, 2.4], stars: [2800, 4200], span: [-8.6, 7.6],
-    parts: [
-      { t: 'box', x: -6.6, y: 2.15, w: 2.0, h: 0.5, c: 'cream' },
-      { t: 'box', x: -6.6, y: 1.3, w: 0.6, h: 1.4, c: 'lilac' },
-      ...[[-3.2, 4.4], [-1.0, 6.0], [1.0, 4.0], [3.2, 6.2], [1.0, 7.9], [-2.2, 2.3], [2.4, 2.4], [4.8, 4.0], [-4.4, 6.8]]
-        .map(([x, y]) => ({ t: 'bumper', x, y, r: 0.48, boost: 6, pts: 100 })),
-      { t: 'box', x: -0.4, y: 9.3, w: 16.0, h: 0.4, c: 'pink' },
-      { t: 'box', x: -8.6, y: 4.6, w: 0.5, h: 9.2, c: 'mint' },
-      { t: 'box', x: 7.4, y: 4.6, w: 0.5, h: 9.2, c: 'mint' },
-      { t: 'box', x: -2.0, y: 0.55, w: 12.6, h: 0.2, a: -4.5, c: 'butter', mu: 0.012 },
-      { t: 'spring', x: -5.0, y: 0.95, w: 1.2, h: 0.25, a: -4.5, boost: 11, pts: 60 },
-      ...goalBox(4.3, 6.9, 0.1),
-    ],
-    zones: [{ kind: 'box', goal: true, x0: 4.3, x1: 6.9, y0: 0, y1: 1.5, pts: 500 }] },
-  { name: { en: 'Steamroller', zh: '碾压线' }, tag: { en: 'Flat pack', zh: '压成薄片' }, goal: 'box',
-    dev: { en: ['belt', 'presses', 'steamroller'], zh: ['传送带', '冲压机', '压路滚筒'] },
-    start: [-7.0, 4.0], stars: [4200, 6000], span: [-8.6, 10.2],
-    parts: [
-      { t: 'box', x: -7.0, y: 3.75, w: 2.0, h: 0.5, c: 'cream' },
-      { t: 'box', x: -7.0, y: 1.75, w: 0.6, h: 3.5, c: 'lilac' },
-      { t: 'belt', x: 0.6, y: 0.6, w: 13.6, h: 0.4, belt: 2.2 },
-      { t: 'press', x: -3.4, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.7, off: 0.0, pts: 300, soft: 0.75 },
-      { t: 'crusher', x: 0.6, y: 1.72, r: 0.64, amp: 1.7, period: 2.6, off: 0.25, pts: 350, soft: 0.6 },
-      { t: 'press', x: 4.5, y: 3.9, w: 1.4, h: 1.0, amp: 2.4, period: 1.2, off: 0.2, pts: 300, soft: 0.75 },
-      ...goalBox(7.75, 9.75),
-    ],
-    zones: [{ kind: 'box', goal: true, x0: 7.75, x1: 9.75, y0: 0, y1: 1.6, pts: 500 }] },
-  { name: { en: 'The Slicer', zh: '切糖车间' }, tag: { en: 'Mind the blades', zh: '小心刀片' }, goal: 'box',
-    dev: { en: ['ramp', 'saw blades', 'guillotine'], zh: ['滑道', '圆锯', '铡刀'] },
-    start: [-7.0, 5.0], stars: [3600, 6000], span: [-8.6, 9.6],
-    parts: [
-      { t: 'box', x: -7.0, y: 4.75, w: 2.0, h: 0.5, c: 'cream' },
-      { t: 'box', x: -7.0, y: 2.25, w: 0.6, h: 4.5, c: 'lilac' },
-      { t: 'box', x: -3.7, y: 2.6, w: 4.6, h: 0.25, a: -32, c: 'butter' },
-      { t: 'belt', x: 2.0, y: 0.6, w: 7.4, h: 0.4, belt: 2.4 },
-      { t: 'saw', x: 0.4, y: 0.95, r: 0.5, spin: 16, cut: true, ghost: true, pts: 200 },
-      { t: 'blade', x: 2.2, y: 3.4, w: 0.14, h: 1.6, amp: 2.1, period: 1.5, off: 0.3, cut: true, ghost: true, pts: 250 },
-      { t: 'saw', x: 3.9, y: 0.95, r: 0.5, spin: -16, cut: true, ghost: true, pts: 200 },
-      ...goalBox(6.2, 8.2),
-    ],
-    zones: [{ kind: 'box', goal: true, x0: 6.2, x1: 8.2, y0: 0, y1: 1.6, pts: 500 }] },
-  { name: { en: 'The Grinder', zh: '终极碎糖机' }, tag: { en: 'Grand finale', zh: '最终车间' }, goal: 'grinder',
-    dev: { en: ['stairs', 'rolling pins', 'saw', 'steamroller', 'grinder'], zh: ['楼梯', '擀面杖', '圆锯', '压路滚筒', '碎糖机'] },
-    start: [-8.0, 7.2], stars: [7000, 9000], span: [-9.8, 13.6],
-    parts: [
-      { t: 'box', x: -8.0, y: 6.95, w: 2.2, h: 0.5, c: 'cream' },
-      { t: 'box', x: -8.0, y: 3.35, w: 0.6, h: 6.7, c: 'lilac' },
-      ...Array.from({ length: 4 }, (_, k) => ({ t: 'box', x: -6.1 + 1.2 * k, y: (6.2 - 0.8 * k) / 2, w: 1.2, h: 6.2 - 0.8 * k,
-        c: k % 2 ? 'cream' : 'pink' })),
-      { t: 'roller', x: -1.6, y: 4.4, r: 0.45, spin: 7, pts: 40 },
-      { t: 'roller', x: 0.4, y: 3.3, r: 0.5, spin: -6, pts: 40 },
-      { t: 'belt', x: 6.1, y: 1.4, w: 8.6, h: 0.4, belt: 2.4 },
-      { t: 'saw', x: 3.2, y: 1.75, r: 0.48, spin: 16, cut: true, ghost: true, pts: 200 },
-      { t: 'crusher', x: 6.6, y: 2.66, r: 0.64, amp: 1.2, period: 2.2, off: 0, pts: 350, soft: 0.6 },
-      { t: 'box', x: 9.85, y: 0.6, w: 0.25, h: 1.2, c: 'metal' },
-      { t: 'box', x: 12.95, y: 1.6, w: 0.25, h: 3.2, c: 'metal' },
-      { t: 'saw', x: 10.85, y: 0.55, r: 0.45, spin: -22, cut: true, ghost: true, pts: 0, kind: 'grind' },
-      { t: 'saw', x: 11.95, y: 0.55, r: 0.45, spin: 22, cut: true, ghost: true, pts: 0, kind: 'grind' },
-      { t: 'box', x: 14.2, y: 3.5, w: 0.6, h: 7.0, c: 'pink' },
-    ],
-    zones: [{ kind: 'grinder', goal: true, x0: 10.0, x1: 12.8, y0: 0, y1: 2.6, pts: 800 }] },
-];
+const LEVELS = structuredClone(OFFICIAL_LEVELS);
 
-/* ---- progress: best scores, stars, clears, candy coins, upgrades ---- */
+/* ---- progress ---- */
 const UPS = [
   { id: 'sling', icon: '🎯', base: 120, max: 5 },
   { id: 'bounce', icon: '🟢', base: 150, max: 5 },
   { id: 'magnet', icon: '🧲', base: 100, max: 5 },
 ];
-let gSave = { best: [], stars: [], clear: [], coins: 0, up: { sling: 0, bounce: 0, magnet: 0 } };
+let gSave = exportLegacy(migrateSave({}));
 try {
-  const old = JSON.parse(localStorage.getItem('gummy-game-v2') || '{}');
-  gSave = Object.assign(gSave, old); gSave.up = Object.assign({ sling: 0, bounce: 0, magnet: 0 }, old.up);
+  const old = JSON.parse(localStorage.getItem('gummy-game-v3') || localStorage.getItem('gummy-game-v2') || '{}');
+  gSave = exportLegacy(migrateSave(old));
 } catch (e) { /* fresh start */ }
-const saveGame = () => { try { localStorage.setItem('gummy-game-v2', JSON.stringify(gSave)); } catch (e) { /* private mode */ } };
+const saveGame = () => {
+  try {
+    const stable = migrateSave(gSave);
+    LEVEL_IDS.forEach((id, i) => {
+      stable.levels[id].clear = gSave.clear[i] === true;
+      stable.levels[id].stars = Math.min(3, Math.max(0, gSave.stars[i] || 0));
+      stable.levels[id].best = Math.max(stable.levels[id].best, gSave.best[i] || 0);
+    });
+    localStorage.setItem('gummy-game-v3', JSON.stringify(stable));
+  } catch (e) { /* private mode */ }
+};
+LEVELS.forEach((lv, i) => { lv.id = LEVEL_IDS[i]; });
 const unlocked = (i) => i === 0 || !!gSave.clear[i - 1];
 const zh = () => document.documentElement.lang === 'zh';
 const lname = (lv) => lv.name[zh() ? 'zh' : 'en'];
 const upCost = (u) => Math.round(u.base * Math.pow(gSave.up[u.id] + 1, 1.6));
-const vmax = () => 15 * (1 + 0.08 * gSave.up.sling);
+const vmax = () => 15 * (1 + 0.08 * (GAME?.ranked ? 0 : gSave.up.sling));
 
 const GAME = { on: false, state: 'off', slow: 1, li: 0, bear: null, stopT: 0, slowT: 0 };
 
 /* ---- part kinematics and contact ---- */
-function slam(P, t) {
-  const ph = ((t / P.period + P.off) % 1 + 1) % 1;
-  if (ph < 0.14) { const u = ph / 0.14; return u * u; }                 // slam
-  if (ph < 0.34) return 1;                                             // hold
-  if (ph < 0.8) { const u = (ph - 0.34) / 0.46; return 1 - u * u * (3 - 2 * u); }   // lift
-  return 0;
-}
-function pose(P, t) {
-  P.cx = P.x; P.cy = P.y; P.vx = 0; P.vy = 0;
-  P.om = P.spin || 0; P.ang = (P.a || 0) * Math.PI / 180 + P.om * t;
-  if (P.t === 'press' || P.t === 'blade') {
-    P.cy = P.y - P.amp * slam(P, t);
-    P.vy = -P.amp * (slam(P, t + 0.004) - slam(P, t - 0.004)) / 0.008;
-  } else if (P.t === 'crusher') {
-    const w = 2 * Math.PI / P.period, ph = w * t + P.off * 2 * Math.PI;
-    P.cx = P.x + P.amp * Math.sin(ph); P.vx = P.amp * w * Math.cos(ph);
-    P.om = -P.vx / P.r;                                       // rolls, does not slide
-    P.ang = -(P.cx - P.x) / P.r;
-  }
-}
-const C = { nx: 0, ny: 0, pen: 0, vx: 0, vy: 0 };
-function touchCircle(P, x, y, r) {
-  const dx = x - P.cx, dy = y - P.cy, R = P.r + r, d2 = dx * dx + dy * dy;
-  if (d2 >= R * R || d2 < 1e-12) return false;
-  const d = Math.sqrt(d2);
-  C.nx = dx / d; C.ny = dy / d; C.pen = R - d;
-  C.vx = P.vx - P.om * C.ny * P.r; C.vy = P.vy + P.om * C.nx * P.r;
-  return true;
-}
-function touchBox(P, x, y, r) {
-  const c = Math.cos(P.ang), s = Math.sin(P.ang);
-  const dx = x - P.cx, dy = y - P.cy;
-  const lx = c * dx + s * dy, ly = -s * dx + c * dy;          // into the part's frame
-  const hw = P.w / 2, hh = P.h / 2;
-  const qx = Math.max(-hw, Math.min(hw, lx)), qy = Math.max(-hh, Math.min(hh, ly));
-  const ex = lx - qx, ey = ly - qy, d2 = ex * ex + ey * ey;
-  let nlx, nly;
-  if (d2 > 1e-12) {                                           // outside: rounded corners for free
-    if (d2 >= r * r) return false;
-    const d = Math.sqrt(d2); nlx = ex / d; nly = ey / d; C.pen = r - d;
-  } else {                                                    // centre inside: leave by the nearest face
-    const px = hw - Math.abs(lx), py = hh - Math.abs(ly);
-    if (px < py) { nlx = lx < 0 ? -1 : 1; nly = 0; C.pen = px + r; } else { nlx = 0; nly = ly < 0 ? -1 : 1; C.pen = py + r; }
-  }
-  C.nx = c * nlx - s * nly; C.ny = s * nlx + c * nly;
-  const rx = x - C.nx * r - P.cx, ry = y - C.ny * r - P.cy;  // contact point, relative to the pivot
-  C.vx = P.vx - P.om * ry; C.vy = P.vy + P.om * rx;
-  if (P.belt && nly > 0.5) { C.vx += c * P.belt; C.vy += s * P.belt; }
-  return true;
-}
-/* called from Bear.collide every substep while a level is loaded */
+const pose = sharedPose;
 function collideWorld(b, h) {
-  const W = CFG.world, p = b.p, q = b.q;
-  if (W.t !== simT) { for (const P of W.parts) pose(P, simT); W.t = simT; }
-  let hit = 0;
-  // which points were already touching a part last substep: a point that stays
-  // pressed (resting, sliding, squeezed under a press) is not a new impact
-  const was = b.wc || (b.wc = new Uint8Array(b.n));
-  const bounce = 0.06 * gSave.up.bounce;
-  for (let i = 0; i < b.n; i++) {
-    const k = i * 3, r0 = RIG.col[i];
-    let touching = 0;
-    const zl = DEPTH - r0 * 0.4;                              // glass panes: a side-on stage
-    if (p[k + 2] > zl || p[k + 2] < -zl) {
-      const z = p[k + 2] > 0 ? zl : -zl, vz = p[k + 2] - q[k + 2];
-      p[k + 2] = z; q[k + 2] = z + vz * 0.3;
-    }
-    for (const P of W.parts) {
-      const r = r0 * (P.soft || 0.92);
-      if (!(P.round ? touchCircle(P, p[k], p[k + 1], r) : touchBox(P, p[k], p[k + 1], r))) continue;
-      if (P.ghost) { GAME.cuts.push(i, P); P.pulse = 1; continue; }   // a blade goes through: it cuts, it does not stop
-      if (P.t === 'roller' || P.t === 'crusher') {
-        // Candy rollers feed the gummy underneath instead of acting like pinball bumpers.
-        // The travelling steamroller only presses its underside; fixed rollers also feed a
-        // gummy landing on top down through the nip. Never apply the generic bounce below.
-        if (P.t === 'crusher' && C.ny > -0.35) continue;
-        const dx = p[k] - P.cx, R = P.r + r;
-        const bottom = P.cy - Math.sqrt(Math.max(0, R * R - dx * dx));
-        const vx = p[k] - q[k], vy = p[k + 1] - q[k + 1];
-        const sp = Math.max(0, vy / h, C.nx * vx / -h - C.ny * vy / h);
-        p[k + 1] = bottom;
-        const feed = P.t === 'roller' ? Math.max(vx, Math.min(2.4, Math.abs(P.om) * P.r) * h) : vx;
-        q[k] = p[k] - feed; q[k + 1] = bottom - Math.min(0, vy);
-        touching = 1;
-        if (!was[i]) {
-          b.bump(i, sp, 0, -1);
-          hit = Math.max(hit, sp);
-          partHit(P, sp);
-        }
-        continue;
-      }
-      let vx = p[k] - q[k] - C.vx * h, vy = p[k + 1] - q[k + 1] - C.vy * h;   // relative to the surface
-      p[k] += C.nx * C.pen; p[k + 1] += C.ny * C.pen;
-      const vn = vx * C.nx + vy * C.ny;
-      const tx = vx - vn * C.nx, ty = vy - vn * C.ny, mu = P.mu ?? 0.04;
-      touching = 1;
-      if (P.cut) GAME.cuts.push(i, P);
-      if (vn < 0) {
-        const sp = -vn / h, e = Math.min(0.9, (P.e ?? 0.3) + bounce), fresh = !was[i];
-        if (fresh) {
-          if (sp > hit) hit = sp;
-          b.bump(i, sp, C.nx, C.ny);
-          if (sp > 1.2) partHit(P, sp);
-        }
-        vx = tx * (1 - mu) - vn * e * C.nx; vy = ty * (1 - mu) - vn * e * C.ny;
-        if (P.boost && fresh) { vx += C.nx * P.boost * h; vy += C.ny * P.boost * h; }
-      } else { vx -= tx * mu; vy -= ty * mu; }
-      q[k] = p[k] - (vx + C.vx * h); q[k + 1] = p[k + 1] - (vy + C.vy * h);
-    }
-    was[i] = touching;
-  }
-  return hit;
-}
-function partHit(P, sp) {
-  P.pulse = 1;
-  if (!P.pts || simT - P.last < (P.t === 'crusher' ? 0.9 : 0.35)) return;
-  if ((P.t === 'press' || P.t === 'blade') && P.vy > -1.5) return;   // only a falling press flattens
-  P.last = simT;
-  GAME.events.push(P);
+  if (!CFG.world?.physics) return 0;
+  CFG.world.physics.simT = simT; return sharedCollideWorld(CFG.world.physics, b, h);
 }
 
 /* ---- textures: candy stripes, the factory wall and its posters, signs ---- */
@@ -2958,6 +2286,11 @@ function partMesh(P) {
     const m = new THREE.MeshStandardMaterial({ map: stripes(juice ? 0xf5d36e : big ? 0xe2667c : 0xf3ead9, juice ? 0xe2667c : big ? 0xf7c7d2 : 0xd9b98c, 10), roughness: 0.45 });
     add(new THREE.CylinderGeometry(P.r, P.r, D, 48).rotateX(Math.PI / 2), m);
     add(new THREE.CylinderGeometry(P.r * 0.28, P.r * 0.28, D + 0.9, 16).rotateX(Math.PI / 2), mat(big ? 'steel' : 'cream'));
+  } else if (P.t === 'glass') {
+    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ color: 0x9fd8c3, transparent: true, opacity: .55, metalness: .1, roughness: .12 }));
+  } else if (P.t === 'jar') {
+    add(new THREE.CylinderGeometry(P.w / 2, P.w / 2, P.h, 16), mat('butter'));
+    add(new THREE.CylinderGeometry(P.w * .55, P.w * .55, .12, 16), mat('rose')).position.y = P.h / 2;
   } else if (P.t === 'bumper') {
     add(new THREE.CylinderGeometry(P.r, P.r, 0.9, 40).rotateX(Math.PI / 2), mat('rose'));
     add(new THREE.TorusGeometry(P.r * 0.78, P.r * 0.12, 12, 40), mat('cream')).position.z = 0.46;
@@ -3036,15 +2369,19 @@ function clearLevel() {
 function buildLevel(li) {
   clearLevel();
   const lv = LEVELS[li];
-  const W = { parts: [], zones: [], t: -1, lv };
-  for (const def of lv.parts) {
-    const P = { ...def, round: ['roller', 'bumper', 'saw', 'crusher'].includes(def.t), off: def.off || 0, last: -9, pulse: 0 };
+  const W = { parts: [], zones: [], collectibles: [], t: -1, lv, physics: createWorld(lv, gSave.up.bounce) };
+  for (const [index, def] of lv.parts.entries()) {
+    const P = { ...def, index, round: ['roller', 'bumper', 'saw', 'crusher'].includes(def.t), off: def.off || 0, last: -9, pulse: 0 };
     P.mesh = partMesh(P);
     level.add(P.mesh);
     pose(P, 0);
     W.parts.push(P);
   }
   for (const z of lv.zones || []) { const Z = { ...z, hit: false }; level.add(zoneMesh(Z)); W.zones.push(Z); }
+  for (const [index, c] of (lv.collectibles || []).entries()) {
+    const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(.23), new THREE.MeshStandardMaterial({ color: 0xffd04a, emissive: 0xa96a00, emissiveIntensity: .4, roughness: .25 }));
+    mesh.position.set(c.x, c.y, .25); level.add(mesh); W.collectibles.push({ ...c, index, mesh });
+  }
   placePosters(lv, li);
   return W;
 }
@@ -3225,6 +2562,10 @@ function resetRun() {
   clearCrumbs();
   pops.textContent = '';
   const lv = LEVELS[GAME.li];
+  GAME.sim = null; GAME.simAcc = 0;
+  GAME.seed = (crypto.getRandomValues(new Uint32Array(1))[0]);
+  GAME.runConfig = GAME.ranked ? GAME.ranked.config : { sling: gSave.up.sling, bounce: gSave.up.bounce, wobble: CFG.wobble };
+  if (GAME.ranked) GAME.seed = GAME.ranked.seed;
   CFG.upright = 0.15; CFG.maxV = 0.022; CFG.maxV2 = CFG.maxV * CFG.maxV; CFG.air = 1; CFG.restitution = 0.36;
   const b = spawn(lv.start[0], lv.start[1] - RIG.minY + 0.01, 0, 0, flavourIdx);
   b.hopCool = 1e9;
@@ -3238,7 +2579,9 @@ function resetRun() {
   for (const P of CFG.world.parts) P.last = -9;
   for (const Z of CFG.world.zones) Z.hit = false;
   GAME.aim = null; dots.visible = false;
+  $('gPower').classList.add('off');
   GAME.state = 'aim';
+  $('gWob').disabled = !!GAME.ranked;
   setHint('gHintAim');
 }
 function showIntro() {
@@ -3267,6 +2610,7 @@ GAME.kick = new THREE.Vector2();
 
 const saved = {};
 function enterGame(li = 0) {
+  if (battleSceneOn) exitBattle();
   if (GAME.on) { loadLevel(li); return; }
   GAME.on = true;
   dismissCoach();
@@ -3283,7 +2627,10 @@ function enterGame(li = 0) {
   SFX.unlock(); MUSIC.start();
 }
 function exitGame() {
+  if (typeof cancelRankedStart === 'function') cancelRankedStart();
+  GAME.ranked = null;
   if (!GAME.on) return;
+  $('gEditorBack').hidden = true;
   GAME.on = false; GAME.state = 'off'; GAME.slow = 1; GAME.stopT = 0; GAME.slowT = 0;
   document.body.classList.remove('game');
   closeSheets();
@@ -3316,12 +2663,10 @@ function gameLayout() {
 /* ---- input: pull back, let go ----
    The pull is measured on screen: about a third of the screen's short side is a full
    pull on any device, so a narrow phone flings as far as a wide monitor. */
-const pullFull = () => Math.max(110, Math.min(innerWidth, innerHeight) * 0.34);
+const pullFull = () => fullPull(innerWidth, innerHeight);
 function aimVel() {
-  const a = GAME.aim, px = a.sx - a.nx, py = a.ny - a.sy;       // screen y grows downward
-  const len = Math.hypot(px, py), k = Math.min(1, len / pullFull());
-  if (len < 1e-3) return [0, 0, 0];
-  return [px / len * k * vmax(), py / len * k * vmax(), k];
+  const { vx, vy, k } = aimCommand(GAME.aim, innerWidth, innerHeight, vmax());
+  return [vx, vy, k];
 }
 function gameDown(e) {
   if (GAME.state !== 'aim' || GAME.aim) return;
@@ -3339,6 +2684,9 @@ function gameMove(e) {
   if (!a || e.pointerId !== a.id) return;
   a.nx = e.clientX; a.ny = e.clientY;
   const [vx, vy, k] = aimVel();
+  const power = $('gPower'); power.classList.remove('off');
+  power.firstChild.textContent = `${Math.round(k * 100)}%`;
+  power.querySelector('u').style.width = `${k * 100}%`;
   // the bear leans back into the sling, against the throw
   const sp = Math.hypot(vx, vy) || 1;
   a.target.set(a.body.x - vx / sp * k * 0.42, a.body.y - vy / sp * k * 0.42, a.body.z);
@@ -3348,12 +2696,14 @@ function gameMove(e) {
 function gameUp(e, cancel) {
   const a = GAME.aim;
   if (!a || e.pointerId !== a.id) return;
-  const [vx, vy, k] = aimVel();
+  const command = releaseAim(a, e, cancel, innerWidth, innerHeight, vmax());
   GAME.aim = null; dots.visible = false;
+  $('gPower').classList.add('off');
   const b = GAME.bear;
   b.grab = -1; b.grabT = null;
-  if (cancel || k < 0.08) { setHint('gHintAim'); return; }
-  launch(vx, vy);
+  if (canvas.hasPointerCapture?.(e.pointerId)) canvas.releasePointerCapture(e.pointerId);
+  if (!command) { setHint('gHintAim'); return; }
+  launch(command.vx, command.vy);
 }
 function launch(vx, vy) {
   const b = GAME.bear, h = CFG.subH, c = b.centre();
@@ -3367,7 +2717,17 @@ function launch(vx, vy) {
     b.q[k + 1] = b.p[k + 1] - (vy + spin * rx) * h;
     b.q[k + 2] = b.p[k + 2];
   }
+  GAME.sim = createSharedRun({ level: LEVELS[GAME.li], seed: GAME.seed, config: GAME.runConfig, flavour: flavourIdx });
+  const command = normalizeCommand({ vx, vy }, GAME.runConfig);
+  GAME.command = command; GAME.sim.launch(command);
+  GAME.simAcc = 0;
   GAME.state = 'fly'; run.flyT = 0;
+  applyRunSnapshot(GAME.sim.snapshot());
+  const level = GAME.runConfig.sling;
+  if (level) {
+    const at = b.centre(); ring(at[0], at[1], at[2], .6 + level * .2);
+    crumble(...at, -Math.sign(vx), -.2, level * 3, b.f.css, 1 + level * .3);
+  }
   SFX.wheee();
   if (navigator.vibrate) navigator.vibrate(10);
 }
@@ -3401,44 +2761,6 @@ function cutBone(b, bone, at, strand = true) {
   for (const i of side) b.flash[i] = 1;
   return true;
 }
-function snapStrand(b, S) {
-  const k = b.strands.indexOf(S);
-  if (k < 0) return;
-  b.strands.splice(k, 1);
-  const a = S.i * 3, c = S.j * 3;
-  const mx = (b.p[a] + b.p[c]) / 2, my = (b.p[a + 1] + b.p[c + 1]) / 2, mz = (b.p[a + 2] + b.p[c + 2]) / 2;
-  crumble(mx, my, mz, 0, 1, 12, b.f.css, 2.5);
-  const pts = Math.round(140 * chain()); addPts(pts, 'bonus');
-  pop(pts, L.snap, false, [mx, my, mz]); SFX.pop();
-}
-function burst(b) {
-  for (const bone of ['neck', 'armL', 'armR', 'legL', 'legR', 'waist']) cutBone(b, bone, undefined, false);
-  b.strands.length = 0;
-  const c = b.centre();
-  crumble(c[0], c[1], c[2], 0, 1, 40, b.f.css, 5);
-  ring(c[0], c[1], c[2], 2.6);
-  for (let i = 0; i < b.n; i++) { b.flash[i] = 1; b.dmg[i] = Math.max(b.dmg[i], 0.7); }
-}
-
-/* ---- scoring ---- */
-function strainOf(b) {
-  let s = 1;
-  for (let li = 0; li < RIG.links.length; li++) {
-    if (!b.lk[li]) continue;
-    const Lk = RIG.links[li], a = Lk.i * 3, c = Lk.j * 3;
-    s = Math.max(s, Math.hypot(b.p[a] - b.p[c], b.p[a + 1] - b.p[c + 1], b.p[a + 2] - b.p[c + 2]) / Lk.rest);
-  }
-  return s;
-}
-function chain() {
-  run.combo = simT - run.lastHit < 0.9 ? run.combo + 1 : 1;
-  run.lastHit = simT;
-  run.bestCombo = Math.max(run.bestCombo, run.combo);
-  const m = Math.min(3, 1 + 0.25 * (run.combo - 1));
-  if (run.combo > 1) { hud.combo.textContent = L.combo(m.toFixed(2).replace(/\.?0+$/, '')); hud.combo.classList.add('on'); }
-  return m;
-}
-function addPts(n, kind) { run.score += n; run[kind] += n; }
 function freeze(t, slowAfter = 0) {
   GAME.stopT = Math.max(GAME.stopT, t);
   if (slowAfter) GAME.slowT = Math.max(GAME.slowT, slowAfter);
@@ -3472,120 +2794,6 @@ function impactFx(b, raw, pts, part) {
     pop(pts, label, false, at);
   } else { SFX.squish(raw / 60); if (raw >= 30) pop(pts, '', false, at); }
 }
-function scoreFrame(dt) {
-  const b = GAME.bear, flying = GAME.state === 'fly' || GAME.state === 'settle';
-  // impacts: how hard the bear's own velocity was changed.  A crash is the
-  // velocity it lost (minus what gravity added), summed over the frames the
-  // collision takes; resting, sliding and being squeezed change nothing.
-  let vx = 0, vy = 0;
-  for (let i = 0; i < b.n; i++) { const m = RIG.mass[i]; vx += (b.p[i * 3] - b.q[i * 3]) * m; vy += (b.p[i * 3 + 1] - b.q[i * 3 + 1]) * m; }
-  vx /= RIG.total * CFG.subH; vy /= RIG.total * CFG.subH;
-  const pv = run.pv; run.pv = [vx, vy];
-  if (flying && pv && dt > 0) {
-    const dv = Math.hypot(vx - pv[0], vy - pv[1] - CFG.gravity * dt);
-    if (dv > 1.4) run.ev += dv;
-    else if (run.ev > 0) {
-      const ev = run.ev; run.ev = 0;
-      const part = partName(b);
-      const raw = Math.min(900, RIG.total * ev * ev * 0.3) * PART_MUL[part];
-      run.maxHit = Math.max(run.maxHit, ev);
-      b.hitSp = 0;
-      if (ev > 26 && run.cut.size < 6) {                          // too hard: the whole bear bursts
-        const pts = Math.round(900 * chain());
-        addPts(pts, 'bonus'); burst(b);
-        freeze(0.14, 0.6); GAME.shake = 0.6; SFX.burst(); SFX.wail();
-        pop(pts, L.burst, true);
-      } else if (raw >= 14) {
-        const pts = Math.round(raw * chain());
-        addPts(pts, 'impact');
-        impactFx(b, raw, pts, part);
-      }
-    }
-  } else if (!flying) b.hitSp = 0;
-  if (flying) {
-    // stretch: points for every second spent pulled long
-    const s = strainOf(b);
-    if (s > 1.08) {
-      addPts(Math.round((s - 1.08) * dt * 1400), 'stretch');
-      if (s > 1.4 && simT - run.strPop > 1.2) { run.strPop = simT; SFX.squeak(); pop(Math.round(s * 20), L.lbl.stretch); addPts(Math.round(s * 20), 'bonus'); }
-    }
-    // a part that has taken enough hits snaps off; a battered one sheds sugar
-    for (const [bone, side] of Object.entries(SIDE)) {
-      if (run.cut.has(bone)) continue;
-      let d = 0; for (const i of side) d = Math.max(d, b.dmg[i]);
-      if (d >= 1 && cutBone(b, bone)) {
-        b.flash.fill(0.6);
-        const pts = Math.round(250 * chain()); addPts(pts, 'bonus');
-        pop(pts, L.broke + ' ' + L.cut[bone], true); SFX.pop(); SFX.ouch(); freeze(0.07);
-      }
-    }
-    for (let i = 0; i < b.n; i++) if (b.dmg[i] > 0.45 && Math.random() < dt * b.dmg[i] * 3) {
-      const k = i * 3; crumble(b.p[k], b.p[k + 1], b.p[k + 2], 0, -0.2, 1, b.f.css, 0.6);
-    }
-  }
-  // strands that have been pulled too far let go
-  for (const S of b.strands.slice()) if (S.len > S.rest * 4.2) snapStrand(b, S);
-  // blades
-  for (let k = 0; k < GAME.cuts.length; k += 2) {
-    const i = GAME.cuts[k], P = GAME.cuts[k + 1], bone = BONE_OF[NAME[i]];
-    if (P.kind === 'grind' || !flying) continue;
-    if (run.cut.has(bone)) {                              // already hanging by a string: this one cuts it
-      const S = b.strands.find((x) => x.bone === bone && (x.i === i || x.j === i));
-      if (S && simT - (S.t || 0) > 0.4) snapStrand(b, S);
-      continue;
-    }
-    if (cutBone(b, bone, i)) {
-      const pts = Math.round(Math.max(150, P.pts) * chain()); addPts(pts, 'bonus');
-      pop(pts, L.cut[bone], true); SFX.pop(); SFX.ouch(); freeze(0.08, 0.35); GAME.shake = 0.3;
-    }
-  }
-  GAME.cuts.length = 0;
-  // contraptions
-  for (const P of GAME.events) {
-    const pts = Math.round(P.pts * chain());
-    addPts(pts, 'bonus');
-    const kind = P.kind || P.t;
-    pop(pts, L.lbl[kind] || L.lbl.bumper);
-    if (kind === 'spring') SFX.boing(); else if (kind === 'roller') SFX.roll();
-    else if (kind === 'juice') { SFX.squish(1); SFX.ouch(); }
-    else if (kind === 'press' || kind === 'crusher') {
-      SFX.thud(1); SFX.wail(); GAME.shake = 0.3; freeze(0.06);
-      const c = mainC(b); crumble(c[0], c[1], c[2], 0, 1, 18, b.f.css, 3);
-    } else SFX.bonk();
-  }
-  GAME.events.length = 0;
-  // zones
-  const c = mainC(b);
-  for (const Z of CFG.world.zones) {
-    if (c[0] < Z.x0 || c[0] > Z.x1 || c[1] < Z.y0 || c[1] > Z.y1) continue;
-    if (Z.kind === 'syrup') for (let i = 0; i < b.n * 3; i++) b.q[i] = b.p[i] - (b.p[i] - b.q[i]) * 0.82;   // thick
-    if (Z.kind === 'grinder' && GAME.state !== 'over') {
-      // the grinder takes it apart one bone at a time, and pays for each
-      run.grindT -= dt;
-      if (run.grindT <= 0) {
-        run.grindT = 0.28;
-        const left = Object.keys(SIDE).filter((k) => !run.cut.has(k));
-        SFX.grind(); GAME.shake = Math.max(GAME.shake, 0.18);
-        crumble(c[0], c[1], c[2], 0, 1.2, 8, b.f.css, 4);
-        if (left.length) {
-          const bone = left[Math.floor(Math.random() * left.length)];
-          cutBone(b, bone, undefined, false);
-          b.strands.length = 0;
-          const pts = Math.round(160 * chain()); addPts(pts, 'bonus'); pop(pts, L.cut[bone]); SFX.ouch();
-        } else { const pts = Math.round(60 * chain()); addPts(pts, 'bonus'); pop(pts, L.ground); }
-      }
-    }
-    if (!Z.hit && GAME.state === 'fly') {
-      Z.hit = true;
-      const pts = Math.round(Z.pts * chain());
-      addPts(pts, 'bonus'); pop(pts, L.lbl[Z.kind], true);
-      if (Z.kind === 'syrup') SFX.splash(); else SFX.ding(4);
-      if (Z.goal) { run.goal = true; GAME.state = 'settle'; run.endT = Z.kind === 'grinder' ? 2.6 : 1.4; }
-    }
-  }
-  if (run.combo > 1 && simT - run.lastHit > 0.9) { hud.combo.classList.remove('on'); run.combo = 0; }
-}
-
 /* ---- results ---- */
 function starsFor(li, s, cleared) {
   if (!cleared) return 0;
@@ -3597,23 +2805,28 @@ function endRun(why) {
   run.done = true;
   if (why) run.why = why;
   GAME.state = 'over';
+  if (GAME.ranked && typeof submitRankedRun === 'function') submitRankedRun().catch(e => toast(e.message, 4000));
+  if (GAME.li >= LEVEL_IDS.length && run.goal && GAME.customCode === encodeLevel(WORKSHOP.draft)) {
+    WORKSHOP.testedCode = GAME.customCode; WORKSHOP.won = true;
+  }
   const li = GAME.li, s = run.score, ok = run.goal, n = starsFor(li, s, ok);
-  const isBest = ok && s > (gSave.best[li] || 0);
+  const official = li < LEVEL_IDS.length && !GAME.ranked;
+  const isBest = official && ok && s > (gSave.best[li] || 0);
   if (isBest) gSave.best[li] = s;
-  const first = ok && !gSave.clear[li];
-  if (ok) gSave.clear[li] = true;
-  gSave.stars[li] = Math.max(gSave.stars[li] || 0, n);
+  const first = official && ok && !gSave.clear[li];
+  if (official && ok) gSave.clear[li] = true;
+  if (official) gSave.stars[li] = Math.max(gSave.stars[li] || 0, n);
   // candy coins: from the score, clearing, first clears and stars; the magnet multiplies.
   // Reaching the goal is what counts: a run that missed it only gets a small consolation,
   // so a wild crash that never arrives can't out-earn a delivery.
-  const coins = Math.round((Math.floor(s / (ok ? 25 : 100)) + (ok ? 30 : 0) + (first ? 60 : 0) + n * 10) * (1 + 0.15 * gSave.up.magnet));
+  const coins = official ? Math.round((Math.floor(s / (ok ? 25 : 100)) + (ok ? 30 : 0) + (first ? 60 : 0) + n * 10) * (1 + 0.15 * gSave.up.magnet)) : 0;
   gSave.coins += coins;
   saveGame();
   setTimeout(() => showResult(s, n, isBest, ok, coins), ok ? 900 : 700);
 }
 function showResult(s, n, isBest, ok, coins) {
   if (!GAME.on) return;
-  const li = GAME.li, last = li + 1 >= LEVELS.length;
+  const li = GAME.li, last = li + 1 >= LEVEL_IDS.length;
   const v = $('rVerdict');
   v.className = 'verdict ' + (ok ? 'ok' : 'no');
   v.innerHTML = ok ? L.clear : `${L.fail}<small>${L.why[run.why] || ''}</small>`;
@@ -3647,9 +2860,9 @@ function showResult(s, n, isBest, ok, coins) {
 }
 function showEnd() {
   closeSheets();
-  const total = gSave.stars.reduce((a, s) => a + (s || 0), 0);
-  $('eText').innerHTML = L.end(`${total}/${LEVELS.length * 3}`, gSave.coins.toLocaleString());
-  $('eStars').innerHTML = LEVELS.map((_, i) => `<i class="${gSave.stars[i] ? 'on' : ''}">★</i>`).join('');
+  const total = gSave.stars.slice(0, LEVEL_IDS.length).reduce((a, s) => a + (s || 0), 0);
+  $('eText').innerHTML = L.end(`${total}/${LEVEL_IDS.length * 3}`, gSave.coins.toLocaleString());
+  $('eStars').innerHTML = LEVELS.slice(0, LEVEL_IDS.length).map((_, i) => `<i class="${gSave.stars[i] ? 'on' : ''}">★</i>`).join('');
   $('sheetEnd').classList.add('on');
   SFX.fanfare(); confetti(120);
 }
@@ -3665,14 +2878,14 @@ function showMap() {
     d.innerHTML = `<header><b>${name}</b><span>${stop}</span></header>`;
     if (di) { const p = document.createElement('p'); p.textContent = L.soon; d.appendChild(p); box.appendChild(d); return; }
     const path = document.createElement('div'); path.className = 'path';
-    LEVELS.forEach((lv, i) => {
+    LEVELS.slice(0, LEVEL_IDS.length).forEach((lv, i) => {
       const b = document.createElement('button');
       b.className = 'lv' + (gSave.clear[i] ? ' cleared' : '');
       const n = gSave.stars[i] || 0;
       b.innerHTML = `<em>${String(i + 1).padStart(2, '0')}</em><b>${lname(lv)}</b><small>${lv.tag[zh() ? 'zh' : 'en']}</small>` +
         `<span>${'★'.repeat(n)}<s>${'★'.repeat(3 - n)}</s></span>`;
       if (!unlocked(i)) b.disabled = true;
-      b.addEventListener('click', () => enterGame(i));
+      b.addEventListener('click', () => { GAME.ranked = null; enterGame(i); });
       path.appendChild(b);
     });
     d.appendChild(path); box.appendChild(d);
@@ -3696,6 +2909,7 @@ function showShop() {
       if (gSave.coins < cost || max) return;
       gSave.coins -= cost; gSave.up[u.id]++; saveGame();
       SFX.coin(); SFX.ding(7);
+      toast(`${name} ${zh() ? '升到' : 'level'} ${gSave.up[u.id]} · ${desc}`, 3200);
       showShop();
     });
     row.appendChild(btn);
@@ -3730,29 +2944,11 @@ function gameFrame(dt) {
   else if (GAME.slowT > 0) { GAME.slowT -= dt; GAME.slow = 0.3; }
   else GAME.slow = 1;
   const sdt = dt * GAME.slow;
-  syncLevel(sdt);
+  if (!GAME.sim || GAME.state === 'aim' || GAME.state === 'intro') syncLevel(sdt);
   stepCrumbs(sdt); stepRings(dt);
   const b = GAME.bear;
-  scoreFrame(sdt);
+  // Rules and score are advanced in simulateShared, never by a render frame.
   const c = mainC(b);
-
-  // the end of a run: goal reached, or the bear came to rest, left the factory, or ran out of time
-  if (GAME.state === 'fly' || GAME.state === 'settle') {
-    run.flyT += sdt;
-    let v = 0;
-    for (let i = 0; i < b.n * 3; i++) v = Math.max(v, Math.abs(b.p[i] - b.q[i]));
-    run.still = v / CFG.subH < 0.9 ? run.still + sdt : 0;
-    const [x0, x1] = LEVELS[GAME.li].span;
-    if (GAME.state === 'settle') { run.endT -= sdt; if (run.endT <= 0) endRun(); }
-    else {
-      if (c[0] < x0 - 1.5 || c[0] > x1 + 1.5) endRun('out');
-      // or it is jammed somewhere (rollers keep it jiggling, so it never reads as still)
-      if (!run.anchor || Math.hypot(c[0] - run.anchor[0], c[1] - run.anchor[1]) > 0.4) { run.anchor = c; run.anchorT = 0; }
-      else run.anchorT += sdt;
-      if ((run.flyT > 0.8 && run.still > 1.0) || (run.flyT > 1 && run.anchorT > 1.8)) endRun('stuck');
-      if (run.flyT > 15) endRun('time');
-    }
-  }
 
   // camera: a tour of the level, then the sling, then chase the bear
   const lv = LEVELS[GAME.li], [x0, x1] = lv.span;
@@ -3808,21 +3004,35 @@ function gameFrame(dt) {
 /* ---- softness: one setting for the sandbox and the levels ---- */
 const gWob = $('gWob'), gWobOut = $('gWobOut');
 function syncGameWobble() { gWob.value = CFG.wobble; gWobOut.textContent = CFG.wobble.toFixed(2); gWob.style.setProperty('--fill', `${CFG.wobble * 100}%`); }
-gWob.addEventListener('input', () => { wobbleInput.value = gWob.value; syncWobble(); syncGameWobble(); });
+gWob.addEventListener('input', () => {
+  if (GAME.ranked) return;
+  wobbleInput.value = gWob.value; syncWobble(); syncGameWobble();
+  if (GAME.state === 'aim') GAME.runConfig.wobble = CFG.wobble;
+});
 wobbleInput.addEventListener('input', syncGameWobble);
 syncGameWobble();
 
 /* ---- buttons ---- */
 $('playBtn').addEventListener('click', () => {
-  SFX.unlock();
-  const next = LEVELS.findIndex((_, i) => unlocked(i) && !gSave.clear[i]);
+  SFX.unlock(); GAME.ranked = null;
+  const next = LEVELS.slice(0, LEVEL_IDS.length).findIndex((_, i) => unlocked(i) && !gSave.clear[i]);
   enterGame(next < 0 ? 0 : next);
 });
 $('iGo').addEventListener('click', () => { closeSheets(); GAME.state = 'aim'; setHint('gHintAim'); SFX.boop(); MUSIC.start(); });
 $('gBack').addEventListener('click', exitGame);
-$('gRetry').addEventListener('click', () => { closeSheets(); resetRun(); });
-$('rRetry').addEventListener('click', () => { closeSheets(); resetRun(); });
-$('rNext').addEventListener('click', () => { if (GAME.li + 1 >= LEVELS.length) showEnd(); else loadLevel(GAME.li + 1); });
+function retryCurrentRun() {
+  if (GAME.ranked) { startRankedRun(GAME.li); return; }
+  closeSheets(); resetRun();
+}
+$('gRetry').addEventListener('click', retryCurrentRun);
+$('rRetry').addEventListener('click', retryCurrentRun);
+$('rNext').addEventListener('click', () => {
+  if (GAME.li >= LEVEL_IDS.length) { openWorkshop(); return; }
+  const ranked = !!GAME.ranked, next = GAME.li + 1;
+  if (next >= LEVEL_IDS.length) showEnd();
+  else if (ranked) startRankedRun(next);
+  else loadLevel(next);
+});
 $('rShop').addEventListener('click', showShop);
 $('rMap').addEventListener('click', showMap);
 $('gLevels').addEventListener('click', showMap);
@@ -3847,10 +3057,847 @@ $('lang').addEventListener('click', () => {
 addEventListener('keydown', (e) => {
   if (!GAME.on) return;
   if (e.key === 'Escape') exitGame();
-  if (e.key === 'r' || e.key === 'R') { closeSheets(); resetRun(); }
+  if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+  if ((e.key === 'r' || e.key === 'R') && !e.repeat) retryCurrentRun();
 });
 document.addEventListener('visibilitychange', () => { if (document.hidden) MUSIC.stop(); else if (GAME.on && GAME.state !== 'off') MUSIC.start(); });
 
+/* Bridge the shared authoritative run to the existing implicit-surface view. */
+function applyRunSnapshot(snapshot) {
+  const state = snapshot.bears[0], b = GAME.bear;
+  b.p.set(state.p); b.q.set(state.q); b.lk.set(state.lk); b.seg.set(state.seg);
+  b.flash.set(state.flash); b.dmg.set(state.dmg); b.up = state.up;
+  b.segs = state.segs; b.strands = state.strands;
+  Object.assign(run, snapshot.run, { score: snapshot.score, goal: snapshot.goal, flyT: snapshot.t });
+  run.cut = new Set(state.cut);
+  GAME.simTime = snapshot.t;
+  for (const P of CFG.world.parts) {
+    const p = snapshot.parts[P.index];
+    if (!p) continue;
+    Object.assign(P, p); P.mesh.visible = !p.broken;
+    P.mesh.position.set(p.cx, p.cy, 0); P.mesh.rotation.z = p.ang;
+    if (P.tex) P.tex.offset.x = (-GAME.simTime * (P.belt || 0) / 1.2) % 1;
+  }
+  for (const C of snapshot.collectibles || []) {
+    const c = CFG.world.collectibles?.[C.index]; if (c) c.mesh.visible = !C.hit;
+  }
+  for (const event of snapshot.events) presentRunEvent(event);
+  const r = GAME.sim.result();
+  if (r.done && !run.done) endRun(r.reason);
+}
+function presentRunEvent(e) {
+  const b = GAME.bear, at = e.at || mainC(b);
+  if (e.type === 'cut' && !gSave.tipBreak) { gSave.tipBreak = true; saveGame(); toast(L.tipBreak, 3800); }
+  if (e.type === 'impact') {
+    b.hitPart = e.point; b.hitNx = e.normal?.[0] || 0; b.hitNy = e.normal?.[1] || 1;
+    impactFx(b, e.raw, e.pts, e.part); return;
+  }
+  if (e.type === 'launch' || e.type === 'end' || e.type === 'goal') return;
+  let label = '';
+  if (e.type === 'collect') { label = zh() ? '糖星！' : 'CANDY STAR!'; SFX.ding(4); }
+  else if (e.type === 'smash') { label = zh() ? '撞碎了！' : 'SMASH!'; SFX.pop(); crumble(...at, 0, 1, 16, b.f.css, 3); }
+  else if (['cut', 'slice', 'break'].includes(e.type)) { label = L.cut[e.bone] || L.broke; SFX.pop(); }
+  else if (e.type === 'snap') { label = L.snap; SFX.pop(); }
+  else if (e.type === 'burst') { label = L.burst; SFX.burst(); }
+  else if (e.type === 'stretch') { label = L.lbl.stretch; SFX.squish(.5); }
+  else if (e.type === 'contraption') { label = L.lbl[e.kind] || L.lbl.bumper; if (e.kind === 'roller') SFX.roll(); else SFX.thud(.7); }
+  else if (e.type === 'zone') { label = L.lbl[e.kind]; SFX.ding(4); }
+  else if (e.type === 'grind') { label = L.ground; SFX.squish(.8); }
+  if (e.pts || label) pop(e.pts || 0, label, e.type === 'burst', at);
+  GAME.shake = Math.max(GAME.shake, e.fx?.shake || 0);
+}
+function simulateShared(dt) {
+  if (!GAME.sim || GAME.state !== 'fly') return;
+  GAME.simAcc += Math.min(dt, .25);
+  const ticks = Math.min(120, Math.floor(GAME.simAcc * 300));
+  if (!ticks) return;
+  GAME.simAcc -= ticks / 300;
+  GAME.sim.step(ticks); applyRunSnapshot(GAME.sim.snapshot());
+}
+/* Workshop definitions stay separate from a running level and campaign rewards. */
+const WORKSHOP = { draft: makeDraft(), undo: [], redo: [], active: false, selected: -1, selectedStar: -1, won: false, testedCode: null };
+function draftIsCompleted() {
+  try { return WORKSHOP.testedCode === encodeLevel(WORKSHOP.draft); } catch (_) { return false; }
+}
+try { WORKSHOP.draft = validateLevel(JSON.parse(localStorage.getItem('gummy-workshop') || 'null')); } catch (_) {}
+const customIndex = LEVELS.length;
+function wsText(zhText, enText) { return zh() ? zhText : enText; }
+function rememberDraft() {
+  try { localStorage.setItem('gummy-workshop', JSON.stringify(WORKSHOP.draft)); } catch (_) {}
+}
+function editDraft(action) {
+  WORKSHOP.undo.push(JSON.stringify(WORKSHOP.draft));
+  if (WORKSHOP.undo.length > 50) WORKSHOP.undo.shift();
+  WORKSHOP.redo.length = 0;
+  action(WORKSHOP.draft); WORKSHOP.won = false; rememberDraft(); drawEditor();
+}
+function openWorkshop() {
+  cancelRankedStart();
+  if (battleSceneOn) exitBattle();
+  if (GAME.on) exitGame();
+  closeSheets(); WORKSHOP.active = true; WORKSHOP.selected = -1;
+  $('sheetWorkshop').classList.add('on'); drawEditor();
+}
+function drawEditor() {
+  const d = WORKSHOP.draft, svg = $('wsCanvas');
+  $('wsName').value = d.name[zh() ? 'zh' : 'en'];
+  $('wsCount').textContent = `${d.parts.length}/128`;
+  svg.replaceChildren();
+  const NS = 'http://www.w3.org/2000/svg';
+  function shape(tag, attrs, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+    if (text) e.textContent = text;
+    svg.appendChild(e); return e;
+  }
+  shape('rect', { x: -10, y: -16, width: 30, height: 16, fill: '#f5ede0' });
+  for (let x = -10; x <= 20; x++) shape('line', { x1: x, x2: x, y1: -16, y2: 0, stroke: '#e0d5c5', 'stroke-width': .025 });
+  for (let y = -16; y <= 0; y++) shape('line', { x1: -10, x2: 20, y1: y, y2: y, stroke: '#e0d5c5', 'stroke-width': .025 });
+  d.parts.forEach((p, i) => {
+    const selected = i === WORKSHOP.selected;
+    const attrs = { fill: selected ? '#e2667c' : '#b5c7bf', stroke: selected ? '#9d1730' : '#67766c', 'stroke-width': .08, 'data-part': i };
+    if (p.r) shape('circle', { ...attrs, cx: p.x, cy: -p.y, r: p.r });
+    else shape('rect', { ...attrs, x: p.x - p.w / 2, y: -p.y - p.h / 2, width: p.w, height: p.h,
+      transform: `rotate(${-p.a || 0} ${p.x} ${-p.y})` });
+    shape('text', { x: p.x, y: -p.y, 'text-anchor': 'middle', 'font-size': .38, fill: '#202020', 'pointer-events': 'none' }, p.t);
+  });
+  shape('circle', { cx: d.start[0], cy: -d.start[1], r: .45, fill: '#ce344c', 'data-marker': 'start' });
+  const z = d.zones.find(z => z.goal);
+  shape('rect', { x: z.x0, y: -z.y1, width: z.x1 - z.x0, height: z.y1 - z.y0, fill: '#4b9f6466', 'data-marker': 'goal' });
+  d.collectibles.forEach((p, i) => shape('text', { x: p.x, y: -p.y, 'font-size': .9, fill: '#d6990b', 'data-star': i }, '★'));
+  const p = d.parts[WORKSHOP.selected];
+  $('wsX').value = p?.x ?? ''; $('wsY').value = p?.y ?? ''; $('wsAngle').value = p?.a ?? 0;
+  for (const [id, key] of [['wsW', 'w'], ['wsH', 'h'], ['wsR', 'r'], ['wsPeriod', 'period']]) { $(id).value = p?.[key] ?? ''; $(id).disabled = !p || p[key] === undefined; }
+  $('wsSpeed').value = p?.belt ?? p?.spin ?? ''; $('wsSpeed').disabled = !p || (p.belt === undefined && p.spin === undefined);
+  const options = $('wsType').options;
+  for (const option of options) {
+    const names = { box: ['平台', 'Platform'], roller: ['滚轮', 'Roller'], bumper: ['弹珠', 'Bumper'], spring: ['弹簧', 'Spring'], press: ['冲压机', 'Press'], crusher: ['压路滚筒', 'Steamroller'], belt: ['传送带', 'Conveyor'], saw: ['圆锯', 'Saw'], blade: ['铡刀', 'Blade'], glass: ['糖玻璃', 'Sugar glass'], jar: ['糖罐', 'Candy jar'], star: ['糖星', 'Candy star'] };
+    option.value = option.value || option.textContent;
+    option.textContent = wsText(...(names[option.value] || [option.value, option.value]));
+  }
+  $('wsUndo').disabled = !WORKSHOP.undo.length; $('wsRedo').disabled = !WORKSHOP.redo.length;
+}
+function editorPoint(e) {
+  const svg = $('wsCanvas'), p = svg.createSVGPoint(); p.x = e.clientX; p.y = e.clientY;
+  const q = p.matrixTransform(svg.getScreenCTM().inverse());
+  return [Math.max(WORKSHOP.draft.span[0], Math.min(WORKSHOP.draft.span[1], Math.round(q.x * 2) / 2)), Math.max(.25, Math.min(15, Math.round(-q.y * 2) / 2))];
+}
+let editorDrag = null;
+$('wsCanvas').addEventListener('pointerdown', e => {
+  const index = e.target.getAttribute('data-part'), marker = e.target.getAttribute('data-marker'), star = e.target.getAttribute('data-star');
+  if (star !== null) { WORKSHOP.selectedStar = +star; WORKSHOP.selected = -1; }
+  if (index !== null) { WORKSHOP.selected = +index; WORKSHOP.selectedStar = -1; drawEditor(); }
+  if (index === null && !marker && star === null) return;
+  editorDrag = { id: e.pointerId, part: index === null ? null : +index, star: star === null ? null : +star, marker, before: JSON.stringify(WORKSHOP.draft) };
+  $('wsCanvas').setPointerCapture(e.pointerId);
+});
+$('wsCanvas').addEventListener('pointermove', e => {
+  if (!editorDrag || editorDrag.id !== e.pointerId) return;
+  const [x, y] = editorPoint(e), d = WORKSHOP.draft;
+  if (editorDrag.star !== null) Object.assign(d.collectibles[editorDrag.star], { x, y });
+  else if (editorDrag.part !== null) Object.assign(d.parts[editorDrag.part], { x, y });
+  else if (editorDrag.marker === 'start') d.start = [x, y];
+  else { const z = d.zones.find(z => z.goal), w = z.x1 - z.x0, h = z.y1 - z.y0;
+    z.x0 = Math.max(d.span[0], Math.min(d.span[1] - w, x - w / 2)); z.x1 = z.x0 + w; z.y0 = Math.max(0, y - h / 2); z.y1 = z.y0 + h; }
+  drawEditor();
+});
+function finishEditorDrag() {
+  if (!editorDrag) return;
+  WORKSHOP.undo.push(editorDrag.before); WORKSHOP.redo.length = 0; editorDrag = null;
+  WORKSHOP.won = false; rememberDraft(); drawEditor();
+}
+$('wsCanvas').addEventListener('pointerup', finishEditorDrag);
+$('wsCanvas').addEventListener('pointercancel', finishEditorDrag);
+$('wsAdd').addEventListener('click', () => {
+  if (WORKSHOP.draft.parts.length >= 128) return;
+  const type = $('wsType').value;
+  editDraft(d => {
+    if (type === 'star') { if (d.collectibles.length < 32) d.collectibles.push({ x: 0, y: 4, pts: 300 }); return; }
+    const p = { t: type, x: 0, y: 3, pts: 100 };
+    if (['roller', 'crusher', 'saw', 'bumper'].includes(type)) p.r = .5;
+    else { p.w = 1.5; p.h = .4; }
+    if (['press', 'blade', 'crusher'].includes(type)) Object.assign(p, { amp: 1.5, period: 2, off: 0 });
+    if (['roller', 'saw'].includes(type)) p.spin = 6;
+    if (type === 'belt') p.belt = 2.4;
+    if (type === 'bumper' || type === 'spring') p.boost = 6;
+    if (type === 'saw' || type === 'blade') { p.cut = true; p.ghost = true; }
+    d.parts.push(p); WORKSHOP.selected = d.parts.length - 1;
+  });
+});
+$('wsDelete').addEventListener('click', () => { if (WORKSHOP.selectedStar >= 0) { editDraft(d => { d.collectibles.splice(WORKSHOP.selectedStar, 1); WORKSHOP.selectedStar = -1; }); return; } if (WORKSHOP.selected >= 0) editDraft(d => { d.parts.splice(WORKSHOP.selected, 1); WORKSHOP.selected = -1; }); });
+$('wsApply').addEventListener('click', () => {
+  if (WORKSHOP.selected < 0) return;
+  const x = Number($('wsX').value), y = Number($('wsY').value), a = Number($('wsAngle').value);
+  if (![x, y, a].every(Number.isFinite)) return;
+  editDraft(d => {
+    const p = d.parts[WORKSHOP.selected];
+    Object.assign(p, { x: Math.max(-9, Math.min(19, x)), y: Math.max(.25, Math.min(15, y)), a: Math.max(-180, Math.min(180, a)) });
+    for (const [id, key, lo, hi] of [['wsW','w',.1,20],['wsH','h',.1,10],['wsR','r',.1,4],['wsPeriod','period',.4,30]]) {
+      const n = Number($(id).value); if (p[key] !== undefined && Number.isFinite(n)) p[key] = Math.max(lo, Math.min(hi, n));
+    }
+    const speed = Number($('wsSpeed').value);
+    if (Number.isFinite(speed)) { if (p.belt !== undefined) p.belt = Math.max(-8, Math.min(8, speed)); else if (p.spin !== undefined) p.spin = Math.max(-20, Math.min(20, speed)); }
+  });
+});
+$('wsName').addEventListener('change', () => editDraft(d => { d.name[zh() ? 'zh' : 'en'] = $('wsName').value.slice(0, 48); }));
+for (const [button, from, to] of [['wsUndo', 'undo', 'redo'], ['wsRedo', 'redo', 'undo']]) $(button).addEventListener('click', () => {
+  if (!WORKSHOP[from].length) return;
+  WORKSHOP[to].push(JSON.stringify(WORKSHOP.draft)); WORKSHOP.draft = JSON.parse(WORKSHOP[from].pop()); WORKSHOP.won = draftIsCompleted(); rememberDraft(); drawEditor();
+});
+function playCustom(definition) {
+  cancelRankedStart();
+  if (battleSceneOn) exitBattle();
+  const d = validateLevel(definition);
+  GAME.ranked = null;
+  LEVELS[customIndex] = d; WORKSHOP.active = true;
+  GAME.customCode = encodeLevel(d);
+  enterGame(customIndex); $('gEditorBack').hidden = false;
+}
+$('wsPlay').addEventListener('click', () => { try { playCustom(WORKSHOP.draft); } catch (e) { toast(e.message, 4000); } });
+$('gEditorBack').addEventListener('click', openWorkshop);
+$('wsClose').addEventListener('click', () => { WORKSHOP.active = false; $('sheetWorkshop').classList.remove('on'); });
+$('wsShare').addEventListener('click', async () => {
+  try {
+    const code = encodeLevel(WORKSHOP.draft), link = `${location.origin}${location.pathname}#level=${code}`;
+    if (link.length > 12000) { $('wsCode').value = code; toast(wsText('关卡较大，请复制导入码', 'Large level: copy the import code')); return; }
+    $('wsCode').value = link;
+    await navigator.clipboard.writeText(link); toast(L.copied);
+  } catch (e) { $('wsCode').focus(); $('wsCode').select(); toast(wsText('链接已生成，请长按复制文本', 'Link ready: copy the selected text'), 4000); }
+});
+$('wsImport').addEventListener('click', () => {
+  try {
+    const raw = $('wsCode').value.trim(), code = raw.includes('#level=') ? raw.split('#level=')[1] : raw;
+    const next = decodeLevel(code); editDraft(() => { WORKSHOP.draft = next; });
+  } catch (e) { toast(e.message, 4000); }
+});
+$('workshopBtn').addEventListener('click', openWorkshop);
+addEventListener('hashchange', readCustomLink);
+function readCustomLink() {
+  if (!location.hash.startsWith('#level=')) return;
+  try { playCustom(decodeLevel(location.hash.slice(7))); }
+  catch (e) { toast(wsText('关卡链接无效或过大', 'Invalid or oversized level link'), 4000); }
+}
+setTimeout(readCustomLink, 1200);
+/* Battle uses the same implicit-surface renderer, not a second candy art pipeline. */
+const battleViews = new Map();
+let battleSceneOn = false, battleGlue = null;
+function beginBattleScene() {
+  if (GAME.on) exitGame();
+  closeSheets(); clearLevel(); battleViews.clear();
+  for (const b of bears.slice()) drop(b);
+  factory.visible = false; dots.visible = false; battleSceneOn = true;
+  document.body.classList.add('battle');
+  for (const x of [-5, 5]) {
+    const o = new THREE.Mesh(rbox(4, .8, 2), mat(x < 0 ? 'pink' : 'mint'));
+    o.position.set(x, -.4, 0); level.add(o);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6 * 6), 3));
+  battleGlue = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0xe8b8e8 }));
+  level.add(battleGlue);
+  camera.clearViewOffset();
+  camera.fov = 36; camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  const d = 17 / 2 / (Math.tan(THREE.MathUtils.degToRad(18)) * camera.aspect);
+  camera.position.set(0, 2 + d * .09, d); camera.lookAt(0, 2, 0);
+  SFX.unlock(); MUSIC.start();
+}
+function endBattleScene() {
+  battleSceneOn = false; battleViews.clear();
+  for (const b of bears.slice()) drop(b);
+  clearLevel(); battleGlue = null; document.body.classList.remove('battle');
+  scatter(5, true); layout(); MUSIC.stop();
+}
+function renderBattleSnapshot(snapshot) {
+  if (!battleSceneOn) beginBattleScene();
+  const active = new Set(snapshot.bears.map(b => b.id));
+  for (const [id, b] of battleViews) if (!active.has(id)) { drop(b); battleViews.delete(id); }
+  for (const state of snapshot.bears) {
+    let b = battleViews.get(state.id);
+    if (!b) {
+      const flavor = state.owner === 0 ? 0 : 3;
+      b = spawn(0, 1, 0, 0, flavor);
+      if (!b) continue;
+      battleViews.set(state.id, b);
+    }
+    b.p.set(state.p); b.q.set(state.q); b.lk.set(state.lk); b.seg.set(state.seg);
+    b.segs = state.segs; b.strands = state.strands || [];
+    b.dmg.set(state.dmg || new Float32Array(b.n)); b.flash.set(state.flash || new Float32Array(b.n));
+    if (state.up) b.up = state.up;
+    // Surface vertices are world-space: king identity is shown by the battle HUD, not mesh scaling.
+  }
+  const pos = battleGlue.geometry.attributes.position.array;
+  let n = 0;
+  for (const g of snapshot.glue || []) {
+    const a = battleViews.get(g.a), b = battleViews.get(g.b);
+    if (!a || !b || n >= 36) continue;
+    pos.set(a.centre(), n); pos.set(b.centre(), n + 3); n += 6;
+  }
+  battleGlue.geometry.setDrawRange(0, n / 3); battleGlue.geometry.attributes.position.needsUpdate = true;
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
+  const d = 17 / 2 / (Math.tan(THREE.MathUtils.degToRad(18)) * camera.aspect);
+  camera.position.set(0, 2 + d * .09, d); camera.lookAt(0, 2, 0);
+}
+/* ============================ ONLINE (identity / ranked / leaderboard / workshop plaza) ============================ */
+import { createBattle, BATTLE_VERSION } from './shared/battle.mjs';
+
+/* Network layer + the "Online" sheet.  Everything is optional: with no window.GUMMY_API_BASE the sheet says so and
+   the local game is untouched.  All DOM is built with createElement/textContent: user text never goes through innerHTML. */
+const OL_API = String((typeof window !== 'undefined' && window.GUMMY_API_BASE) || '').replace(/\/+$/, '');
+const OL = { gen: 0, starting: false, me: null, ui: {}, labels: [], from: false, page: 1, pages: 1 };
+const tr = (a, b) => (zh() ? a : b);
+const olErr = (e) => (e && e.message) || tr('未知错误', 'Unknown error');
+
+function el(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'on') for (const [ev, fn] of Object.entries(v)) e.addEventListener(ev, fn);
+    else if (k === 'value' || k === 'hidden' || k === 'disabled') e[k] = v;
+    else e.setAttribute(k, v);
+  }
+  for (const c of kids) if (c) e.appendChild(c);
+  return e;
+}
+/* bilingual label that follows the language switch (relabel runs on open and on the lang button) */
+function lbl(e, a, b, attr) {
+  OL.labels.push([e, a, b, attr]);
+  if (attr) e.setAttribute(attr, tr(a, b)); else e.textContent = tr(a, b);
+  return e;
+}
+function relabel() { for (const [e, a, b, attr] of OL.labels) { if (attr) e.setAttribute(attr, tr(a, b)); else e.textContent = tr(a, b); } fillLevels(); }
+const btn = (a, b, fn, cls) => lbl(el('button', { class: cls || 'ol-b', type: 'button', on: { click: fn } }), a, b);
+const levelOpt = (i) => el('option', { value: String(i), text: lname(LEVELS[i]) });
+function fillLevels() {
+  const s = OL.ui.level; if (!s) return;
+  const keep = s.value; s.replaceChildren(...LEVEL_IDS.map((_, i) => levelOpt(i))); if (keep) s.value = keep;
+}
+
+/* ---- identity ---- */
+const idKey = () => 'gummy-id:' + OL_API;
+function loadMe() {
+  try { const v = JSON.parse(localStorage.getItem(idKey()) || 'null'); if (v && typeof v.token === 'string' && typeof v.id === 'string') OL.me = v; } catch (_) { /* none */ }
+}
+async function createIdentity(name) {
+  const r = await onlineRequest('POST', '/api/identity', { name: String(name || '').trim() }, { auth: false });
+  OL.me = { id: r.id, name: r.name, token: r.token };
+  try { localStorage.setItem(idKey(), JSON.stringify(OL.me)); } catch (_) { /* private mode */ }
+  drawIdentity();
+  return OL.me;
+}
+/* resumable room (written by BattleUI): {code, resumeToken} per API base */
+const roomKey = () => 'gummy-room:' + OL_API;
+function savedRoom() {
+  try { const v = JSON.parse(localStorage.getItem(roomKey()) || 'null'); return v && /^[A-Z0-9]{6}$/.test(v.code) && typeof v.resumeToken === 'string' ? v : null; } catch (_) { return null; }
+}
+function saveRoom(v) { try { localStorage.setItem(roomKey(), JSON.stringify({ code: v.code, resumeToken: v.resumeToken })); } catch (_) { /* none */ } }
+function forgetRoom() { try { localStorage.removeItem(roomKey()); } catch (_) { /* none */ } if (OL.ui.resume) OL.ui.resume.hidden = true; }
+function forgetMe() { OL.me = null; try { localStorage.removeItem(idKey()); } catch (_) { /* none */ } drawIdentity(); }
+
+/* ---- HTTP ---- */
+async function onlineRequest(method, path, body, opt = {}) {
+  if (!OL_API) throw Object.assign(new Error(tr('在线服务未配置', 'Online service not configured')), { status: 0, unconfigured: true });
+  const headers = {};
+  if (OL.me && opt.auth !== false) headers.authorization = 'Bearer ' + OL.me.token;
+  if (body !== undefined) headers['content-type'] = 'application/json';
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 15000);
+  let res;
+  try { res = await fetch(OL_API + path, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal }); }
+  catch (_) { throw Object.assign(new Error(tr('无法连接在线服务，请稍后再试', 'Cannot reach the online service, try again later')), { status: 0, network: true }); }
+  finally { clearTimeout(timer); }
+  let data = null; try { data = await res.json(); } catch (_) { /* not JSON */ }
+  if (!res.ok) {
+    let msg = data && typeof data.error === 'string' ? data.error : '';
+    if (!data || (res.status === 404 && /接口/.test(msg))) msg = tr(`在线服务不可用（HTTP ${res.status}），服务可能还没部署`, `Online service unavailable (HTTP ${res.status}); it may not be deployed yet`);
+    else if (res.status === 401) msg = tr('身份无效，请在“在线”里重新创建昵称', 'Identity invalid; create a nickname again in Online');
+    else if (res.status === 429) msg = tr('操作太频繁，请稍后再试', 'Too many requests, slow down');
+    throw Object.assign(new Error(msg), { status: res.status, data });
+  }
+  return data;
+}
+
+/* ---- ranked competition: bridge for the game (GAME.ranked / endRun) ---- */
+/* Starts are mutually exclusive and generation-guarded: a slow response must never reset a run the player has since moved on from. */
+/* Called by every non-ranked entry (openBattle / openWorkshop / playCustom / exitGame): invalidates a ticket request still in flight. */
+function cancelRankedStart() { OL.gen++; OL.starting = false; }
+async function startRankedRun(levelIndex) {
+  const levelId = LEVEL_IDS[levelIndex];
+  if (!levelId) return false;
+  if (!OL.me) { openOnline('rank'); toast(tr('先创建昵称才能参加竞赛', 'Create a nickname to enter ranked play'), 3200); return false; }
+  if (OL.starting) { toast(tr('正在开局，请稍候', 'Starting a ranked run, please wait'), 1800); return false; }
+  OL.starting = true;
+  const gen = ++OL.gen, ctx = { on: GAME.on, li: GAME.li, state: GAME.state };
+  try {
+    const t = await onlineRequest('POST', '/api/runs', { levelId });
+    if (gen !== OL.gen || GAME.on !== ctx.on || GAME.li !== ctx.li || GAME.state !== ctx.state) return false;   // stale: the game moved on, drop the ticket
+    GAME.ranked = OL.pendingTicket = { id: t.runId, runId: t.runId, levelId, seed: t.seed, config: t.config, rules: t.rules, expiresAt: t.expiresAt, submitted: false, command: null, promise: null, result: null, failed: false };
+    enterGame(levelIndex);
+    return true;
+  } catch (e) { toast(olErr(e), 4200); return false; }
+  finally { if (gen === OL.gen) OL.starting = false; }
+}
+/* Idempotent per runId: the first command is frozen on the ticket; in-flight/finished calls return the same promise/result;
+   a retry re-sends the SAME runId + command (the server replays its stored answer) and never opens a new run. */
+const retryable = (e) => e.network || [429, 500, 502, 503, 504].includes(e.status);
+function submitRankedRun(command, ticket) {
+  const t = ticket || GAME.ranked;
+  if (!t || !OL.me) return Promise.resolve(null);
+  if (t.result) return Promise.resolve(t.result);
+  if (t.promise) return t.promise;
+  const c = t.command || command || GAME.command;
+  if (!c || !Number.isFinite(c.vx) || !Number.isFinite(c.vy)) return Promise.resolve(null);
+  t.command = { vx: c.vx, vy: c.vy }; t.failed = false;
+  t.promise = (async () => {
+    for (let n = 0; n < 4; n++) {
+      try {
+        const r = await onlineRequest('POST', `/api/runs/${encodeURIComponent(t.runId)}/submit`, { command: t.command });
+        t.result = r; t.submitted = true; if (OL.pendingTicket === t) OL.pendingTicket = null;
+        toast(tr(`服务器成绩 ${r.score} 分 · ${r.stars}★`, `Server score ${r.score} · ${r.stars}★`), 4000);
+        if (OL.ui.rank) loadRank();
+        return r;
+      } catch (e) {
+        if (!retryable(e) || n === 3) { t.failed = true; toast(olErr(e) + tr('（可在“在线”里点重试提交）', ' (retry from Online)'), 4600); break; }
+        await new Promise((r) => setTimeout(r, [1500, 3000, 6000][n]));
+      }
+    }
+    return null;
+  })().finally(() => { t.promise = null; if (OL.ui.retry) OL.ui.retry.hidden = !t.failed; });
+  return t.promise;
+}
+/* manual entry: same ticket, same runId, same command */
+function retryRankedSubmit() { const t = OL.pendingTicket; return t && t.command && !t.result ? submitRankedRun(null, t) : Promise.resolve(null); }
+
+/* ---- leaderboard ---- */
+const setBox = (box, text) => box.replaceChildren(el('div', { class: 'ol-dim', text }));
+const row = (cls, ...cells) => el('div', { class: 'ol-row ' + cls }, ...cells.map((c) => (typeof c === 'string' ? el('span', { text: c }) : c)));
+async function loadRank() {
+  const box = OL.ui.rank, scope = OL.ui.scope.value;
+  if (!OL_API) return setBox(box, tr('在线服务未配置', 'Online service not configured'));
+  setBox(box, tr('加载中…', 'Loading…'));
+  const q = new URLSearchParams({ scope, limit: '10' });
+  if (scope === 'level') q.set('levelId', LEVEL_IDS[+OL.ui.level.value] || LEVEL_IDS[0]);
+  try {
+    const d = await onlineRequest('GET', '/api/leaderboard?' + q);
+    const rows = d.entries.slice(0, 10).map((r) => row(OL.me && r.playerId === OL.me.id ? 'me' : '', '#' + r.rank, r.name, `${r.score}`, `${r.stars}★`));
+    if (d.me && d.me.rank > 10) rows.push(row('me', '#' + d.me.rank, d.me.name, `${d.me.score}`, `${d.me.stars}★`));
+    box.replaceChildren(...(rows.length ? rows : [el('div', { class: 'ol-dim', text: tr('还没有成绩，来当第一名', 'No scores yet - be the first') })]));
+  } catch (e) { setBox(box, olErr(e)); }
+}
+
+/* ---- workshop plaza ---- */
+async function publishDraft() {
+  if (!(typeof draftIsCompleted === 'function' ? draftIsCompleted() : WORKSHOP.won)) return toast(tr('先在“试玩”里通关自己的关卡再发布', 'Clear your level in Test play before publishing'), 3800);
+  let level;
+  try { level = validateLevel(WORKSHOP.draft); } catch (e) { return toast(olErr(e), 4200); }
+  try {
+    const r = await onlineRequest('POST', '/api/levels', { level, completed: true });
+    toast(tr('已发布：', 'Published: ') + r.id, 3000); loadPlaza();
+  } catch (e) { toast(olErr(e), 4200); }
+}
+async function plazaAct(method, path, okText, reload) {
+  try { await onlineRequest(method, path, method === 'POST' && /report$/.test(path) ? { reason: 'inappropriate' } : undefined); toast(okText, 2400); if (reload) loadPlaza(); }
+  catch (e) { toast(olErr(e), 4000); }
+}
+async function playPlaza(id) {
+  try {
+    const d = await onlineRequest('GET', '/api/levels/' + id);
+    const level = validateLevel(d.level);
+    cancelRankedStart(); GAME.ranked = null; playCustom(level);
+  } catch (e) { toast(olErr(e), 4200); }
+}
+async function loadPlaza() {
+  const box = OL.ui.plaza;
+  if (!OL_API) return setBox(box, tr('在线服务未配置', 'Online service not configured'));
+  setBox(box, tr('加载中…', 'Loading…'));
+  try {
+    const d = await onlineRequest('GET', `/api/levels?page=${OL.page}&limit=8&sort=${OL.ui.sort.value}`);
+    OL.pages = Math.max(1, Math.ceil(d.total / d.limit));
+    OL.ui.pageLbl.textContent = `${d.page}/${OL.pages}`;
+    box.replaceChildren(...(d.items.length ? d.items.map((it) => {
+      const nm = it.name[zh() ? 'zh' : 'en'] || it.name.en || it.name.zh || it.id, mine = OL.me && it.author.id === OL.me.id;
+      return el('div', { class: 'ol-item' },
+        el('div', { class: 'ol-t' }, el('b', { text: nm }), el('span', { class: 'ol-dim', text: ` · ${it.author.name} · ♥ ${it.likes}` })),
+        el('div', { class: 'ol-acts' },
+          btn('玩', 'Play', () => playPlaza(it.id), 'ol-s'),
+          btn('赞', 'Like', () => plazaAct('POST', `/api/levels/${it.id}/like`, tr('已点赞', 'Liked'), true), 'ol-s'),
+          btn('举报', 'Report', () => plazaAct('POST', `/api/levels/${it.id}/report`, tr('已举报', 'Reported')), 'ol-s'),
+          mine ? btn('下架', 'Remove', () => plazaAct('DELETE', `/api/levels/${it.id}`, tr('已下架', 'Removed'), true), 'ol-s') : null));
+    }) : [el('div', { class: 'ol-dim', text: tr('广场还没有关卡', 'No levels yet') })]));
+  } catch (e) { setBox(box, olErr(e)); }
+}
+
+/* ---- the sheet ---- */
+const OL_CSS = `#sheetOnline [hidden]{display:none!important}.ol-panel{width:min(560px,100%)}
+.ol-bar,.ol-row,.ol-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.ol-row{justify-content:space-between;font-size:13px;padding:4px 2px;border-bottom:1px solid var(--hair)}
+.ol-row span:nth-child(2){flex:1}.ol-row.me{font-weight:700}.ol-dim{color:var(--ink-soft);font-size:12px}
+.ol-b,.ol-s,.ol-bar select,.ol-bar input{padding:9px 12px;border:1px solid var(--hair);background:#fff;border-radius:10px;font:600 12px var(--sans);color:var(--ink);cursor:pointer}
+.ol-b.pri{background:var(--ink);color:#fff}.ol-s{padding:6px 9px}.ol-tabs .on{background:var(--ink);color:#fff}.ol-bar input{cursor:text;min-width:0;flex:1}
+.ol-item{padding:8px 0;border-bottom:1px solid var(--hair)}.ol-b:disabled,.ol-s:disabled{opacity:.35}`;
+function drawIdentity() {
+  const u = OL.ui; if (!u.idBox) return;
+  const nick = u.idBox.querySelector('[data-ol=nick]'), mine = u.idBox.querySelector('[data-ol=mine]');
+  nick.hidden = !!OL.me || !OL_API; mine.hidden = !OL.me;
+  if (OL.me) { mine.replaceChildren(el('b', { text: '👤 ' + OL.me.name }), btn('换昵称', 'Switch', forgetMe, 'ol-s')); }
+  if (u.resume) u.resume.hidden = !savedRoom();
+}
+function showTab(t) {
+  OL.tab = t;
+  for (const [k, b] of Object.entries(OL.ui.tabs)) b.classList.toggle('on', k === t);
+  for (const [k, s] of Object.entries(OL.ui.secs)) s.hidden = k !== t;
+  if (t === 'rank') loadRank(); else if (t === 'plaza') loadPlaza();
+  drawIdentity();
+}
+function openOnline(tab = 'rank') {
+  if (OL.ui.retry) OL.ui.retry.hidden = !(OL.pendingTicket && OL.pendingTicket.failed && !OL.pendingTicket.result);
+  OL.from = $('sheetLevels').classList.contains('on');
+  closeSheets(); relabel();
+  OL.ui.status.textContent = OL_API ? '' : tr('在线服务未配置：榜单、广场和联机对战暂不可用，单机内容不受影响。', 'Online service not configured: leaderboard, plaza and online battle are unavailable. Local play is unaffected.');
+  OL.ui.sheet.classList.add('on'); showTab(tab);
+}
+function closeOnline() { OL.ui.sheet.classList.remove('on'); if (OL.from && GAME.on) $('sheetLevels').classList.add('on'); }
+
+function initOnlineUI() {
+  if (OL.ui.sheet) return;
+  loadMe();
+  document.head.appendChild(el('style', { text: OL_CSS }));
+  const u = OL.ui;
+  u.status = el('p', { class: 'ol-dim' });
+  const nameIn = lbl(el('input', { maxlength: '24', 'aria-label': 'nickname' }), '昵称（≤24字）', 'Nickname (max 24)', 'placeholder');
+  u.idBox = el('div', { class: 'ol-bar' },
+    el('div', { 'data-ol': 'nick', class: 'ol-bar', hidden: false }, nameIn,
+      btn('创建身份', 'Create', async () => { try { await createIdentity(nameIn.value); toast(tr('身份已创建', 'Identity created'), 2000); showTab(OL.tab); } catch (e) { toast(olErr(e), 4200); } }, 'ol-b pri')),
+    el('div', { 'data-ol': 'mine', class: 'ol-bar', hidden: true }));
+  u.tabs = {}; u.secs = {};
+  const tabBar = el('div', { class: 'ol-bar ol-tabs' });
+  for (const [k, a, b] of [['rank', '榜单', 'Ranks'], ['battle', '对战', 'Battle'], ['plaza', '工坊广场', 'Plaza']]) {
+    u.tabs[k] = btn(a, b, () => showTab(k)); tabBar.appendChild(u.tabs[k]);
+  }
+  /* rank */
+  u.scope = el('select', { on: { change: () => { u.level.hidden = u.scope.value !== 'level'; loadRank(); } } },
+    ...[['total', '总榜', 'Total'], ['week', '周榜', 'Week'], ['level', '单关', 'Level']].map(([v, a, b]) => lbl(el('option', { value: v }), a, b)));
+  u.level = el('select', { hidden: true, on: { change: loadRank } });
+  u.rank = el('div');
+  u.retry = btn('重试提交成绩', 'Retry submit', () => { retryRankedSubmit(); }, 'ol-b'); u.retry.hidden = true;
+  u.secs.rank = el('div', {}, el('div', { class: 'ol-bar' }, u.scope, u.level, btn('刷新', 'Refresh', loadRank),
+    btn('竞赛开局', 'Ranked run', () => startRankedRun(+u.level.value || 0), 'ol-b pri'), u.retry),
+  lbl(el('p', { class: 'ol-dim' }), '竞赛：选好关卡点“竞赛开局”，只发射一次，成绩由服务器重算。', 'Ranked: pick a level, press Ranked run. One throw; the server recomputes the score.'), u.rank);
+  /* battle */
+  const codeIn = lbl(el('input', { maxlength: '6', 'aria-label': 'room code' }), '房间码', 'Room code', 'placeholder');
+  u.resume = btn('回到上次房间', 'Resume last room', () => BattleUI.resumeRoom(), 'ol-b'); u.resume.hidden = true;
+  u.secs.battle = el('div', {},
+    el('div', { class: 'ol-bar' }, btn('本机双人对战', 'Local 2-player', () => { closeOnline(); BattleUI.openBattle('local'); }, 'ol-b pri')),
+    el('div', { class: 'ol-bar' }, btn('创建房间', 'Create room', () => { closeOnline(); BattleUI.createRoom(); }), codeIn,
+      btn('加入', 'Join', () => { closeOnline(); BattleUI.joinRoom(codeIn.value); })), el('div', { class: 'ol-bar' }, u.resume),
+    lbl(el('p', { class: 'ol-dim' }), '联机：一人创建房间并把 6 位房间码发给朋友，双方准备后开打；断线 90 秒内可回到房间。', 'Online: create a room and share the 6-char code; both press ready. You can rejoin within 90 s of a disconnect.'));
+  /* plaza */
+  u.sort = el('select', { on: { change: () => { OL.page = 1; loadPlaza(); } } },
+    ...[['new', '最新', 'Newest'], ['likes', '最赞', 'Top liked']].map(([v, a, b]) => lbl(el('option', { value: v }), a, b)));
+  u.pageLbl = el('span', { class: 'ol-dim', text: '1/1' });
+  u.plaza = el('div');
+  u.secs.plaza = el('div', {}, el('div', { class: 'ol-bar' }, u.sort,
+    btn('‹', '‹', () => { if (OL.page > 1) { OL.page--; loadPlaza(); } }, 'ol-s'), u.pageLbl,
+    btn('›', '›', () => { if (OL.page < OL.pages) { OL.page++; loadPlaza(); } }, 'ol-s'), btn('刷新', 'Refresh', loadPlaza),
+    btn('发布我的关卡', 'Publish mine', publishDraft, 'ol-b pri')), u.plaza);
+  u.sheet = el('div', { class: 'sheet', id: 'sheetOnline' }, el('div', { class: 'panel wide ol-panel' },
+    lbl(el('h3'), '在线', 'Online'), u.status, u.idBox, tabBar, u.secs.rank, u.secs.battle, u.secs.plaza,
+    btn('关闭', 'Close', closeOnline, 'linky')));
+  document.body.appendChild(u.sheet);
+  fillLevels(); drawIdentity();
+  if (!OL_API) for (const b of u.sheet.querySelectorAll('.ol-bar:not(.ol-tabs) button')) if (!/本机|Local|关闭|Close/.test(b.textContent)) b.disabled = true;
+  /* entries: masthead + map panel */
+  const mk = (a, b, tab, cls) => lbl(el('button', { class: cls, type: 'button', on: { click: () => openOnline(tab) } }), a, b);
+  const ws = $('workshopBtn');
+  if (ws && ws.parentNode) { ws.parentNode.appendChild(mk('在线榜 · 广场 · 对战', 'Online · Ranks · Battle', 'rank', 'cta rise d4')); }
+  const shop = $('mShop');
+  if (shop && shop.parentNode) shop.parentNode.appendChild(lbl(el('button', { class: 'chip', type: 'button', on: { click: () => openOnline('rank') } }), '🏆 在线', '🏆 Online'));
+  const lang = $('lang'); if (lang) lang.addEventListener('click', () => setTimeout(relabel, 0));
+}
+initOnlineUI();
+/* ============================ BATTLE UI (local hot-seat + remote room client) ============================ */
+/* Protocol: server/rooms.mjs.  Scene drawing is the main agent's: beginBattleScene(), renderBattleSnapshot(snap), endBattleScene().
+   Needs online.js (el, lbl, tr, OL, OL_API, onlineRequest helpers, savedRoom/saveRoom/forgetRoom, openOnline) and head.html's aimCommand/releaseAim. */
+const BATTLE_SPEED = 15, TURN_MS = 30000;
+const BS = { open: false, mode: 'local', battle: null, acc: 0, snap: null, dirty: false, over: null, aim: null, kind: 'soft',
+  ws: null, authed: false, after: null, closing: false, noRetry: false, retry: 0, retryT: 0, room: null, pending: null, n: 0,
+  deadlineAt: 0, banner: '', h: null, prev: null, prevAt: 0, curAt: 0, flushed: true, dbg: { renders: 0, interp: 0, dupEvents: 0 }, seen: new Set() };
+const BT_KINDS = [['soft', '软糖', 'Soft'], ['hard', '硬糖', 'Hard'], ['gum', '口香糖', 'Gum']];
+const BT_WHY = { 'king-out': ['糖王掉下了台', 'a king fell off'], 'double-out': ['双双掉台', 'both fell'], stability: ['稳定度较高', 'higher stability'],
+  draw: ['平局', 'draw'], timeout: ['超时', 'turn timed out'], left: ['对手离开', 'opponent left'], disconnect: ['对手掉线', 'opponent disconnected'], error: ['服务器出错', 'server error'] };
+const BT_ERR = { 'not-your-turn': ['还没轮到你', 'Not your turn'], 'no-stock': ['这种糖用完了', 'Out of that candy'], 'not-aiming': ['现在不能投', 'Cannot throw now'],
+  'too-fast': ['力度过大', 'Too strong'], 'entity-cap': ['场上糖太多了', 'Too many candies'] };
+const btErr = (c) => (BT_ERR[c] ? tr(...BT_ERR[c]) : String(c));
+
+/* ---- HUD (built once, all createElement/textContent) ---- */
+const BT_CSS = `.bt-hud{position:fixed;inset:0;z-index:5;pointer-events:none;font:600 13px var(--sans);color:var(--ink)}.bt-hud [hidden]{display:none!important}
+body.battle .masthead,body.battle .card,body.battle .credit,body.battle #coach{opacity:0!important;visibility:hidden}
+.bt-top{position:absolute;left:0;right:0;top:0;display:flex;gap:10px;align-items:flex-start;padding:calc(12px + env(safe-area-inset-top)) 14px 0}
+.bt-side{flex:1;background:rgba(255,255,255,.85);border:1px solid var(--hair);border-radius:12px;padding:8px 10px}.bt-side.turn{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
+.bt-bar{height:7px;border-radius:4px;background:#e6dfd2;margin-top:6px;overflow:hidden}.bt-bar i{display:block;height:100%;background:#4b9f64;width:100%}
+.bt-mid{text-align:center;min-width:92px}.bt-mid b{display:block;font:italic 400 28px/1 var(--serif)}.bt-b,.bt-k{pointer-events:auto;cursor:pointer;border:1px solid var(--hair);background:rgba(255,255,255,.9);border-radius:999px;padding:9px 14px;font:600 12px var(--sans);color:var(--ink)}
+.bt-bot{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center}.bt-k.on{background:var(--ink);color:#fff}.bt-k:disabled{opacity:.35}
+.bt-msg{position:absolute;left:50%;top:96px;transform:translateX(-50%);background:rgba(255,255,255,.92);border-radius:12px;padding:8px 14px;max-width:80vw;text-align:center}
+.bt-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid var(--hair);border-radius:18px;padding:22px;min-width:260px;text-align:center;pointer-events:auto;box-shadow:0 30px 80px -30px rgba(20,19,15,.5)}
+.bt-card h4{margin:0 0 6px;font:italic 400 30px/1.1 var(--serif)}.bt-card .bt-row{display:flex;gap:8px;justify-content:center;margin-top:14px}.bt-code{font:700 34px/1 monospace;letter-spacing:.18em;margin:8px 0}
+.bt-svg{position:absolute;inset:0;width:100%;height:100%;display:none}`;
+function btSvg(tag, attrs) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; }
+function buildHud() {
+  if (BS.h) return BS.h;
+  document.head.appendChild(el('style', { text: BT_CSS }));
+  const h = { sides: [0, 1].map(() => { const name = el('span'), val = el('span', { class: 'ol-dim' }), fill = el('i');
+    return { box: el('div', { class: 'bt-side' }, el('div', {}, name, el('span', { text: ' ' }), val), el('div', { class: 'bt-bar' }, fill)), name, val, fill, inv: el('div', { class: 'ol-dim' }) }; }) };
+  for (const s of h.sides) s.box.appendChild(s.inv);
+  h.turn = el('span', { class: 'ol-dim' }); h.timer = el('b', { text: '' });
+  h.exit = lbl(el('button', { class: 'bt-b', type: 'button', on: { click: exitBattle } }), '退出', 'Exit');
+  h.top = el('div', { class: 'bt-top' }, h.sides[0].box, el('div', { class: 'bt-mid' }, h.timer, h.turn, h.exit), h.sides[1].box);
+  h.kinds = {}; h.bot = el('div', { class: 'bt-bot' });
+  for (const [k, a, b] of BT_KINDS) { h.kinds[k] = lbl(el('button', { class: 'bt-k', type: 'button', on: { click: () => { BS.kind = k; hudUpdate(); } } }), a, b); h.bot.appendChild(h.kinds[k]); }
+  h.msg = el('div', { class: 'bt-msg', hidden: true });
+  h.title = el('h4'); h.sub = el('p', { class: 'ol-dim' }); h.code = el('div', { class: 'bt-code' }); h.players = el('p'); h.cardBtns = el('div', { class: 'bt-row' });
+  h.card = el('div', { class: 'bt-card', hidden: true }, h.title, h.code, h.sub, h.players, h.cardBtns);
+  h.pull = btSvg('line', { stroke: '#9d1730', 'stroke-width': 2, 'stroke-dasharray': '5 5' });
+  h.arrow = btSvg('line', { stroke: '#ce344c', 'stroke-width': 5, 'stroke-linecap': 'round' });
+  h.head = btSvg('circle', { r: 7, fill: '#ce344c' });
+  h.svg = btSvg('svg', { class: 'bt-svg' }); h.svg.append(h.pull, h.arrow, h.head); h.svg.style.display = 'none';
+  h.root = el('div', { class: 'bt-hud', hidden: true }, h.svg, h.top, h.msg, h.bot, h.card);
+  document.body.appendChild(h.root);
+  return (BS.h = h);
+}
+const btBtn = (a, b, fn) => el('button', { class: 'bt-b', type: 'button', text: tr(a, b), on: { click: fn } });
+function showCard(title, code, sub, players, ...buttons) {
+  const h = BS.h; h.title.textContent = title; h.code.textContent = code || ''; h.code.hidden = !code; h.sub.textContent = sub || '';
+  h.players.textContent = players || ''; h.cardBtns.replaceChildren(...buttons); h.card.hidden = false;
+}
+const sideName = (i) => (BS.mode === 'local' ? tr(i ? '玩家2（右）' : '玩家1（左）', i ? 'Player 2 (right)' : 'Player 1 (left)')
+  : (BS.room && BS.room.players && BS.room.players[i] && BS.room.players[i].name) || tr('等待对手', 'Waiting'));
+const mySide = () => (BS.mode === 'local' ? (BS.snap ? BS.snap.turn : 0) : (BS.room ? BS.room.side : -1));
+function setMsg(t) { BS.banner = t || ''; if (BS.h) { BS.h.msg.textContent = BS.banner; BS.h.msg.hidden = !BS.banner; } }
+function hudUpdate() {
+  const h = BS.h, s = BS.snap, r = BS.room; if (!h || !BS.open) return;
+  h.sides.forEach((x, i) => {
+    x.name.textContent = sideName(i) + (BS.mode === 'remote' && r && r.side === i ? tr('（你）', ' (you)') : '');
+    const st = s ? s.stability[i] : 100; x.fill.style.width = st + '%'; x.val.textContent = String(st);
+    x.inv.textContent = s ? BT_KINDS.map(([k, a, b]) => `${tr(a, b)}×${s.inventory[i][k]}`).join('  ') : '';
+    x.box.classList.toggle('turn', !!s && !BS.over && s.state !== 'over' && s.turn === i);
+  });
+  const me = mySide(), inv = s && me >= 0 ? s.inventory[me] : null;
+  for (const [k] of BT_KINDS) { h.kinds[k].disabled = !inv || inv[k] <= 0; h.kinds[k].classList.toggle('on', BS.kind === k); }
+  if (inv && inv[BS.kind] <= 0) { const k = BT_KINDS.find(([n]) => inv[n] > 0); if (k) BS.kind = k[0]; }
+  h.bot.hidden = !s || !!BS.over;
+  h.turn.textContent = !s ? '' : s.state === 'fly' ? tr('飞行中…', 'In flight…') : BS.mode === 'local' ? tr('轮到 ', 'Turn: ') + sideName(s.turn)
+    : s.turn === me ? tr('轮到你：拉动瞄准', 'Your turn: drag to aim') : tr('对手回合', "Opponent's turn");
+  drawCard();
+}
+function drawCard() {
+  const h = BS.h, r = BS.room;
+  if (BS.over) {
+    const o = BS.over, w = o.winner, mine = BS.mode === 'local' ? -1 : r.side;
+    const title = w === null || w === undefined ? tr('平局', 'Draw') : mine < 0 ? tr(`${sideName(w)} 获胜`, `${sideName(w)} wins`) : w === mine ? tr('你赢了', 'You won') : tr('你输了', 'You lost');
+    return showCard(title, '', BT_WHY[o.reason] ? tr(...BT_WHY[o.reason]) : String(o.reason || ''), '', btBtn('再来一局', 'Rematch', rematch), btBtn('退出', 'Exit', exitBattle));
+  }
+  if (BS.mode === 'remote' && !BS.snap) {
+    if (!r) return showCard(tr('联机对战', 'Online battle'), '', BS.banner || tr('正在连接…', 'Connecting…'), '', btBtn('退出', 'Exit', exitBattle));
+    const ps = r.players || [], ready = ps[r.side] && ps[r.side].ready;
+    return showCard(tr('房间', 'Room'), r.code, tr('把房间码发给朋友；两人都准备后开始', 'Share the code; the match starts when both are ready'),
+      ps.map((p) => `${p.name}${p.ready ? ' ✓' : ''}${p.connected ? '' : tr('（离线）', ' (offline)')}`).join(' vs '),
+      btBtn(ready ? '已准备' : '准备', ready ? 'Ready ✓' : 'Ready', () => btSend({ type: 'ready' })), btBtn('退出', 'Exit', exitBattle));
+  }
+  h.card.hidden = true;
+}
+
+/* ---- snapshot flow ---- */
+function setSnap(s, deadline) {
+  const prev = BS.snap;
+  if (s.state === 'aim' && (!prev || prev.state !== 'aim' || prev.turn !== s.turn)) BS.deadlineAt = performance.now() + TURN_MS;
+  if (deadline !== undefined) BS.deadlineAt = performance.now() + Math.min(TURN_MS, Math.max(0, deadline - Date.now()));
+  if (s.state !== 'aim') BS.pending = null;
+  /* remote: keep the previous authoritative snapshot so p/q can be blended for display only */
+  const nowT = performance.now();
+  BS.prev = BS.mode === 'remote' && prev && prev.tick < s.tick ? prev : null;
+  BS.prevAt = BS.curAt; BS.curAt = nowT; BS.flushed = false;
+  BS.snap = s; BS.dirty = true; hudUpdate();
+  if (BS.aim && !canAct()) cancelBattleAim();
+}
+function finishLocal(winner, reason) { BS.over = { winner, reason }; BS.aim = null; hudUpdate(); }
+function localStep(dt) {
+  if (BS.over || !BS.battle) return;
+  const b = BS.battle;
+  if (BS.snap.state === 'fly') {
+    BS.acc += Math.min(dt, 0.05) * 300; const n = Math.floor(BS.acc); BS.acc -= n;
+    if (n) { b.step(n); setSnap(b.snapshot()); }
+    const r = b.result(); if (r.done) finishLocal(r.winner, r.reason);
+  } else if (BS.snap.state === 'aim' && performance.now() > BS.deadlineAt) finishLocal(1 - BS.snap.turn, 'timeout');
+}
+/* Display-only blend between the previous and the current authoritative snapshot (one snapshot of latency).
+   Authority (BS.snap, inventory, stability, events) is never altered; events go out exactly once, with the real snapshot. */
+function viewSnap() {
+  const c = BS.snap, first = BS.dirty; BS.dirty = false;
+  const evs = first ? (c.events || []) : [];
+  if (c.tick === 0 && first) BS.seen.clear();
+  for (const e of evs) { if (BS.seen.has(e.seq)) BS.dbg.dupEvents++; else BS.seen.add(e.seq); }
+  BS.dbg.renders++;
+  const p = BS.prev, span = Math.min(250, Math.max(40, BS.curAt - BS.prevAt)), a = p ? Math.min(1, (performance.now() - BS.curAt) / span) : 1;
+  if (a >= 1) { BS.flushed = true; return first ? c : { ...c, events: [] }; }
+  BS.dbg.interp++;
+  const old = new Map(p.bears.map((b) => [b.id, b])), mix = (x, y) => y.map((v, i) => x[i] + (v - x[i]) * a);
+  return { ...c, events: evs, bears: c.bears.map((b) => { const o = old.get(b.id); return o && o.p.length === b.p.length ? { ...b, p: mix(o.p, b.p), q: mix(o.q, b.q) } : b; }) };
+}
+/* read-only state for tests / debugging */
+window.GUMMY_BATTLE_DEBUG = () => ({ open: BS.open, mode: BS.mode, tick: BS.snap && BS.snap.tick, state: BS.snap && BS.snap.state, turn: BS.snap && BS.snap.turn,
+  inventory: BS.snap && BS.snap.inventory, stability: BS.snap && BS.snap.stability, over: BS.over, code: BS.room && BS.room.code, side: BS.room && BS.room.side,
+  status: BS.room && BS.room.status, players: BS.room && BS.room.players, authed: BS.authed, banner: BS.banner, dbg: { ...BS.dbg }, resumable: !!savedRoom() });
+window.GUMMY_BATTLE_FRAME = (dt) => {
+  if (!BS.open) return false;
+  if (BS.mode === 'local') localStep(dt);
+  if (BS.snap && (BS.dirty || !BS.flushed)) {
+    const view = viewSnap();
+    try { if (typeof renderBattleSnapshot === 'function') renderBattleSnapshot(view); } catch (e) { console.error('[battle] render', e); }
+  }
+  if (BS.h) BS.h.timer.textContent = BS.snap && BS.snap.state === 'aim' && !BS.over ? String(Math.max(0, Math.ceil((BS.deadlineAt - performance.now()) / 1000))) : '';
+  return true;
+};
+
+/* ---- input (main routes canvas pointer events here while a battle is open) ---- */
+const canAct = () => BS.open && !BS.over && BS.snap && BS.snap.state === 'aim' && !BS.pending && (BS.mode === 'local' || (BS.room && BS.room.status === 'playing' && BS.room.side === BS.snap.turn));
+function drawArrow() {
+  const h = BS.h, a = BS.aim; if (!a) { h.svg.style.display = 'none'; return; }
+  const c = aimCommand(a, innerWidth, innerHeight, BATTLE_SPEED), len = Math.hypot(a.sx - a.nx, a.sy - a.ny) || 1, L = 30 + c.k * 120;
+  const ex = a.sx + (a.sx - a.nx) / len * L, ey = a.sy + (a.sy - a.ny) / len * L;
+  for (const [e, v] of [[h.pull, { x1: a.sx, y1: a.sy, x2: a.nx, y2: a.ny }], [h.arrow, { x1: a.sx, y1: a.sy, x2: ex, y2: ey }], [h.head, { cx: ex, cy: ey }]])
+    for (const [k, x] of Object.entries(v)) e.setAttribute(k, x);
+  h.svg.style.display = c.k > 0.02 ? 'block' : 'none';
+}
+/* abort an aim without throwing (blur / lost pointer capture / turn change) */
+function cancelBattleAim() {
+  if (!BS.aim) return false;
+  BS.aim = null; if (BS.h) drawArrow();
+  return true;
+}
+function battlePointerDown(e) {
+  if (!BS.open || BS.aim || !canAct()) return false;
+  const inv = BS.snap.inventory[mySide()];
+  if (inv[BS.kind] <= 0) { toast(btErr('no-stock'), 1500); return true; }
+  BS.aim = { id: e.pointerId, sx: e.clientX, sy: e.clientY, nx: e.clientX, ny: e.clientY };
+  try { e.target && e.target.setPointerCapture && e.target.setPointerCapture(e.pointerId); } catch (_) { /* none */ }
+  drawArrow(); return true;
+}
+function battlePointerMove(e) {
+  if (!BS.aim || e.pointerId !== BS.aim.id) return false;
+  BS.aim.nx = e.clientX; BS.aim.ny = e.clientY; drawArrow(); return true;
+}
+function battlePointerUp(e, cancel) {
+  const a = BS.aim; if (!a || e.pointerId !== a.id) return false;
+  BS.aim = null; drawArrow();
+  const c = releaseAim(a, e, cancel || e.type === 'pointercancel', innerWidth, innerHeight, BATTLE_SPEED);
+  if (c && canAct()) throwCandy(c.vx, c.vy);
+  return true;
+}
+function throwCandy(vx, vy) {
+  const actionId = 'a' + Date.now().toString(36) + (++BS.n);
+  if (BS.mode === 'local') {
+    const r = BS.battle.command({ side: BS.snap.turn, kind: BS.kind, vx, vy, actionId });
+    if (!r.ok) return toast(btErr(r.error), 1800);
+    BS.acc = 0; setSnap(BS.battle.snapshot());
+  } else if (btSend({ type: 'throw', kind: BS.kind, vx, vy, actionId, turn: BS.snap.turn })) { BS.pending = actionId; }
+  else toast(tr('连接中断，稍后再试', 'Connection lost, try again shortly'), 2000);
+}
+
+/* ---- remote ---- */
+const btSend = (o) => (BS.ws && BS.authed && BS.ws.readyState === 1 ? (BS.ws.send(JSON.stringify(o)), true) : false);
+function btRun(fn) {                                   // run fn once the socket is authed (connect if needed)
+  if (BS.ws && BS.authed) fn(); else { BS.after = fn; if (!BS.ws) btConnect(); }
+}
+function btConnect() {
+  if (!OL_API) return toast(tr('在线服务未配置', 'Online service not configured'), 3000);
+  if (!OL.me) { toast(tr('先创建昵称才能联机', 'Create a nickname to play online'), 3200); openOnline('battle'); return; }
+  let ws;
+  try { ws = new WebSocket(OL_API.replace(/^http/, 'ws') + '/api/rooms'); } catch (_) { return toast(tr('无法连接对战服务', 'Cannot reach the battle service'), 3500); }
+  BS.ws = ws; BS.authed = false; BS.closing = false;
+  ws.onopen = () => ws.send(JSON.stringify({ type: 'auth', token: OL.me.token, version: BATTLE_VERSION }));
+  ws.onmessage = (ev) => { if (BS.ws !== ws) return; let m; try { m = JSON.parse(ev.data); } catch (_) { return; } btMsg(m); };
+  ws.onclose = () => { if (BS.ws !== ws) return; BS.ws = null; BS.authed = false; btDown(); };
+  ws.onerror = () => {};
+}
+function btDown() {
+  if (BS.closing || !BS.open || BS.mode !== 'remote') return;
+  const saved = savedRoom();
+  if (!BS.noRetry && saved && BS.retry < 25) {
+    setMsg(tr('连接中断，正在重连…', 'Connection lost, reconnecting…'));
+    BS.retryT = setTimeout(() => { BS.after = () => btSend({ type: 'resume', code: saved.code, resumeToken: saved.resumeToken }); if (!BS.ws) btConnect(); }, Math.min(5000, 1000 * ++BS.retry));
+  } else { setMsg(tr('与服务器断开', 'Disconnected from the server')); BS.room = BS.room && BS.over ? BS.room : null; hudUpdate(); }
+}
+function btMsg(m) {
+  switch (m.type) {
+    case 'authed': { BS.authed = true; const f = BS.after; BS.after = null; if (f) f(); break; }
+    case 'room':
+      BS.room = { code: m.code, side: m.side, status: m.status, players: m.players }; BS.retry = 0; saveRoom(m); setMsg('');
+      if (m.status !== 'over') BS.over = null;
+      if (m.snapshot) setSnap(m.snapshot, m.turnDeadline || undefined); else { BS.snap = null; hudUpdate(); }
+      break;
+    case 'room-state': if (BS.room) { BS.room.status = m.status; BS.room.players = m.players; } hudUpdate(); break;
+    case 'started': BS.prev = null; if (BS.room) BS.room.status = 'playing'; BS.over = null; BS.pending = null; setMsg(''); break;
+    case 'snapshot': if (m.snapshot) setSnap(m.snapshot, m.turnDeadline || undefined); break;
+    case 'ack': BS.pending = null; break;
+    case 'peer':
+      if (BS.room && BS.room.players && BS.room.players[m.side]) { const p = BS.room.players[m.side]; if (m.name) p.name = m.name; if (m.connected !== undefined) p.connected = m.connected; }
+      setMsg(m.left ? tr('对手离开了房间', 'Opponent left the room') : m.connected === false ? tr('对手掉线了，等待重连…', 'Opponent disconnected, waiting…') : '');
+      hudUpdate(); break;
+    case 'over': BS.over = { winner: m.winner, reason: m.reason }; BS.aim = null; BS.pending = null; if (BS.room) BS.room.status = 'over'; setMsg(''); hudUpdate(); break;
+    case 'rematch': setMsg(m.waiting ? tr('等待对手同意再来一局…', 'Waiting for the opponent…') : m.requestedBy !== undefined ? tr('对手想再来一局', 'Opponent wants a rematch') : ''); break;
+    case 'left': break;
+    case 'error': btError(m); break;
+  }
+}
+function btError(m) {
+  BS.pending = null;
+  if (m.code === 'already-active' && m.roomCode && savedRoom() && savedRoom().code === m.roomCode) { const s = savedRoom(); return btSend({ type: 'resume', code: s.code, resumeToken: s.resumeToken }); }
+  if (m.code === 'resume') forgetRoom();
+  if (['version', 'auth', 'replaced', 'resume', 'unauthenticated'].includes(m.code)) BS.noRetry = true;
+  if (m.code === 'auth') forgetMe();
+  setMsg(m.error || String(m.code)); toast(m.error || String(m.code), 4000); hudUpdate();
+}
+
+/* ---- public surface ---- */
+function startLocal() {
+  BS.mode = 'local'; BS.over = null; BS.acc = 0; BS.pending = null;
+  BS.battle = createBattle({ seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+  BS.snap = null; setSnap(BS.battle.snapshot()); setMsg('');
+}
+function openBattle(mode = 'local') {
+  cancelRankedStart();            // a ranked ticket still in flight must not stack a game scene on the battle
+  buildHud();
+  if (BS.open) teardown(true);
+  if (typeof exitGame === 'function' && GAME.on) exitGame();
+  closeSheets();
+  BS.open = true; BS.mode = mode; BS.snap = null; BS.over = null; BS.aim = null; BS.dirty = false; BS.noRetry = false; BS.retry = 0; BS.room = null;
+  document.body.classList.add('battle'); BS.h.root.hidden = false;
+  if (typeof beginBattleScene === 'function') beginBattleScene();
+  if (mode === 'local') startLocal(); else { BS.banner = ''; hudUpdate(); }
+  return true;
+}
+function teardown(keepScene) {
+  clearTimeout(BS.retryT);
+  if (BS.mode === 'remote' && BS.ws) { btSend({ type: 'leave' }); BS.closing = true; try { BS.ws.close(); } catch (_) { /* gone */ } BS.ws = null; BS.authed = false; }
+  if (BS.mode === 'remote') forgetRoom();
+  Object.assign(BS, { open: false, battle: null, snap: null, aim: null, room: null, over: null, pending: null, after: null });
+  BS.h.root.hidden = true; BS.h.svg.style.display = 'none'; document.body.classList.remove('battle'); setMsg('');
+  if (!keepScene && typeof endBattleScene === 'function') endBattleScene();
+}
+function exitBattle() {
+  if (!BS.open) return;
+  if (BS.mode === 'remote' && BS.room && BS.room.status === 'playing' && !BS.over && typeof confirm === 'function'
+    && !confirm(tr('现在离开会判负，确定离开？', 'Leaving now forfeits the match. Leave?'))) return;
+  teardown(false);
+}
+function rematch() { if (BS.mode === 'local') startLocal(); else if (!btSend({ type: 'rematch' })) toast(tr('连接中断', 'Connection lost'), 2000); }
+const remoteStart = (fn) => { if (!OL_API || !OL.me) { if (!OL_API) toast(tr('在线服务未配置', 'Online service not configured'), 3000); else btConnect(); return; } openBattle('remote'); btRun(fn); };
+const BattleUI = {
+  openBattle, exitBattle, state: BS, savedRoom,
+  createRoom: () => remoteStart(() => btSend({ type: 'create' })),
+  joinRoom: (code) => { const c = String(code || '').trim().toUpperCase(); if (!/^[A-Z0-9]{6}$/.test(c)) return toast(tr('房间码应为 6 位字母数字', 'Room code is 6 letters/digits'), 2600); remoteStart(() => btSend({ type: 'join', code: c })); },
+  resumeRoom: () => { const s = savedRoom(); if (s) remoteStart(() => btSend({ type: 'resume', code: s.code, resumeToken: s.resumeToken })); },
+  battlePointerDown, battlePointerMove, battlePointerUp,
+};
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && BS.open) exitBattle(); });
 /* ============================ START ============================ */
 layout();
 scatter(5, true);

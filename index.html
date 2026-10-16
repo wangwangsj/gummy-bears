@@ -3,33 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#f4f2ee">
+<meta name="theme-color" content="#fff4df">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="format-detection" content="telephone=no">
-<title>Gummy Bears. 小熊软糖</title>
-<meta name="description" content="A soft-body gummy bear toy. Grab a bear, stretch it, fling it. 抓住小熊软糖，拉伸、甩出去。">
-<meta property="og:title" content="Gummy Bears. 小熊软糖">
-<meta property="og:description" content="Grab a bear, stretch it, fling it. 抓住小熊，拉伸、甩出去。">
+<title>软糖历险记 · Gummy Bears</title>
+<meta name="description" content="拉伸、碾压、切开——把一只胶质小熊塞进糖果玩具工厂。Stretch it, crush it, slice it: a gummy bear loose in a candy toy factory.">
+<meta property="og:title" content="软糖历险记 · Gummy Bears">
+<meta property="og:description" content="拉伸、碾压、切开——把一只胶质小熊塞进糖果玩具工厂。Stretch it, crush it, slice it.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐻</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23fff4df'/><circle cx='50' cy='56' r='26' fill='%23df4657'/><circle cx='28' cy='26' r='13' fill='%23df4657'/><circle cx='72' cy='26' r='13' fill='%23df4657'/></svg>">
 <link rel="modulepreload" href="vendor/three.module.min.js">
-<link rel="preload" href="vendor/playfair-display-latin-400-italic.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  @font-face{
-    font-family:"Playfair Display"; font-style:italic; font-weight:400; font-display:swap;
-    src:url(vendor/playfair-display-latin-400-italic.woff2) format("woff2");
-  }
   :root{
-    --bg:#f4f2ee;
-    --ink:#14130f;
-    --ink-soft:#6d6a62;
-    --hair:rgba(20,19,15,.13);
-    --card:rgba(255,255,255,.82);
-    --cherry:#d3202c;
-    --serif:"Playfair Display",Didot,"Bodoni MT","Hoefler Text",Georgia,serif;
-    --sans:ui-sans-serif,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
+    /* candy toy factory: cream shell, cocoa ink, cherry = primary, mint = go, honey = reward */
+    --bg:#fff4df;
+    --cream:#fff4df;
+    --cream-2:#f8e8ce;
+    --cream-3:#f0dcbd;
+    --ink:#47332d;
+    --ink-soft:#8a7060;
+    --cocoa-edge:#6a5145;
+    --hair:rgba(71,51,45,.16);
+    --line:rgba(71,51,45,.26);
+    --shadow:rgba(71,51,45,var(--sa,.22));
+    --card:rgba(255,247,231,.92);
+    --cherry:#df4657;
+    --cherry-deep:#9d1730;
+    --mint:#8acbb8;
+    --mint-deep:#4e9b83;
+    --gold:#f2bd57;
+    --gold-deep:#b4780c;
+    --gold-dim:#e4dcc6;
+    --serif:var(--sans);  /* no editorial serif any more: headings are the rounded sans */
+    --sans:ui-rounded,"SF Pro Rounded","Hiragino Maru Gothic ProN",-apple-system,"Segoe UI Variable Text","Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",Roboto,Helvetica,Arial,sans-serif;
     --ease:cubic-bezier(.2,.8,.2,1);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
@@ -53,125 +61,150 @@
   body.ready .d1{transition-delay:.15s} body.ready .d2{transition-delay:.3s}
   body.ready .d3{transition-delay:.45s} body.ready .d4{transition-delay:.6s}
 
-  /* ---- editorial masthead ---- */
+  /* ---- masthead: a candy stand card ---- */
   .masthead{
     position:absolute; left:calc(clamp(20px,4.2vw,64px) + env(safe-area-inset-left));
     top:calc(clamp(22px,5vh,64px) + env(safe-area-inset-top));
     max-width:min(56ch,54vw);
   }
   .eyebrow{
-    font-size:11px; letter-spacing:.24em; text-transform:uppercase;
-    color:var(--ink-soft); display:flex; gap:14px; align-items:center; margin-bottom:18px;
+    font-size:10.5px; font-weight:700; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; gap:12px; align-items:center; margin-bottom:14px;
   }
-  .eyebrow i{display:block; width:34px; height:1px; background:var(--hair)}
+  .eyebrow i{display:block; width:34px; height:4px; border-radius:4px; background:linear-gradient(90deg,var(--cherry) 0 33%,var(--gold) 33% 66%,var(--mint) 66% 100%)}
   h1{
-    margin:0; font-family:var(--serif);
-    font-style:italic; font-weight:400;
-    font-size:clamp(52px,10.4vw,148px); line-height:.86; letter-spacing:-.022em;
+    margin:0; font-family:var(--sans);
+    font-style:normal; font-weight:800;
+    line-height:1; letter-spacing:-.005em;
+    color:var(--ink);
+    display:flex; flex-direction:column; gap:6px;
   }
-  h1 span{display:block}
-  h1 .b{padding-left:.09em}
-  h1 small{
-    display:block; margin:.55em 0 0 .12em; font:400 13px/1 var(--sans); font-style:normal;
-    letter-spacing:.5em; color:var(--ink-soft);
+  /* Chinese is the title, in both languages: it is the name on the box. English is the wordmark under it. */
+  h1 .zh-line{
+    font-size:clamp(44px,9.2vw,124px); line-height:1.04; letter-spacing:.04em;
+    text-shadow:0 2px 0 #fff, 0 4px 0 rgba(71,51,45,.10);
   }
-  html[lang=en] h1 small{display:none}
+  h1 .en-line{
+    font-size:clamp(13px,1.5vw,20px); font-weight:700; letter-spacing:.24em;
+    text-transform:uppercase; color:var(--ink-soft); text-shadow:0 1px 0 #fff;
+  }
+
+  /* pages can carry both languages in static markup (tail.js owns no key for them);
+     the html[lang] attribute the boot script sets is the switch */
+  .zh-only{display:none}
+  html[lang=zh] .zh-only{display:inline}
+  html[lang=zh] .en-only{display:none}
+  html[lang=zh] .sub .zh-only{display:block}
+  .sub .en-only{display:block}
+
   .sub{
-    margin:26px 0 0; max-width:34ch; font-size:14.5px; line-height:1.62; color:#3b382f;
+    margin:20px 0 0; max-width:36ch; font-size:15px; line-height:1.66; color:var(--ink);
   }
-  html[lang=zh] .sub{max-width:26em; line-height:1.8}
-  .sub b{font-weight:600; color:var(--ink)}
+  html[lang=zh] .sub{max-width:24em; line-height:1.78}
+  .sub b{font-weight:800; color:var(--cherry)}
+  .sub i{font-style:normal; color:var(--mint-deep); font-weight:800}
   .sub, .hint, .eyebrow{text-shadow:0 0 6px var(--bg), 0 0 14px var(--bg), 0 0 22px var(--bg)}
   .hint{
-    margin-top:16px; font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+    margin-top:14px; font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
     color:var(--ink-soft); display:flex; gap:10px; align-items:center;
   }
   .hint s{
-    flex:none; width:6px; height:6px; border-radius:50%; background:var(--cherry); text-decoration:none;
+    flex:none; width:8px; height:8px; border-radius:50%; background:var(--cherry); text-decoration:none;
+    box-shadow:0 0 0 3px rgba(223,70,87,.22);
     animation:blink 2.4s ease-in-out infinite;
   }
   @keyframes blink{0%,100%{opacity:1} 50%{opacity:.25}}
 
-  /* ---- control card ---- */
+  /* ---- control card: a molded cream shell ---- */
   .card{
     position:absolute; right:calc(clamp(16px,3.4vw,52px) + env(safe-area-inset-right)); top:50%;
-    width:274px; padding:20px 20px 18px; pointer-events:auto;
-    background:var(--card); -webkit-backdrop-filter:blur(18px) saturate(1.4); backdrop-filter:blur(18px) saturate(1.4);
-    border:1px solid var(--hair); border-radius:4px;
-    box-shadow:0 30px 70px -38px rgba(20,19,15,.35), 0 1px 0 rgba(255,255,255,.7) inset;
+    width:280px; padding:18px 18px 14px; pointer-events:auto;
+    background:linear-gradient(180deg,var(--cream),var(--cream-2));
+    border:3px solid var(--cocoa-edge); border-radius:16px;
+    box-shadow:0 1px 0 rgba(255,255,255,.9) inset, 0 6px 0 rgba(106,81,69,.16), 0 30px 70px -38px rgba(71,51,45,.5);
     transform:translateY(-50%);
     opacity:0; transition:opacity .9s var(--ease) .5s;
   }
   body.ready .card{opacity:1}
   .card h2{
-    margin:0 0 14px; font-size:10.5px; font-weight:600; letter-spacing:.2em;
+    margin:0 0 12px; font-size:10px; font-weight:800; letter-spacing:.2em;
     text-transform:uppercase; color:var(--ink-soft);
   }
   .swatches{display:flex; gap:9px; margin-bottom:6px}
   .sw{
-    position:relative; flex:1; height:34px; border-radius:3px; cursor:pointer; border:0;
+    position:relative; flex:1; height:36px; border-radius:10px; cursor:pointer;
+    border:2px solid rgba(71,51,45,.35);
     padding:0; transition:transform .18s var(--ease), box-shadow .18s;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.08), inset 0 10px 14px -8px rgba(255,255,255,.55), inset 0 -8px 12px -6px rgba(0,0,0,.18);
-  }
-  .sw::after{
-    content:""; position:absolute; left:5px; top:5px; width:9px; height:9px; border-radius:50%;
-    background:rgba(255,255,255,.8); opacity:0; transition:opacity .18s;
+    box-shadow:inset 0 3px 6px -2px rgba(255,255,255,.75), inset 0 -4px 7px -3px rgba(71,51,45,.45);
   }
   .sw:hover{transform:translateY(-2px)}
-  .sw[aria-pressed="true"]::after{opacity:1}
-  .sw[aria-pressed="true"]{box-shadow:inset 0 0 0 1px rgba(0,0,0,.14), 0 0 0 2px #fff, 0 0 0 3px var(--ink)}
-  .flavours{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin:10px 0 18px; min-height:12px}
+  .sw[aria-pressed="true"]{
+    box-shadow:inset 0 3px 6px -2px rgba(255,255,255,.75), inset 0 -4px 7px -3px rgba(71,51,45,.45), 0 0 0 3px var(--cream), 0 0 0 5px var(--ink);
+  }
+  .flavours{font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin:10px 0 16px; min-height:12px}
 
-  .wob .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px}
-  .wob label{font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft)}
-  .wob output{font-size:11px; font-variant-numeric:tabular-nums; color:var(--ink)}
+  .wob .row{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px}
+  .wob label{font-size:10px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft)}
+  .wob output{font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--ink)}
   input[type=range]{
-    -webkit-appearance:none; appearance:none; width:100%; height:22px; margin:0; background:transparent; cursor:ew-resize;
+    -webkit-appearance:none; appearance:none; width:100%; height:26px; margin:0; background:transparent; cursor:ew-resize;
     touch-action:pan-x;
   }
-  input[type=range]::-webkit-slider-runnable-track{height:2px; background:linear-gradient(90deg,var(--ink) var(--fill,42%),var(--hair) var(--fill,42%)); border-radius:2px}
+  input[type=range]::-webkit-slider-runnable-track{height:6px; background:linear-gradient(90deg,var(--cherry) var(--fill,42%),var(--cream-3) var(--fill,42%)); border-radius:6px; box-shadow:inset 0 1px 2px rgba(71,51,45,.25)}
   input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; width:14px; height:14px; margin-top:-6px; border-radius:50%;
-    background:var(--ink); border:0; box-shadow:0 0 0 4px rgba(255,255,255,.9);
+    -webkit-appearance:none; width:20px; height:20px; margin-top:-7px; border-radius:50%;
+    background:radial-gradient(circle at 36% 30%,#fff,var(--cream) 62%);
+    border:2px solid var(--cocoa-edge); box-shadow:0 2px 0 rgba(71,51,45,.2);
   }
-  input[type=range]::-moz-range-track{height:2px; background:var(--hair)}
-  input[type=range]::-moz-range-progress{height:2px; background:var(--ink)}
-  input[type=range]::-moz-range-thumb{width:14px; height:14px; border:0; border-radius:50%; background:var(--ink)}
+  input[type=range]::-moz-range-track{height:6px; background:var(--cream-3); border-radius:6px}
+  input[type=range]::-moz-range-progress{height:6px; background:var(--cherry); border-radius:6px}
+  input[type=range]::-moz-range-thumb{width:18px; height:18px; border:2px solid var(--cocoa-edge); border-radius:50%; background:var(--cream)}
 
-  .readouts{display:flex; gap:10px; margin:18px 0 16px; padding-top:16px; border-top:1px solid var(--hair)}
+  .readouts{display:flex; gap:10px; margin:14px 0 14px; padding-top:14px; border-top:2px dashed var(--hair)}
   .ro{flex:1}
-  .ro span{display:block; font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:5px}
+  .ro span{display:block; font-size:10px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px}
   .ro b{
-    font-family:var(--serif); font-style:italic; font-weight:400; display:inline-block;
-    font-size:27px; letter-spacing:-.01em; font-variant-numeric:tabular-nums;
+    font-family:var(--sans); font-style:normal; font-weight:800; display:inline-block;
+    font-size:24px; letter-spacing:-.01em; font-variant-numeric:tabular-nums;
   }
-  .ro b i{font-size:12px; font-style:normal; font-family:var(--sans); color:var(--ink-soft); margin-left:2px}
-  .bar{height:2px; background:var(--hair); margin-top:8px; overflow:hidden}
-  .bar u{display:block; height:100%; width:0%; background:var(--ink); text-decoration:none; transition:width .12s linear}
+  .ro b i{font-size:12px; font-style:normal; font-weight:700; font-family:var(--sans); color:var(--ink-soft); margin-left:2px}
+  .bar{height:6px; background:var(--cream-3); border-radius:6px; margin-top:7px; overflow:hidden; box-shadow:inset 0 1px 2px rgba(71,51,45,.2)}
+  .bar u{display:block; height:100%; width:0%; background:linear-gradient(180deg,var(--gold),var(--gold-deep)); text-decoration:none; transition:width .12s linear}
 
   .acts{display:flex; gap:8px}
+  /* injection-molded button: thick outer edge, glossy face, press travel */
   button.pour{
-    flex:1; padding:12px 14px; cursor:pointer; border:1px solid var(--ink); background:var(--ink); color:#fff;
-    font:inherit; font-size:11px; letter-spacing:.18em; text-transform:uppercase; border-radius:3px;
-    transition:background .18s, color .18s, transform .12s;
+    flex:1; min-height:44px; padding:11px 14px; cursor:pointer;
+    border:2px solid var(--cherry-deep); border-radius:12px;
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry));
+    color:#fff; text-shadow:0 1px 0 rgba(71,51,45,.35);
+    font:inherit; font-size:11px; font-weight:800; letter-spacing:.16em; text-transform:uppercase;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.5), inset 0 -3px 0 rgba(71,51,45,.22), 0 4px 0 var(--cherry-deep);
+    transition:background .18s, transform .12s, box-shadow .12s;
   }
-  @media (hover:hover){ button.pour:hover{background:#fff; color:var(--ink)} }
-  button.pour:active{transform:translateY(1px) scale(.99)}
+  @media (hover:hover){ button.pour:hover{background:linear-gradient(180deg,#f06b79,#e3525f)} }
+  button.pour:active{transform:translateY(3px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 1px 0 var(--cherry-deep)}
   button.ghost{
-    display:none; padding:0 14px; cursor:pointer; border:1px solid var(--hair); background:rgba(255,255,255,.6);
-    font:inherit; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink); border-radius:3px;
+    display:none; min-height:44px; padding:0 14px; cursor:pointer;
+    border:2px solid var(--cocoa-edge); border-radius:12px;
+    background:linear-gradient(180deg,#fff,var(--cream-2));
+    font:inherit; font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--ink);
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.28);
   }
-  button.ghost:active{transform:translateY(1px)}
-  .foot{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:12px; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft)}
-  .foot button{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-transform:uppercase; letter-spacing:.12em}
+  button.ghost:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.28)}
+  .foot{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:10px; font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft)}
+  .foot button{background:none; border:0; padding:0; font:inherit; color:inherit; cursor:pointer; text-transform:uppercase; letter-spacing:.1em}
   @media (hover:hover){ .foot button:hover{color:var(--ink)} }
   .foot .sp{flex:1}
   .foot .mini{display:none}
-  #lang{border:1px solid var(--hair); border-radius:2px; padding:3px 6px; letter-spacing:.08em}
+  #lang{
+    border:2px solid var(--cocoa-edge); border-radius:8px; padding:4px 7px; letter-spacing:.08em;
+    background:linear-gradient(180deg,#fff,var(--cream-2)); color:var(--ink); min-width:34px; min-height:26px;
+  }
 
   .credit{
     position:absolute; left:calc(clamp(20px,4.2vw,64px) + env(safe-area-inset-left)); bottom:calc(clamp(18px,3.4vh,40px) + env(safe-area-inset-bottom));
-    font-size:10.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft);
+    font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft);
     display:flex; gap:18px; flex-wrap:wrap;
   }
   .credit em{font-style:normal; color:var(--ink)}
@@ -184,14 +217,14 @@
   #coach.on{opacity:1}
   #coach i{
     display:block; width:44px; height:44px; border-radius:50%;
-    border:1.5px solid rgba(20,19,15,.75); background:rgba(255,255,255,.35);
+    border:3px solid var(--cherry); background:rgba(255,244,223,.4);
     animation:coach 2.2s var(--ease) infinite;
   }
   #coach b{
     position:absolute; left:50%; top:58px; transform:translateX(-50%); white-space:nowrap;
-    font:500 11px/1 var(--sans); letter-spacing:.14em; text-transform:uppercase; color:var(--ink);
-    background:rgba(255,255,255,.88); padding:7px 10px; border-radius:20px;
-    box-shadow:0 6px 18px -8px rgba(0,0,0,.3);
+    font:800 11px/1 var(--sans); letter-spacing:.12em; text-transform:uppercase; color:var(--ink);
+    background:var(--cream); border:2px solid var(--cocoa-edge); padding:7px 12px; border-radius:999px;
+    box-shadow:0 3px 0 rgba(106,81,69,.25);
   }
   @keyframes coach{
     0%{transform:translate(0,0) scale(1); opacity:0}
@@ -208,9 +241,13 @@
   }
   body.ready #loader{opacity:0; visibility:hidden}
   #loader div{display:flex; flex-direction:column; align-items:center; gap:18px;
-    font-size:10.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-soft)}
+    font-size:10.5px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft)}
   #loader .dots{display:flex; gap:8px}
-  #loader .dots s{width:10px; height:10px; border-radius:50%; text-decoration:none; animation:hop 1s var(--ease) infinite}
+  #loader .dots s{
+    width:14px; height:14px; border-radius:50%; text-decoration:none;
+    border:2px solid rgba(71,51,45,.3); animation:hop 1s var(--ease) infinite;
+    box-shadow:inset 0 2px 2px -1px rgba(255,255,255,.7), inset 0 -2px 2px -1px rgba(71,51,45,.3);
+  }
   #loader .dots s:nth-child(2){animation-delay:.12s} #loader .dots s:nth-child(3){animation-delay:.24s}
   #loader .dots s:nth-child(4){animation-delay:.36s} #loader .dots s:nth-child(5){animation-delay:.48s}
   @keyframes hop{0%,100%{transform:translateY(0) scale(1,1)} 30%{transform:translateY(-12px) scale(.9,1.1)} 60%{transform:translateY(0) scale(1.15,.85)}}
@@ -218,13 +255,13 @@
 
   /* ---- cursor ---- */
   #cursor{
-    position:fixed; z-index:9; left:0; top:0; width:14px; height:14px; border-radius:50%;
-    border:1px solid rgba(20,19,15,.55); pointer-events:none; opacity:0;
+    position:fixed; z-index:9; left:0; top:0; width:16px; height:16px; border-radius:50%;
+    border:2px solid var(--cocoa-edge); pointer-events:none; opacity:0;
     transition:opacity .25s; mix-blend-mode:multiply;
     transform:translate(-50%,-50%) scale(1);
   }
   #cursor.on{opacity:1}
-  #cursor.grab{border-color:rgba(20,19,15,.9); background:rgba(20,19,15,.06)}
+  #cursor.grab{border-color:var(--cherry-deep); background:rgba(223,70,87,.12)}
   @media (hover:none){ #cursor{display:none} }
 
   /* ---- mid widths: the card is narrower, the credits step aside ---- */
@@ -237,253 +274,476 @@
   @media (max-width:760px), (max-aspect-ratio:4/5){
     .masthead{
       left:calc(18px + env(safe-area-inset-left)); right:calc(18px + env(safe-area-inset-right));
-      top:calc(16px + env(safe-area-inset-top)); max-width:none;
+      top:calc(14px + env(safe-area-inset-top)); max-width:none;
     }
-    .eyebrow{font-size:9.5px; margin-bottom:10px; gap:10px}
-    .eyebrow i{width:22px}
-    h1{font-size:clamp(40px,12.5vw,64px); line-height:.9}
-    h1 span{display:inline}
-    h1 .b{padding-left:.18em}
-    h1 small{font-size:11px; margin-top:.6em; letter-spacing:.42em}
+    .eyebrow{font-size:9.5px; margin-bottom:8px; gap:9px}
+    .eyebrow i{width:22px; height:3px}
+    h1{gap:5px}
+    h1 .zh-line{font-size:clamp(38px,11.6vw,60px)}
+    h1 .en-line{font-size:11px; letter-spacing:.2em}
     .sub{display:none}
-    .hint{margin-top:10px; font-size:9.5px; letter-spacing:.12em}
+    .hint{margin-top:8px; font-size:9.5px; letter-spacing:.08em}
     .credit{display:none}
 
     .card{
       top:auto; transform:none; width:auto;
       left:calc(10px + env(safe-area-inset-left)); right:calc(10px + env(safe-area-inset-right));
       bottom:calc(10px + env(safe-area-inset-bottom));
-      padding:14px 14px 12px; border-radius:16px;
-      background:rgba(255,255,255,.78);
+      padding:12px 12px 10px; border-radius:18px;
     }
     .card h2, .flavours, .readouts{display:none}
-    .swatches{gap:8px; margin-bottom:12px}
-    .sw{height:38px; border-radius:10px}
-    .sw::after{left:50%; top:50%; margin:-4.5px 0 0 -4.5px}
-    .wob{display:flex; align-items:center; gap:12px; margin-bottom:12px}
+    .swatches{gap:8px; margin-bottom:10px}
+    .sw{height:44px; border-radius:12px}
+    .wob{display:flex; align-items:center; gap:12px; margin-bottom:10px}
     .wob .row{display:contents}
     .wob label{order:0; flex:none}
     .wob input{order:1; flex:1}
     .wob output{order:2; flex:none; width:2.6em; text-align:right}
-    button.pour{padding:14px; border-radius:10px; font-size:12px}
-    button.ghost{display:block; border-radius:10px}
-    .foot{margin-top:10px}
+    button.pour{padding:13px; border-radius:14px; font-size:12px}
+    button.ghost{display:block; border-radius:14px}
+    .foot{margin-top:8px}
     .foot .mini{display:inline; letter-spacing:.06em; text-transform:none; font-variant-numeric:tabular-nums}
+    .foot button{min-height:32px; padding:0 4px}
     #reset{display:none}
+    #lang{min-height:32px; min-width:40px}
   }
   @media (max-height:520px) and (orientation:landscape){
     .sub, .credit, .readouts, .flavours, .card h2{display:none}
     .masthead{top:calc(14px + env(safe-area-inset-top)); max-width:40vw}
-    .eyebrow{margin-bottom:8px}
-    h1{font-size:44px}
+    .eyebrow{margin-bottom:6px}
+    h1{font-size:40px}
+    html[lang=zh] h1{font-size:44px}
     .hint{font-size:9.5px; letter-spacing:.1em}
-    .card{width:236px; padding:12px 12px 10px}
-    .sw{height:28px}
+    .card{width:240px; padding:10px 10px 8px}
+    .sw{height:30px}
     .wob .row{margin-bottom:2px}
-    button.pour{padding:10px}
-    .foot{margin-top:8px}
+    button.pour{padding:9px}
+    .foot{margin-top:6px}
   }
 
-  /* ================= GAME · 软糖受难记 ================= */
+  /* ================= GAME · 软糖历险记 ================= */
   .cta{
-    pointer-events:auto; margin-top:22px; display:inline-flex; align-items:center; gap:12px;
-    padding:13px 20px 13px 16px; border:0; border-radius:999px; cursor:pointer;
-    background:var(--ink); color:#fff; font:600 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
-    box-shadow:0 14px 30px -14px rgba(20,19,15,.55); transition:transform .18s var(--ease), box-shadow .18s;
+    pointer-events:auto; margin-top:18px; display:inline-flex; align-items:center; gap:12px;
+    min-height:48px; padding:12px 22px;
+    border:2px solid var(--cherry-deep); border-radius:999px; cursor:pointer;
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff;
+    font:800 12px/1 var(--sans); letter-spacing:.16em; text-transform:uppercase;
+    text-shadow:0 1px 0 rgba(71,51,45,.35);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.5), inset 0 -3px 0 rgba(71,51,45,.22), 0 5px 0 var(--cherry-deep), 0 16px 26px -16px rgba(71,51,45,.6);
+    transition:transform .18s var(--ease), box-shadow .18s;
   }
+  .cta + .cta{margin-left:10px}
   .cta i{
-    width:22px; height:22px; border-radius:50%; background:var(--cherry); display:grid; place-items:center; font-style:normal;
-    font-size:9px; padding-left:2px; animation:pulse 1.8s ease-in-out infinite;
+    width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-style:normal;
+    background:rgba(255,255,255,.94); color:var(--cherry-deep); font-size:10px; padding-left:2px;
+    box-shadow:inset 0 -2px 0 rgba(71,51,45,.18);
   }
-  .cta small{font:400 10px/1 var(--sans); letter-spacing:.1em; opacity:.6; text-transform:none}
-  @media (hover:hover){ .cta:hover{transform:translateY(-2px); box-shadow:0 18px 34px -14px rgba(20,19,15,.6)} }
-  .cta:active{transform:scale(.97)}
-  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(211,32,44,.55)} 60%{box-shadow:0 0 0 8px rgba(211,32,44,0)}}
+  .cta small{font:700 10px/1 var(--sans); letter-spacing:.1em; opacity:.75; text-transform:none}
+  /* three actions, three weights: play is the moulded cherry button, the workshop is cream+mint,
+     anything appended later (the online entry) stays a quiet secondary */
+  #workshopBtn{
+    background:linear-gradient(180deg,#fffdf8,var(--cream-2)); color:var(--ink);
+    border-color:var(--mint-deep); text-shadow:none;
+    box-shadow:inset 0 2px 0 #fff, 0 5px 0 var(--mint-deep), 0 16px 26px -18px rgba(71,51,45,.45);
+  }
+  #workshopBtn::before{
+    content:""; flex:none; width:22px; height:22px; margin-right:2px;
+    background-image:var(--art,url('./assets/art/icon-wrench.webp'));
+    background-repeat:no-repeat; background-position:center; background-size:contain;
+  }
+  #workshopBtn.cta{--art:url('./assets/art/icon-wrench.webp')}
+  @media (hover:hover){ #workshopBtn:hover{box-shadow:inset 0 2px 0 #fff, 0 7px 0 var(--mint-deep), 0 20px 30px -18px rgba(71,51,45,.45)} }
+  #workshopBtn:active{box-shadow:inset 0 2px 0 #fff, 0 2px 0 var(--mint-deep)}
+  .masthead .cta.cta-2nd{
+    background:linear-gradient(180deg,#fff,var(--cream-2)); color:var(--ink-soft); border-color:var(--line);
+    text-shadow:none; font-weight:700; letter-spacing:.1em;
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.22);
+  }
+  .masthead .cta.cta-2nd::before{
+    content:""; flex:none; width:20px; height:20px; margin-right:2px;
+    background-image:var(--art,url('./assets/art/icon-trophy.webp'));
+    background-repeat:no-repeat; background-position:center; background-size:contain;
+  }
+  .masthead .cta.cta-2nd.cta-trophy{--art:url('./assets/art/icon-trophy.webp')}
+  @media (hover:hover){ .masthead .cta.cta-2nd:hover{box-shadow:inset 0 2px 0 #fff, 0 5px 0 rgba(106,81,69,.26)} }
+  .masthead .cta.cta-2nd:active{box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.26)}
+  @media (hover:hover){ .cta:hover{transform:translateY(-2px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 7px 0 var(--cherry-deep), 0 20px 30px -16px rgba(71,51,45,.6)} }
+  .cta:active{transform:translateY(3px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 2px 0 var(--cherry-deep)}
   #snd{font-size:12px; letter-spacing:0}
+
+  /* ---- icon hooks: the runtime WebP art, one URL per icon, used in two shapes ---- */
+  .icon-sound{--art:url('./assets/art/icon-sound.webp')}
+  .icon-music{--art:url('./assets/art/icon-music.webp')}
+  .icon-map{--art:url('./assets/art/icon-map.webp')}
+  .icon-retry{--art:url('./assets/art/icon-retry.webp')}
+  .icon-exit{--art:url('./assets/art/icon-exit.webp')}
+  .icon-wrench{--art:url('./assets/art/icon-wrench.webp')}
+  .icon-trophy{--art:url('./assets/art/icon-trophy.webp')}
+  .icon-star{--art:url('./assets/art/icon-star.webp')}
+  /* (a) icon-only control: the art IS the button face, the glyph text is hidden but stays in the a11y name.
+     These rules sit after .chip on purpose: .chip's `background:` shorthand and .chip.round's
+     background-size would otherwise win and blank the art out. */
+  .icon-btn{
+    background-image:var(--art); background-repeat:no-repeat; background-position:center;
+    text-indent:-9999px; overflow:hidden; font-size:0; line-height:0; color:transparent;
+  }
+  .chip.icon-btn, .chip.round.icon-btn, .icon-btn.round{
+    background-image:var(--art); background-size:24px 24px; background-position:center; background-repeat:no-repeat;
+    text-indent:-9999px; font-size:0; color:transparent;
+  }
+  /* (b) icon + live text: the art rides in ::before so the word stays real, translatable text */
+  .icon-lead::before{
+    content:""; flex:none; width:21px; height:21px; margin-right:6px;
+    background-image:var(--art); background-repeat:no-repeat; background-position:center; background-size:contain;
+  }
+  .chip.icon-lead::before{width:24px; height:24px; margin-right:7px}
+  /* muted = a second channel beside opacity, so "off" never rests on one cue alone.
+     Ink, not cherry: a red slash on a cherry-adjacent icon reads as an error, not as "sound off". */
+  #snd,#gSnd,#gMus{position:relative}
+  #snd.muted,#gSnd.muted{opacity:.5}
+  #gMus.muted{opacity:.42}
+  #snd.muted::after,#gSnd.muted::after,#gMus.muted::after{
+    content:""; position:absolute; left:24%; right:24%; top:50%; height:3px; border-radius:3px;
+    background:var(--ink); box-shadow:0 0 0 2px var(--cream);
+    transform:rotate(-38deg); pointer-events:none;
+  }
 
   body.game .masthead, body.game .card, body.game .credit, body.game #coach{opacity:0 !important; visibility:hidden; transition:opacity .4s, visibility .4s}
   .hud{position:fixed; inset:0; z-index:4; pointer-events:none; opacity:0; visibility:hidden; transition:opacity .4s, visibility .4s}
   body.game .hud{opacity:1; visibility:visible}
   .hud-top{
-    position:absolute; left:0; right:0; top:0; display:flex; align-items:center; gap:10px;
-    padding:calc(12px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 0 calc(14px + env(safe-area-inset-left));
+    position:absolute; left:0; right:0; top:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    padding:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));
   }
   .chip{
-    pointer-events:auto; display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:999px;
-    border:1px solid var(--hair); background:rgba(255,255,255,.82); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
-    font:500 12px/1 var(--sans); letter-spacing:.06em; color:var(--ink); cursor:pointer; white-space:nowrap;
+    pointer-events:auto; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    min-height:44px; padding:0 14px; border-radius:999px;
+    border:2px solid var(--cocoa-edge);
+    background:linear-gradient(180deg,#fffdf8,var(--cream-2));
+    font:700 12px/1 var(--sans); letter-spacing:.05em; color:var(--ink); cursor:pointer; white-space:nowrap;
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.3);
+    transition:transform .12s, box-shadow .12s;
   }
-  .chip:active{transform:scale(.96)}
-  .chip.round{width:36px; padding:0; justify-content:center; font-size:14px}
-  .hud-lv{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0}
-  .hud-lv b{font:italic 400 20px/1 var(--serif); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
-  .hud-lv span{font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-soft)}
-  .hud-score{position:absolute; left:0; right:0; top:calc(66px + env(safe-area-inset-top)); text-align:center}
-  .hud-score b{display:block; font:italic 400 clamp(44px,7vw,72px)/1 var(--serif); font-variant-numeric:tabular-nums; letter-spacing:-.02em; text-shadow:0 0 18px var(--bg)}
-  .hud-score small{display:block; margin-top:4px; font-size:9.5px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-soft)}
+  .chip:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.3)}
+  .chip.round{width:44px; min-width:44px; padding:0; justify-content:center; font-size:14px}
+  .hud-lv{flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:0}
+  .hud-lv b{font:800 19px/1 var(--sans); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%}
+  .hud-lv span{font-size:9.5px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-soft)}
+  .hud-score{position:absolute; left:0; right:0; top:calc(70px + env(safe-area-inset-top)); text-align:center}
+  .hud-score b{
+    display:inline-block; font:800 clamp(40px,6.6vw,66px)/1 var(--sans); font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+    color:var(--ink);
+    background:var(--cream);
+    border:3px solid var(--cocoa-edge); border-radius:20px; padding:2px 20px 6px;
+    box-shadow:inset 0 3px 0 #fff, 0 5px 0 rgba(106,81,69,.22), 0 18px 30px -20px rgba(71,51,45,.55);
+    text-shadow:none;
+  }
+  .hud-score small{display:block; margin-top:8px; font-size:9.5px; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-soft)}
   .stars-live{display:flex; justify-content:center; gap:6px; margin-top:8px}
-  .stars-live i{width:56px; height:4px; border-radius:4px; background:var(--hair); overflow:hidden; position:relative}
-  .stars-live i u{position:absolute; inset:0; width:0; background:#f2b01b; text-decoration:none; transition:width .25s}
+  .stars-live i{width:56px; height:8px; border-radius:6px; background:var(--cream-3); overflow:hidden; position:relative; border:1px solid rgba(71,51,45,.2)}
+  .stars-live i u{position:absolute; inset:0; width:0; background:linear-gradient(180deg,var(--gold),var(--gold-deep)); text-decoration:none; transition:width .25s}
   .combo{
-    display:inline-block; margin-top:8px; padding:5px 10px; border-radius:999px; background:var(--cherry); color:#fff;
-    font:700 12px/1 var(--sans); letter-spacing:.06em; opacity:0; transform:scale(.6); transition:opacity .2s, transform .2s var(--ease);
+    display:inline-block; margin-top:8px; padding:5px 12px; border-radius:999px;
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border:2px solid var(--cherry-deep);
+    font:800 12px/1 var(--sans); letter-spacing:.06em; opacity:0; transform:scale(.6); transition:opacity .2s, transform .2s var(--ease);
+    box-shadow:0 3px 0 var(--cherry-deep);
   }
   .combo.on{opacity:1; transform:scale(1)}
   .hud-hint{
-    position:absolute; left:50%; bottom:calc(84px + env(safe-area-inset-bottom)); transform:translateX(-50%);
-    padding:10px 16px; border-radius:999px; background:rgba(20,19,15,.82); color:#fff; white-space:nowrap;
-    font:500 12.5px/1 var(--sans); letter-spacing:.04em; transition:opacity .3s; display:flex; align-items:center; gap:8px;
+    position:absolute; left:50%; bottom:calc(88px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+    padding:10px 16px; border-radius:999px; background:var(--ink); color:var(--cream); white-space:nowrap;
+    font:700 12.5px/1 var(--sans); letter-spacing:.04em; transition:opacity .3s; display:flex; align-items:center; gap:8px;
+    border:2px solid rgba(255,244,223,.35); box-shadow:0 6px 18px -10px rgba(71,51,45,.7);
   }
   .hud-hint.off{opacity:0}
-  .aim-power{position:absolute;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#fff;padding:8px 14px;border-radius:20px;font:600 12px/1.2 var(--sans);color:var(--ink);box-shadow:0 3px 18px #0002}
+  .aim-power{
+    position:absolute; left:50%; bottom:calc(118px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+    background:var(--cream); padding:8px 14px; border-radius:14px; font:800 12px/1.2 var(--sans); color:var(--ink);
+    border:2px solid var(--cocoa-edge); box-shadow:0 4px 0 rgba(106,81,69,.25), 0 14px 22px -14px rgba(71,51,45,.5);
+  }
   .aim-power.off{display:none}
-  .aim-power i{display:block;width:140px;height:5px;background:var(--hair);border-radius:4px;margin-top:6px;overflow:hidden}
-  .aim-power u{display:block;height:100%;width:0;background:var(--cherry);text-decoration:none}
+  .aim-power i{display:block;width:140px;height:8px;background:var(--cream-3);border-radius:6px;margin-top:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(71,51,45,.25)}
+  .aim-power u{display:block;height:100%;width:0;background:linear-gradient(180deg,#ec5c6b,var(--cherry));text-decoration:none}
   .panel{touch-action:pan-y;overscroll-behavior:contain}
   /* while aiming on a phone too narrow to show the goal: an arrow on the screen edge pointing at it */
   .goal-mark{
-    position:absolute; left:0; top:0; display:flex; align-items:center; gap:4px; padding:7px 10px; border-radius:999px;
-    background:var(--cherry); color:#fff; font:700 11px/1 var(--sans); letter-spacing:.16em; transition:opacity .3s;
+    position:absolute; left:0; top:0; display:flex; align-items:center; gap:4px; padding:7px 12px; border-radius:999px;
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border:2px solid var(--cherry-deep);
+    font:800 11px/1 var(--sans); letter-spacing:.14em; transition:opacity .3s; box-shadow:0 3px 0 var(--cherry-deep);
   }
   .goal-mark i{font-style:normal; font-size:14px; animation:nudge 1s ease-in-out infinite}
   .goal-mark.off{opacity:0}
   @keyframes nudge{50%{transform:translateX(4px)}}
   .hud-bot{
-    position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; gap:10px;
-    padding:0 14px calc(16px + env(safe-area-inset-bottom));
+    position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; gap:10px; flex-wrap:wrap;
+    padding:0 12px calc(14px + env(safe-area-inset-bottom));
   }
   #pops{position:fixed; inset:0; z-index:5; pointer-events:none; overflow:hidden}
   .pop{
     position:absolute; transform:translate(-50%,-50%); text-align:center; white-space:nowrap;
-    font:italic 400 30px/1 var(--serif); color:var(--ink); text-shadow:0 2px 0 #fff, 0 0 18px #fff;
+    font:800 30px/1 var(--sans); color:var(--ink); text-shadow:0 2px 0 #fff, 0 0 18px #fff;
     animation:popup 1.15s var(--ease) forwards;
   }
-  .pop small{display:block; font:700 11px/1.4 var(--sans); font-style:normal; letter-spacing:.14em; color:var(--cherry)}
-  .pop.big{font-size:46px} .pop.big small{font-size:13px}
+  .pop small{display:block; font:800 11px/1.4 var(--sans); font-style:normal; letter-spacing:.14em; color:var(--cherry)}
+  .pop.big{font-size:44px} .pop.big small{font-size:13px}
   @keyframes popup{0%{opacity:0; transform:translate(-50%,-30%) scale(.5)} 15%{opacity:1; transform:translate(-50%,-60%) scale(1.08)}
     70%{opacity:1; transform:translate(-50%,-110%) scale(1)} 100%{opacity:0; transform:translate(-50%,-140%) scale(.96)}}
   #flash{position:fixed; inset:0; z-index:3; pointer-events:none; background:#fff; opacity:0}
   #flash.go{animation:flash .35s ease-out}
   @keyframes flash{0%{opacity:.55} 100%{opacity:0}}
 
+  /* ---- sheets: a quality-control ticket on a cream board ---- */
+  /* above #confetti (z 7): the celebration must never scatter over the ticket's own words */
   .sheet{
-    position:fixed; inset:0; z-index:6; display:grid; place-items:center; padding:20px;
-    background:rgba(244,242,238,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    position:fixed; inset:0; z-index:8; display:grid; place-items:center; padding:20px;
+    background:rgba(71,51,45,.34); -webkit-backdrop-filter:blur(5px); backdrop-filter:blur(5px);
     opacity:0; visibility:hidden; transition:opacity .35s, visibility .35s;
   }
   .sheet.on{opacity:1; visibility:visible}
   .panel{
-    width:min(420px,100%); max-height:calc(100% - 20px); overflow:auto; background:#fff; border-radius:20px; padding:26px 24px 20px;
-    box-shadow:0 40px 90px -40px rgba(20,19,15,.5); border:1px solid var(--hair);
+    width:min(420px,100%); max-height:calc(100% - 20px); overflow:auto;
+    background:linear-gradient(180deg,var(--cream),#fdf0d9);
+    border-radius:20px; padding:24px 22px 18px;
+    border:3px solid var(--cocoa-edge);
+    box-shadow:inset 0 3px 0 #fff, 0 8px 0 rgba(106,81,69,.2), 0 40px 90px -40px rgba(71,51,45,.7);
     transform:translateY(16px) scale(.98); transition:transform .45s var(--ease);
   }
   .sheet.on .panel{transform:none}
-  .panel h3{margin:0; font-size:10px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink-soft); text-align:center}
-  .panel h4{margin:8px 0 0; font:italic 400 30px/1.1 var(--serif); text-align:center}
-  .big-score{text-align:center; margin:18px 0 4px; font:italic 400 64px/1 var(--serif); font-variant-numeric:tabular-nums}
-  .big-score.void{opacity:.3}
-  .rec{display:block; text-align:center; font-size:11px; letter-spacing:.14em; color:var(--ink-soft); min-height:16px}
-  .rec.new{color:var(--cherry); font-weight:700}
-  .stars{display:flex; justify-content:center; gap:10px; margin:14px 0 18px}
-  .stars i{font-style:normal; font-size:34px; color:#e6e1d8; transform:scale(.6); transition:transform .4s var(--ease), color .2s}
-  .stars i.on{color:#f2b01b; transform:scale(1)}
-  .stats{display:grid; grid-template-columns:1fr auto; gap:8px 12px; padding:14px 0; border-top:1px solid var(--hair); border-bottom:1px solid var(--hair); font-size:13px}
-  .stats span{color:var(--ink-soft)} .stats b{font-variant-numeric:tabular-nums; font-weight:600; text-align:right}
-  .row-btns{display:flex; gap:8px; margin-top:16px}
-  .row-btns button{flex:1; height:46px; border-radius:12px; border:1px solid var(--hair); background:#fff; font:600 13px/1 var(--sans); letter-spacing:.06em; cursor:pointer; color:var(--ink)}
-  .row-btns button.pri{background:var(--ink); color:#fff; border-color:var(--ink)}
-  .row-btns button:disabled{opacity:.35}
-  .row-btns button:active{transform:scale(.98)}
-  .linky{display:block; margin:12px auto 0; background:none; border:0; font:500 12px/1 var(--sans); color:var(--ink-soft); cursor:pointer; letter-spacing:.06em}
-  .levels{display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:10px; margin-top:18px}
-  .lv{
-    position:relative; text-align:left; padding:12px; min-height:96px; border-radius:14px; border:1px solid var(--hair);
-    background:linear-gradient(160deg,#fff,#f7f3ec); cursor:pointer; font:inherit; color:var(--ink);
-    display:flex; flex-direction:column; gap:4px;
+  .panel h3{
+    margin:0; font-size:9.5px; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:var(--ink-soft); text-align:center;
   }
-  .lv:active{transform:scale(.97)}
-  .lv em{font-style:normal; font-size:10px; letter-spacing:.2em; color:var(--ink-soft)}
-  .lv b{font:italic 400 19px/1.1 var(--serif)}
-  .lv span{margin-top:auto; font-size:13px; letter-spacing:2px; color:#f2b01b}
-  .lv span s{color:#e6e1d8; text-decoration:none}
-  .lv small{font-size:10.5px; color:var(--ink-soft)}
-  .lv[disabled]{cursor:not-allowed; opacity:.45}
-  .lv[disabled]::after{content:"🔒"; position:absolute; right:10px; top:10px; font-size:13px}
+  .panel h4{margin:6px 0 0; font:800 27px/1.15 var(--sans); letter-spacing:-.01em; text-align:center; color:var(--ink)}
+  /* the total is secondary but always readable: one line under the stars, never competing with the verdict */
+  .score-row{display:flex; align-items:baseline; justify-content:center; gap:8px; margin:0 0 10px}
+  .big-score{
+    margin:0; font:800 30px/1 var(--sans); font-variant-numeric:tabular-nums;
+    color:var(--ink); text-shadow:0 2px 0 #fff;
+  }
+  .big-score.void{opacity:.4}
+  .score-lbl{font-size:10px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft)}
+  .rec{display:block; text-align:center; font-size:11px; font-weight:700; letter-spacing:.12em; color:var(--ink-soft); min-height:16px}
+  .rec.new{color:var(--cherry-deep)}
+  .stars{display:flex; justify-content:center; gap:10px; margin:12px 0 14px}
+  .stars i{font-style:normal; font-size:34px; color:var(--gold-dim); transform:scale(.6); transition:transform .4s var(--ease), color .2s}
+  .stars i.on{color:var(--gold); transform:scale(1); text-shadow:0 2px 0 var(--gold-deep)}
+  .stats{display:grid; grid-template-columns:1fr auto; gap:7px 12px; padding:10px 0 2px; border-top:2px dashed var(--hair); font-size:12.5px}
+  .stats span{color:var(--ink-soft)} .stats b{font-variant-numeric:tabular-nums; font-weight:700; text-align:right; color:var(--ink)}
+  /* ---- collapsible run details: folded under the actions, lowest priority on the ticket ---- */
+  .more{margin:14px 0 0; border-top:2px dashed var(--hair); padding-top:8px}
+  .more > summary{
+    list-style:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:7px;
+    min-height:40px; padding:6px 12px; border-radius:999px; border:0; background:none;
+    font:800 11px/1 var(--sans); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft);
+  }
+  .more > summary::-webkit-details-marker{display:none}
+  .more > summary::after{
+    content:""; width:7px; height:7px; flex:none; margin-top:-3px;
+    border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+    transform:rotate(45deg); transition:transform .25s var(--ease);
+  }
+  .more[open] > summary{color:var(--ink)}
+  .more[open] > summary::after{transform:rotate(-135deg); margin-top:2px}
+  @media (hover:hover){ .more > summary:hover{color:var(--ink)} }
+  /* the two actions a player actually needs, sitting at the bottom of the ticket */
+  .row-next{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap}
+  .row-next button{
+    flex:1 1 auto; min-width:112px; min-height:54px; padding:0 18px; border-radius:14px;
+    border:2px solid var(--cocoa-edge); background:linear-gradient(180deg,#fff,var(--cream-2));
+    font:800 14px/1 var(--sans); letter-spacing:.05em; cursor:pointer; color:var(--ink);
+    box-shadow:inset 0 2px 0 #fff, 0 4px 0 rgba(106,81,69,.32);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .row-next button:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.32)}
+  .row-next button.pri{
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border-color:var(--cherry-deep);
+    text-shadow:0 1px 0 rgba(71,51,45,.35); font-size:15px;
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 5px 0 var(--cherry-deep);
+  }
+  .row-next button.pri:active{transform:translateY(3px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 1px 0 var(--cherry-deep)}
+  .row-next button:disabled{opacity:.4; box-shadow:none}
+  .result-panel .verdict{font-size:30px; margin:-24px -22px 14px; padding:14px 12px 12px; border-radius:17px 17px 0 0; color:var(--ink); background:linear-gradient(180deg,#a6dccb,var(--mint)); border-bottom:3px solid var(--mint-deep); text-shadow:0 1px 0 rgba(255,255,255,.5)}
+  .result-panel .verdict.no{background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border-bottom-color:var(--cherry-deep); text-shadow:0 1px 0 rgba(71,51,45,.35)}
+  .result-panel .verdict.ok{color:var(--ink)}
+  .result-panel .verdict.no, .result-panel .verdict.no small{color:#fff}
+  .result-panel .big-score{font-size:22px}
+  .result-panel{background:linear-gradient(180deg,var(--cream) 0%,#fdf0d9 55%,#eef7f2 100%)}
+  .result-panel .verdict small{font-weight:800; color:var(--ink)}
+  .result-panel .earn{background:rgba(242,189,87,.22); border-radius:999px; padding:6px 12px; display:block; max-width:max-content; margin:0 auto 14px}
+  .result-panel .rec{font-weight:700; font-size:10px; opacity:.8}
+  .row-btns{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
+  .row-btns button{
+    flex:1 1 auto; min-width:96px; min-height:44px; border-radius:12px;
+    border:2px solid var(--cocoa-edge); background:linear-gradient(180deg,#fff,var(--cream-2));
+    font:800 13px/1 var(--sans); letter-spacing:.05em; cursor:pointer; color:var(--ink);
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.3);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .row-btns button:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.3)}
+  .row-btns button.pri{
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border-color:var(--cherry-deep);
+    text-shadow:0 1px 0 rgba(71,51,45,.35);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--cherry-deep);
+  }
+  .row-btns button.pri:active{transform:translateY(3px); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 1px 0 var(--cherry-deep)}
+  .row-btns button:disabled{opacity:.35}
+  .linky{
+    display:flex; align-items:center; justify-content:center; gap:0; margin:12px auto 0; background:none; border:0; min-height:36px;
+    font:800 12px/1 var(--sans); color:var(--ink-soft); cursor:pointer; letter-spacing:.05em;
+    border-bottom:2px dashed transparent;
+  }
+  @media (hover:hover){ .linky:hover{color:var(--cherry-deep); border-bottom-color:var(--cherry)} }
+  .levels{display:grid; grid-template-columns:repeat(auto-fill,minmax(104px,1fr)); gap:10px; margin-top:16px}
+  .lv{
+    position:relative; text-align:left; padding:12px; min-height:96px; border-radius:14px;
+    border:2px solid var(--cocoa-edge);
+    background:linear-gradient(180deg,#fffdf8,var(--cream-2)); cursor:pointer; font:inherit; color:var(--ink);
+    display:flex; flex-direction:column; gap:4px;
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.22);
+  }
+  .lv:active{transform:translateY(2px)}
+  .lv em{font-style:normal; font-size:10px; font-weight:800; letter-spacing:.18em; color:var(--ink-soft)}
+  .lv b{font:800 17px/1.15 var(--sans)}
+  .lv span{margin-top:auto; font-size:14px; letter-spacing:2px; color:var(--gold)}
+  .lv span s{color:var(--gold-dim); text-decoration:none}
+  .lv small{font-size:10.5px; color:var(--ink-soft); line-height:1.3}
+  .lv[disabled]{cursor:not-allowed; opacity:.5}
+  .lv[disabled]::after{
+    content:""; position:absolute; right:9px; top:9px; width:16px; height:14px; border-radius:3px;
+    background:linear-gradient(180deg,var(--ink-soft),var(--ink)); box-shadow:inset 0 -2px 0 rgba(255,255,255,.25);
+  }
+  .lv[disabled]::before{
+    content:""; position:absolute; right:12px; top:4px; width:10px; height:9px; border:2px solid var(--ink-soft);
+    border-bottom:0; border-radius:6px 6px 0 0;
+  }
   .toast{
     position:fixed; left:50%; bottom:calc(30px + env(safe-area-inset-bottom)); transform:translate(-50%,20px); z-index:7;
-    background:var(--ink); color:#fff; padding:10px 16px; border-radius:999px; font:500 12.5px/1 var(--sans);
-    opacity:0; transition:opacity .25s, transform .25s; pointer-events:none;
+    background:var(--ink); color:var(--cream); padding:10px 16px; border-radius:999px; font:700 12.5px/1 var(--sans);
+    border:2px solid rgba(255,244,223,.3);
+    opacity:0; transition:opacity .25s, transform .25s; pointer-events:none; max-width:82vw; text-align:center;
   }
   .toast.on{opacity:1; transform:translate(-50%,0)}
-  body.game .toast{bottom:calc(84px + env(safe-area-inset-bottom))}
+  body.game .toast{bottom:calc(88px + env(safe-area-inset-bottom))}
   @media (max-width:760px), (max-aspect-ratio:4/5){
-    .cta{margin-top:14px; padding:11px 16px 11px 12px; font-size:11px; letter-spacing:.12em}
+    .cta{margin-top:12px; margin-left:0; padding:11px 16px 11px 12px; font-size:11px; letter-spacing:.1em; min-height:44px}
     .cta small{display:none}
-    .hud-lv b{font-size:17px}
-    .hud-score{top:calc(58px + env(safe-area-inset-top))}
+    .cta + .cta{margin-left:8px}
+    .hud-lv b{font-size:16px}
+    .hud-score{top:calc(62px + env(safe-area-inset-top))}
   }
 
   /* ---- game v2: goal card, verdict, map, shop, confetti ---- */
-  .chip.coins{cursor:default; font-variant-numeric:tabular-nums; font-weight:600}
-  .chip.soft{gap:10px; cursor:default}
-  .chip.soft input{width:min(34vw,150px); height:22px}
-  .chip.soft output{font-variant-numeric:tabular-nums; width:2.4em; text-align:right}
+  .chip.coins{cursor:default; font-variant-numeric:tabular-nums; font-weight:800; padding:0 12px}
+  .chip.soft{gap:8px; cursor:default; padding:0 12px}
+  .chip.soft input{width:min(30vw,132px); height:26px}
+  .chip.soft output{font-variant-numeric:tabular-nums; width:2.4em; text-align:right; font-weight:800}
   .stars-live i{width:72px}
   .sheet.light{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none; align-items:end; padding-bottom:calc(20px + env(safe-area-inset-bottom))}
-  .sheet.light .panel{box-shadow:0 30px 80px -30px rgba(20,19,15,.45)}
-  .goal{display:flex; gap:10px; align-items:baseline; justify-content:center; margin:14px 0 10px; font-size:14px}
-  .goal b{font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:var(--cherry)}
+  .sheet.light .panel{box-shadow:inset 0 3px 0 #fff, 0 8px 0 rgba(106,81,69,.2), 0 30px 80px -30px rgba(71,51,45,.7)}
+  /* goal card: the objective is the one line that has to read from arm's length */
+  .goal{
+    display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:center;
+    margin:14px 0 12px; padding:14px 16px; border-radius:16px;
+    background:linear-gradient(180deg,#fffdf8,var(--cream-2)); border:2px solid var(--cocoa-edge);
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.2);
+  }
+  .goal b{
+    font-size:10px; font-weight:800; letter-spacing:.22em; text-transform:uppercase; color:var(--cherry-deep);
+  }
+  #iGoal{font:800 26px/1.25 var(--sans); letter-spacing:-.01em; color:var(--ink); text-align:center}
+  html[lang=zh] #iGoal{font-size:27px}
   .devices{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin-bottom:12px}
-  .devices span{padding:5px 10px; border-radius:999px; background:#f5f0e8; font-size:12px}
-  .rule{margin:0 0 12px; text-align:center; font-size:13px; line-height:1.5; color:var(--ink)}
-  .rule b{color:var(--cherry)}
+  .devices span{
+    padding:5px 11px; border-radius:999px; background:linear-gradient(180deg,#fff,var(--cream-2));
+    border:2px solid var(--line); font-size:12px; font-weight:700;
+  }
+  .rule{margin:0 0 12px; text-align:center; font-size:13.5px; line-height:1.6; color:var(--ink-soft)}
+  .rule b{color:var(--cherry-deep); font-size:15px}
   .thresh{display:flex; justify-content:center; gap:14px; font-size:12px; color:var(--ink-soft); margin-bottom:4px}
-  .thresh b{color:#e0a10f; font-weight:600}
-  .verdict{text-align:center; font:italic 400 40px/1 var(--serif); margin:-4px 0 12px}
-  .verdict.ok{color:#2f8f5b} .verdict.no{color:var(--ink-soft)}
-  .verdict small{display:block; margin-top:8px; font:500 12px/1.4 var(--sans); font-style:normal; letter-spacing:.04em; color:var(--ink-soft)}
-  .tip{text-align:center; font-size:12.5px; margin:-8px 0 12px; color:var(--ink-soft)}
+  .thresh b{color:var(--gold-deep); font-weight:800}
+  .verdict{text-align:center; font:800 36px/1 var(--sans); margin:-4px 0 12px; letter-spacing:-.01em}
+  .verdict.ok{color:var(--mint-deep)} .verdict.no{color:var(--ink-soft)}
+  .verdict small{display:block; margin-top:8px; font:700 12px/1.4 var(--sans); font-style:normal; letter-spacing:.04em; color:var(--ink-soft)}
+  .tip{text-align:center; font-size:12.5px; margin:-6px 0 12px; color:var(--ink-soft)}
   .tip:empty{display:none}
   .workshop-panel{width:min(900px,100%)}
   .workshop-panel p{font-size:12px;line-height:1.6;color:var(--ink-soft)}
-  #wsCanvas{display:block;width:100%;max-height:48vh;background:#f5ede0;touch-action:none;border:1px solid var(--hair);border-radius:12px}
-  .ws-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:12px}
-  .ws-tools input{width:64px}.ws-tools button,.ws-tools select{padding:8px;border:1px solid var(--hair);background:#fff;border-radius:8px}
-  #wsName,#wsCode{box-sizing:border-box;width:100%;padding:10px;border:1px solid var(--hair);border-radius:8px;font:inherit;margin-top:10px}
+  #wsCanvas{display:block;width:100%;max-height:48vh;background:var(--cream-2);touch-action:none;border:2px solid var(--cocoa-edge);border-radius:12px}
+  .ws-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;font-size:12px;font-weight:700}
+  .ws-tools input{width:64px}
+  .ws-tools button,.ws-tools select{
+    min-height:40px; padding:8px 10px; border:2px solid var(--cocoa-edge); border-radius:10px;
+    background:linear-gradient(180deg,#fff,var(--cream-2)); color:var(--ink); font-weight:700;
+    box-shadow:inset 0 2px 0 #fff, 0 2px 0 rgba(106,81,69,.26);
+  }
+  #wsName,#wsCode{
+    box-sizing:border-box;width:100%;padding:10px;border:2px solid var(--cocoa-edge);border-radius:10px;
+    font:inherit;margin-top:10px;background:#fff;color:var(--ink);
+  }
   [hidden]{display:none!important}
-  .earn{text-align:center; font-size:13px; margin:-6px 0 14px; color:#b4780c; font-weight:600}
-  .row-links{display:flex; justify-content:center; gap:22px}
-  .row-links .linky{margin-top:12px}
+  .earn{text-align:center; font-size:13px; margin:-4px 0 14px; color:var(--gold-deep); font-weight:800}
+  .row-links{display:flex; justify-content:center; gap:20px; flex-wrap:wrap}
+  .row-links .linky{margin-top:10px}
   .panel.wide{width:min(560px,100%)}
-  .coins-row{display:flex; justify-content:center; align-items:center; gap:12px; margin:12px 0 6px; font-weight:600; font-variant-numeric:tabular-nums}
-  .district{margin-top:16px; padding:14px; border-radius:16px; background:linear-gradient(160deg,#fff7ef,#f6eee4); border:1px solid var(--hair)}
+  .coins-row{display:flex; justify-content:center; align-items:center; gap:12px; margin:12px 0 6px; font-weight:800; font-variant-numeric:tabular-nums}
+  .district{
+    margin-top:14px; padding:14px; border-radius:16px;
+    background:linear-gradient(180deg,var(--cream),var(--cream-2)); border:2px solid var(--cocoa-edge);
+    box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.22);
+  }
   .district header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px}
-  .district header b{font:italic 400 22px/1.1 var(--serif)}
-  .district header span{font-size:10px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-soft)}
-  .district.locked{opacity:.55; background:repeating-linear-gradient(135deg,#f6f2ec 0 12px,#f1ebe2 12px 24px)}
+  .district header b{font:800 20px/1.15 var(--sans)}
+  .district header span{font-size:9.5px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft)}
+  .district.locked{opacity:.6; background:repeating-linear-gradient(135deg,var(--cream-2) 0 12px,var(--cream-3) 12px 24px)}
   .district.locked p{margin:0; font-size:12.5px; color:var(--ink-soft)}
   .path{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:8px}
   .lv{min-height:88px}
-  .lv.cleared{border-color:#9fd8c3; background:linear-gradient(160deg,#fff,#eef8f3)}
-  .shop-row{display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; padding:14px 0; border-bottom:1px solid var(--hair)}
-  .shop-row .ic{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:22px; background:#f5f0e8}
+  .lv.cleared{border-color:var(--mint-deep); background:linear-gradient(180deg,#fff,#eaf7f1)}
+  .shop-row{display:grid; grid-template-columns:44px 1fr auto; gap:12px; align-items:center; padding:14px 0; border-bottom:2px dashed var(--hair)}
+  .shop-row .ic{
+    width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:20px;
+    background:linear-gradient(180deg,#fff,var(--cream-2)); border:2px solid var(--cocoa-edge);
+    box-shadow:inset 0 2px 0 #fff;
+  }
   .shop-row b{display:block; font-size:14px}
   .shop-row small{display:block; font-size:11.5px; color:var(--ink-soft); margin-top:3px; line-height:1.4}
   .pips{display:flex; gap:3px; margin-top:6px}
-  .pips i{width:14px; height:4px; border-radius:2px; background:var(--hair)}
-  .pips i.on{background:#f2b01b}
-  .shop-row button{height:38px; padding:0 12px; border-radius:10px; border:0; background:var(--ink); color:#fff; font:600 12px/1 var(--sans); cursor:pointer; white-space:nowrap}
+  .pips i{width:14px; height:5px; border-radius:3px; background:var(--cream-3)}
+  .pips i.on{background:linear-gradient(180deg,var(--gold),var(--gold-deep))}
+  .shop-row button{
+    min-height:40px; padding:0 14px; border-radius:11px; border:2px solid var(--cherry-deep);
+    background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff;
+    font:800 12px/1 var(--sans); cursor:pointer; white-space:nowrap;
+    text-shadow:0 1px 0 rgba(71,51,45,.35); box-shadow:inset 0 2px 0 rgba(255,255,255,.45), 0 3px 0 var(--cherry-deep);
+  }
   .shop-row button:disabled{opacity:.3; cursor:default}
-  .end-text{text-align:center; font-size:14px; line-height:1.8; color:#3b382f; margin:12px 0 4px}
-  #confetti{position:fixed; inset:0; z-index:7; pointer-events:none; overflow:hidden}
+  .end-text{text-align:center; font-size:14px; line-height:1.8; color:var(--ink); margin:12px 0 4px}
+  /* confetti is the bottom-most effect layer: above the 3D canvas (z 0), below every control
+     (HUD 4, pops 5, toast 7, sheets 8). It celebrates behind the ticket, never on top of it. */
+  #confetti{position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden}
   #confetti i{position:absolute; top:-20px; width:9px; height:14px; border-radius:2px; animation:fall linear forwards}
   @keyframes fall{to{transform:translate3d(var(--dx),110vh,0) rotate(var(--r))}}
   @media (max-width:760px), (max-aspect-ratio:4/5){
     .hud-top{gap:6px}
-    .hud-top .chip{height:34px; padding:0 10px; font-size:11px}
-    .hud-top .chip.round{width:34px; padding:0}
+    .hud-top .chip{min-height:44px; padding:0 10px; font-size:11px}
+    .hud-top .chip.round{width:44px; min-width:44px; padding:0}
+    /* the level line gets its own full-width row, and it is the text that yields, never the buttons */
+    .hud-lv{order:-1; flex-basis:100%; flex-direction:row; justify-content:center; align-items:baseline; gap:7px; min-width:0}
+    .hud-lv span,.hud-lv b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+    .hud-lv span{font-size:9px; letter-spacing:.12em; flex:0 1 auto}
+    .hud-lv b{font-size:15px; flex:0 1 auto}
     #gBack span{display:none}
-    .verdict{font-size:34px}
+    #gBack{padding:0 12px}
+    .verdict{font-size:31px}
+  }
+  /* 320px: seven controls still have to fit; the level line and the button labels give way first */
+  @media (max-width:360px){
+    .hud-top{gap:4px; padding-left:calc(8px + env(safe-area-inset-left)); padding-right:calc(8px + env(safe-area-inset-right))}
+    .hud-top .chip{min-height:44px; padding:0 8px; font-size:10px; letter-spacing:0; gap:4px}
+    .hud-top .chip.round{width:44px; min-width:44px}
+    #gBack{padding:0 10px}
+    .chip.coins{padding:0 9px}
+    .hud-lv b{font-size:14px}
+    .hud-lv span{font-size:8.5px}
   }
 </style>
 </head>
@@ -492,9 +752,15 @@
 
   <div class="overlay">
     <header class="masthead">
-      <div class="eyebrow rise d1"><span data-i18n="eyebrowA">Soft&nbsp;Body&nbsp;Study</span> <i></i> No.&nbsp;07</div>
-      <h1 class="rise d2"><span class="a">Gummy</span><span class="b">Bears.</span><small>小熊软糖</small></h1>
-      <p class="sub rise d3" data-i18n-html="sub">Ten mass points per bear, held together by <b>volume&#8209;preserving shape matching</b>, poured into one implicit surface. Grab a limb and pull — the whole bear leans after it.</p>
+      <div class="eyebrow rise d1"><span>Candy Toy Factory</span> <i></i> No.&nbsp;07</div>
+      <!-- static on purpose: tail.js owns no key for the lockup or the hook line, and applyLang
+           would overwrite these with the old technical masthead copy. The Chinese title leads and
+           the English sits under it as the wordmark, in both languages. -->
+      <h1 class="rise d2">
+        <span class="zh-line">软糖历险记</span>
+        <span class="en-line">Gummy Bears.</span>
+      </h1>
+      <p class="sub rise d3"><span class="en-only">Stretch a bear until it thins, <b>crush it under the press</b>, <i>slice it clean</i> — one gummy, three ways to die happy.</span><span class="zh-only">把一只小熊拉到透明，<b>塞进压模里碾扁</b>，<i>再一刀切开</i>——一只软糖，三种死法。</span></p>
       <div class="hint rise d4"><s></s> <span data-i18n="hint">Drag to stretch &middot; fling to throw &middot; tap the table to drop one</span></div>
       <button class="cta rise d4" id="playBtn"><i>▶</i><span data-i18n="play">Play · Gummy Ordeal</span><small data-i18n="playSub">5 levels</small></button>
       <button class="cta rise d4" id="workshopBtn" data-i18n="wsTitle">关卡创意工坊</button>
@@ -521,16 +787,16 @@
       </div>
       <div class="foot">
         <span id="count">5 bears</span><span class="mini" id="mini"></span><span class="sp"></span>
-        <button id="snd" aria-label="sound">🔊</button>
+        <button id="snd" class="icon-btn icon-sound" aria-label="sound"></button>
         <button id="lang" aria-label="language">中</button>
         <button id="reset" data-i18n="reset">Reset</button>
       </div>
     </aside>
 
     <div class="credit rise d4">
-      <span data-i18n-html="c1"><em>Marching cubes</em> implicit surface</span>
-      <span data-i18n-html="c2"><em>Shape matching</em> + distance constraints</span>
-      <span data-i18n-html="c3"><em>Transmission</em> + Beer–Lambert absorption</span>
+      <span data-i18n-html="c1"><em>Soft body</em> every step</span>
+      <span data-i18n-html="c2"><em>Toy machinery</em> you can read</span>
+      <span data-i18n-html="c3"><em>One gummy</em>, three ordeals</span>
     </div>
   </div>
 
@@ -539,9 +805,9 @@
       <button class="chip" id="gBack">← <span data-i18n="gBack">Sandbox</span></button>
       <div class="hud-lv"><span id="gLvNo">Level 1</span><b id="gLvName">Stairway</b></div>
       <span class="chip coins" id="gCoins">🍬 0</span>
-      <button class="chip round" id="gMus" aria-label="music">🎵</button>
-      <button class="chip round" id="gSnd" aria-label="sound">🔊</button>
-      <button class="chip round" id="gLevels" aria-label="map">🗺</button>
+      <button class="chip round icon-btn icon-music" id="gMus" aria-label="music"></button>
+      <button class="chip round icon-btn icon-sound" id="gSnd" aria-label="sound"></button>
+      <button class="chip round icon-btn icon-map" id="gLevels" aria-label="map"></button>
     </div>
     <div class="hud-score">
       <b id="gScore">0</b><small data-i18n="gScoreLbl">Ordeal points</small>
@@ -554,7 +820,7 @@
     <div class="hud-bot">
       <label class="chip soft"><span data-i18n="wobble">Wobble</span><input id="gWob" type="range" min="0" max="1" step="0.01" value="0.42"><output id="gWobOut">0.42</output></label>
       <button class="chip" id="gEditorBack" data-i18n="wsBack" hidden>返回编辑</button>
-      <button class="chip" id="gRetry">↺ <span data-i18n="gRetry">Retry</span></button>
+      <button class="chip icon-lead icon-retry" id="gRetry"><span data-i18n="gRetry">Retry</span></button>
     </div>
   </div>
   <div id="pops"></div>
@@ -568,28 +834,32 @@
     <div class="thresh" id="iStars"></div>
     <div class="row-btns"><button class="pri" id="iGo" data-i18n="gGo">Start</button></div>
   </div></div>
-  <div class="sheet" id="sheetResult"><div class="panel">
+  <div class="sheet" id="sheetResult"><div class="panel result-panel">
     <div class="verdict" id="rVerdict"></div>
     <h3 id="rLvNo">Level 1</h3><h4 id="rLvName">Stairway</h4>
-    <div class="big-score" id="rScore">0</div>
-    <span class="rec" id="rRec"></span>
+    <div class="rec" id="rRec"></div>
     <div class="stars" id="rStars"><i>★</i><i>★</i><i>★</i></div>
+    <div class="score-row"><b class="big-score" id="rScore">0</b><span class="score-lbl" data-i18n="gScoreLbl">Ordeal points</span></div>
     <div class="tip" id="rTip"></div>
     <div class="earn" id="rCoins"></div>
-    <div class="stats" id="rStats"></div>
-    <div class="row-btns">
+    <div class="row-next">
       <button id="rRetry" data-i18n="gRetry">Retry</button>
       <button id="rNext" class="pri" data-i18n="gNext">Next level</button>
     </div>
     <div class="row-links">
-      <button class="linky" id="rShop" data-i18n="gShop">Upgrades</button>
-      <button class="linky" id="rMap" data-i18n="gMap">Gummy City</button>
+      <button class="linky icon-lead icon-wrench" id="rShop" data-i18n="gShop">Upgrades</button>
+      <button class="linky icon-lead icon-map" id="rMap" data-i18n="gMap">Gummy City</button>
       <button class="linky" id="rShare" data-i18n="gShare">Copy a brag + link</button>
     </div>
+    <!-- only the per-system breakdown folds; the total above stays visible -->
+    <details class="more" id="rMore">
+      <summary data-i18n="gDetails">Score details</summary>
+      <div class="stats" id="rStats"></div>
+    </details>
   </div></div>
   <div class="sheet" id="sheetLevels"><div class="panel wide">
     <h3 data-i18n="gTitle">Gummy Adventures</h3><h4 data-i18n="gMap">Gummy City</h4>
-    <div class="coins-row"><span id="mCoins">🍬 0</span><button class="chip" id="mShop">🛠 <span data-i18n="gShop">Upgrades</span></button></div>
+    <div class="coins-row"><span id="mCoins">🍬 0</span><button class="chip icon-lead icon-wrench" id="mShop"><span data-i18n="gShop">Upgrades</span></button></div>
     <div id="mapDistricts"></div>
     <button class="linky" id="lvClose" data-i18n="gClose">Close</button>
   </div></div>
@@ -626,7 +896,7 @@
   <div id="cursor"></div>
 
   <div id="loader"><div>
-    <span class="dots"><s style="background:#d3202c"></s><s style="background:#f07a1d"></s><s style="background:#f2c81b"></s><s style="background:#3f9c3a"></s><s style="background:#d8c79c"></s></span>
+    <span class="dots"><s style="background:linear-gradient(180deg,#ec5c6b,#df4657)"></s><s style="background:linear-gradient(180deg,#f7d27e,#f2bd57)"></s><s style="background:linear-gradient(180deg,#a6dccb,#8acbb8)"></s><s style="background:linear-gradient(180deg,#fff,#f8e8ce)"></s><s style="background:linear-gradient(180deg,#6a5145,#47332d)"></s></span>
     <span id="loadMsg" data-i18n="loading">Pouring bears…</span>
   </div></div>
 
@@ -671,7 +941,7 @@ const CFG = {
   upright: 0.15,          // righting torque: the original 1.0 stood every bear bolt upright, so nothing could pile
   pileUpright: 0.3,       // righting torque left to a bear that rests on other bears
   sepCap: 0.0015,         // fastest a contact fix may push two points apart, per substep (≈0.45 u/s)
-  stick: 1.1,            // gummy-on-gummy friction coefficient (holds a slope of ~48°)
+  stick: 1.1,             // gummy-on-gummy friction coefficient (holds a slope of ~48°)
   friction: 0.012,       // per-substep tangential loss while in contact (τ ≈ 0.28 s)
   maxV: 0.022,           // top speed per substep (≈6.6 u/s): caps rocket launches
   maxV2: 0.022 * 0.022,
@@ -1057,6 +1327,7 @@ const TRI_TABLE = [
 ];
 
 
+
 /* ============================ LANGUAGE ============================ */
 const I18N = {
   en: {
@@ -1114,7 +1385,7 @@ renderer.toneMapping = THREE.NeutralToneMapping;
 renderer.toneMappingExposure = 1.0;
 stage.appendChild(renderer.domElement);
 
-const BG = '#f4f2ee';
+const BG = '#fff4df';
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(BG);
 
@@ -1277,9 +1548,9 @@ function dressMaterial(m, f) {
 }
 function gummyMaterial(f) {
   const m = new THREE.MeshPhysicalMaterial({
-    metalness: 0.0, roughness: 0.17, ior: 1.45,
-    specularIntensity: 1.0, clearcoat: 0.45, clearcoatRoughness: 0.09,
-    envMapIntensity: 1.0, side: THREE.DoubleSide,
+    metalness: 0.0, roughness: 0.23, ior: 1.45,
+    specularIntensity: 0.8, clearcoat: 0.28, clearcoatRoughness: 0.18,
+    envMapIntensity: 0.85, side: THREE.DoubleSide,
   });
   m.userData.u = { uAbsorb: { value: new THREE.Vector3() }, uThick: { value: 1 }, uRim: { value: 0.5 } };
   dressMaterial(m, f);
@@ -1355,7 +1626,8 @@ class View {
       _sa.set(p[a], p[a + 1], p[a + 2]); _sb.set(p[c], p[c + 1], p[c + 2]);
       const len = _sa.distanceTo(_sb), slack = Math.max(0, s.rest * 1.15 - len);
       _sm.addVectors(_sa, _sb).multiplyScalar(0.5); _sm.y -= slack * 0.8;
-      const r = Math.max(0.022, Math.min(0.075, 0.075 * Math.sqrt(s.rest / Math.max(len, 1e-3))));
+      // Presentation only: maintain a readable candy thread at phone camera distances.
+      const r = Math.max(0.04, Math.min(0.095, 0.095 * Math.sqrt(s.rest / Math.max(len, 1e-3))));
       t.geometry.dispose();
       t.geometry = new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(_sa.clone(), _sm.clone(), _sb.clone()), 14, r, 8, false);
     });
@@ -1890,6 +2162,356 @@ function frame(now) {
 }
 document.addEventListener('visibilitychange', () => { last = performance.now(); perfWarm = 1; });
 
+/* ============================ ART · 糖果玩具工厂 ============================
+   The visual language for the injection-moulded toy factory, kept out of game.js so the
+   layout / physics / run code stays untouched (design/art-direction.md).
+
+   Two things live here, and only these two:
+     1. the three themes (factory / dessert / fair) as plain colour + finish data;
+     2. the geometry/material batching toolbox used by each part, goal and far backdrop,
+        so decorative rails and hardware do not require a mesh for every rivet.
+
+   Everything this file draws is decoration.  No collider, no state, no score.  The rule
+   for every ornament is: it may not reach into the collision envelope of the part it
+   decorates by more than 0.05 u, and it never sits in the play corridor (front z) or over
+   a zone's safe area.  Where a bearing would have to overlap a roller's underside, the
+   bearing is sunk so the roller hides it — the contact surface is never moved outwards. */
+
+/* ---- the themes ------------------------------------------------------------------
+   cream = moulded shell, panel = the flat face, seam = panel gap line,
+   cap/hub/bearing/stud = the toy hardware, glassy = sugar glass, treat = jam or cream.
+   `factory` is the anchor canon; the other two keep the same machinery, re-tinted. */
+const ART_THEMES = {
+  factory: {
+    name: { en: 'Candy Toy Factory', zh: '糖果玩具工厂' },
+    sky: 0xf4f2ee, fog: 0xf4f2ee,
+    cream: 0xfff4df, panel: 0xf6ead6, panel2: 0xe9dcc6, seam: 0xd9c8ad,
+    ink: 0x47332d, accent: 0xdf4657, rose: 0xe2667c, pink: 0xf2a7b8,
+    mint: 0x8acbb8, butter: 0xf2bd57, honey: 0xf2bd57, lilac: 0xc6b3e6,
+    metal: 0xd4d8e0, steel: 0xa8aeb8, gold: 0xe8bd63,
+    glassy: 0xa9dfcb, treat: 0xd98a2b,
+    dot: 0x9b8c78, wall: 0xf1e6d4, wallTile: [20, 7.5],
+    poster: { bg: '#47332d', fg: '#fff4df', ac: '#f2a7b8' },
+  },
+  dessert: {
+    name: { en: 'Dessert Street', zh: '甜品街' },
+    sky: 0xf9f0e4, fog: 0xf9f0e4,
+    cream: 0xfff0dc, panel: 0xf6dfc6, panel2: 0xebcfb0, seam: 0xcfae8a,
+    ink: 0x4a352a, accent: 0xe0616f, rose: 0xd98a97, pink: 0xf0b6b0,
+    mint: 0xa8cfa4, butter: 0xf0c15c, honey: 0xd9a02c, lilac: 0xd6bcd8,
+    metal: 0xd9cfc2, steel: 0xb2a595, gold: 0xe8bd63,
+    glassy: 0xb2dfc6, treat: 0xc2751f,
+    dot: 0xa8866a, wall: 0xf5e3cd, wallTile: [20, 7.5],
+    poster: { bg: '#4a352a', fg: '#fff0dc', ac: '#f0b6b0' },
+  },
+  fair: {
+    name: { en: 'Fun Fair', zh: '糖果游乐园' },
+    sky: 0xf7f2fb, fog: 0xf7f2fb,
+    cream: 0xfdf4e4, panel: 0xeee4f4, panel2: 0xe0d3ee, seam: 0xc3b0d9,
+    ink: 0x453358, accent: 0xe2597f, rose: 0xdd7fa8, pink: 0xf1b3cd,
+    mint: 0x9fd6c4, butter: 0xf3c765, honey: 0xdcae35, lilac: 0xbfa8e6,
+    metal: 0xdad6e6, steel: 0xaca6c0, gold: 0xefc76a,
+    glassy: 0xb6e4d6, treat: 0xc98a3a,
+    dot: 0x9b90ac, wall: 0xf2eaf8, wallTile: [20, 7.5],
+    poster: { bg: '#453358', fg: '#fdf4e4', ac: '#f1b3cd' },
+  },
+};
+
+/* Three chapters, one per map: 0..6 factory, 7..13 dessert, 14..20 fair.  The live level
+   table is authoritative — these are only the anchors used when a level carries no chapter
+   or theme of its own (the seven official levels, and the player's own workshop draft,
+   whose shape is unknown and which therefore stays on the conservative anchor theme). */
+const THEME_BY_CHAPTER = ['factory', 'dessert', 'fair'];
+
+/* the live palette.  It starts as the anchor theme so anything that reads PAL before the
+   first applyArtTheme still gets sane colours. */
+const PAL = { ...ART_THEMES.factory };
+let curThemeName = 'factory', curTheme = ART_THEMES.factory;
+
+const applyArtTheme = (themeOrChapter) => {
+  // accepts a theme name, a chapter index, a level object, or a bare number; unknown -> anchor
+  let key = 'factory';
+  if (typeof themeOrChapter === 'string' && ART_THEMES[themeOrChapter]) key = themeOrChapter;
+  else if (themeOrChapter && typeof themeOrChapter === 'object' && ART_THEMES[themeOrChapter.theme]) key = themeOrChapter.theme;
+  else {
+    const n = Number(themeOrChapter);
+    if (Number.isInteger(n) && n >= 0) key = THEME_BY_CHAPTER[n] || 'factory';
+  }
+  curThemeName = key; curTheme = ART_THEMES[key];
+  Object.assign(PAL, curTheme);
+  // Persistent rails and future levels share this pool; recolour in place rather than
+  // abandoning a material on every level transition.
+  for (const c of Object.keys(matCache)) if (c[0] !== '_' && matCache[c].color) matCache[c].color.setHex(PAL[c] ?? PAL.cream);
+  refreshPooled();
+  artWall();                                                   // swap the wall for this map
+  return curTheme.wall;                                        // coordinator asked for the wall colour back
+};
+const artThemeOf = (li) => (li >= 0 && li < ART_CHAPTERS.length ? ART_CHAPTERS[li].theme : 'factory');
+
+/* ---- the wall ---------------------------------------------------------------------
+   Three wall textures exist: the per-theme procedural panel canvas, and the painted
+   backdrop the coordinator supplies for the factory map.  `applyArtTheme` re-points the
+   procedural plane's map; `artWall` decides which of the two planes the wall shows.
+   A failed or slow image just leaves the procedural plane in charge. */
+const ART_ASSET_BASE = './assets/art/';
+let artWallTex = null, artWallTried = false;
+function artLoadWall() {
+  if (artWallTried) return;
+  artWallTried = true;
+  if (typeof Image === 'undefined' || typeof THREE === 'undefined') return;
+  const img = new Image();
+  img.onload = () => {
+    const t = new THREE.CanvasTexture(img);
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4; t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    artWallTex = t; artWall();
+  };
+  img.onerror = () => { artWallTex = null; };
+  img.src = ART_ASSET_BASE + 'factory-wall.webp';
+}
+/* only the factory map has a painted backdrop; the other two maps show their own panels */
+function artWall() {
+  if (typeof wallMesh === 'undefined' || !wallMesh) return;
+  const showPainted = curThemeName === 'factory' && !!artWallTex;
+  if (typeof farLayers !== 'undefined')                   // one far silhouette per map; the painted wall brings its own
+    for (const k of Object.keys(farLayers)) farLayers[k].visible = k === curThemeName && !(k === 'factory' && showPainted);
+  if (showPainted) {
+    // The backdrop is a wide strip painted at its own panel rhythm, so it is tiled to match
+    // the procedural wall's scale rather than stretched once across the whole 80 x 24 plane —
+    // stretching it that far is what turned its pipes into half-screen columns.
+    artWallTex.repeat.set(curTheme.wallTile[0], curTheme.wallTile[1]);
+    artWallTex.needsUpdate = true;
+    wallMesh2.material.map = artWallTex;
+    wallMesh2.material.needsUpdate = true;
+    wallMesh2.material.visible = true;
+    wallMesh.material.visible = false;                 // the painted plane covers it entirely
+  } else {
+    wallMesh2.material.map = null;
+    wallMesh2.material.visible = false;
+    wallMesh.material.visible = true;
+    const t = wallTex();
+    t.repeat.set(curTheme.wallTile[0], curTheme.wallTile[1]);
+    wallMesh.material.map = t;                         // per theme, so a switch repaints it
+    wallMesh.material.needsUpdate = true;
+  }
+}
+
+/* ---- the far layer: one merged, low-contrast silhouette strip per theme ------------------
+   Sits between the wall (z -1.71) and the posters (z -1.66), above the play space, in the
+   theme's own pale tints.  It is background identity, never a path cue: nothing here is brighter
+   or more saturated than the machinery in front of it, and each theme is exactly one draw call
+   (only the active one is visible).  The factory layer is the fallback for a missing painted wall. */
+function artFarLayer(name) {
+  const T = ART_THEMES[name]; if (!T) return null;
+  const b = new OrnamentBatch(), z = -1.68, lo = (c, k) => new THREE.Color(c).lerp(new THREE.Color(T.wall), 0.55 + 0.4 * k).getHex();   // always mostly wall colour: background, never a path cue
+  if (name === 'factory') {
+    for (let k = -4; k <= 8; k++) {
+      const x = k * 7.5 + 2.2;
+      b.push(geo('cyl', 0.1, 8, 8), lo(T.seam, .3), [x, 10.8, z], [0, 0, Math.PI / 2]);
+      b.push(geo('box', 1.7, 1.15, 0.06), lo(T.panel2, .2), [x + 3.4, 12.4, z]);
+      b.push(geo('box', 1.3, 0.74, 0.05), lo(T.glassy, .35), [x + 3.4, 12.4, z + 0.04]);
+    }
+  } else if (name === 'dessert') {
+    // a shop front far away: scalloped awning, a shelf of jars under it, round cookie signs
+    b.push(geo('box', 96, 0.34, 0.1), lo(T.pink, .35), [0, 10.7, z]);
+    for (let i = -46, n = 0; i <= 46; i += 1.5, n++)
+      b.push(geo('sphere', 0.78, 10, 6), lo(n % 2 ? T.cream : T.accent, .45), [i, 10.5, z + 0.02], null, [1, 0.62, 0.22]);
+    b.push(geo('box', 96, 0.1, 0.34), lo(T.butter, .4), [0, 8.7, z + 0.05]);
+    const jar = [T.pink, T.mint, T.honey, T.lilac];
+    for (let i = -46, n = 0; i <= 46; i += 1.35, n++) {
+      b.push(geo('cyl', 0.2, 0.62, 8), lo(jar[n % 4], .5), [i, 9.1, z + 0.05]);
+      b.push(geo('cyl', 0.13, 0.1, 8), lo(T.cream, .3), [i, 9.45, z + 0.05]);
+    }
+    for (let i = -34; i <= 34; i += 17) {
+      b.push(geo('cyl', 0.95, 0.08, 20), lo(T.honey, .45), [i + 3, 12.3, z], [Math.PI / 2, 0, 0]);
+      for (let k = 0; k < 6; k++) { const q = k * 1.047 + 0.3;
+        b.push(geo('sphere', 0.09, 6, 4), lo(T.ink, .55), [i + 3 + Math.cos(q) * 0.5, 12.3 + Math.sin(q) * 0.5, z + 0.05]); }
+    }
+  } else {
+    // the fair: ferris wheels with gondolas and a line of bunting
+    const gon = [T.accent, T.mint, T.honey, T.pink, T.lilac];
+    for (const x of [-34, -2, 30, 62]) {
+      const cy = 9.6;
+      b.push(geo('torus', 1.9, 0.07, 6, 40), lo(T.steel, .35), [x, cy, z]);
+      b.push(geo('torus', 0.8, 0.05, 6, 24), lo(T.steel, .4), [x, cy, z]);
+      for (let k = 0; k < 8; k++) {
+        const q = k * Math.PI / 8 + Math.PI / 16;
+        b.push(geo('box', 0.04, 3.8, 0.04), lo(T.metal, .4), [x, cy, z], [0, 0, q]);
+        b.push(geo('sphere', 0.17, 8, 5), lo(gon[k % 5], .4), [x + Math.cos(q + Math.PI / 2) * 1.9, cy + Math.sin(q + Math.PI / 2) * 1.9, z + 0.03]);
+        b.push(geo('sphere', 0.17, 8, 5), lo(gon[(k + 2) % 5], .4), [x - Math.cos(q + Math.PI / 2) * 1.9, cy - Math.sin(q + Math.PI / 2) * 1.9, z + 0.03]);
+      }
+      b.push(geo('box', 0.09, 4.4, 0.05), lo(T.steel, .4), [x - 0.85, cy - 2.3, z], [0, 0, 0.32]);
+      b.push(geo('box', 0.09, 4.4, 0.05), lo(T.steel, .4), [x + 0.85, cy - 2.3, z], [0, 0, -0.32]);
+    }
+    for (let i = -46, n = 0; i <= 46; i += 1.1, n++)
+      b.push(geo('cone', 0.26, 0.5, 3), lo(gon[n % 5], .5), [i, 13.1 - Math.sin(i * 0.28) * 0.28, z + 0.02], [Math.PI, 0, 0]);
+  }
+  const m = b.mesh(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0.02 }));
+  if (m) { m.castShadow = false; m.receiveShadow = false; }
+  return m;
+}
+
+/* ---- materials -------------------------------------------------------------------
+   One material per palette key, shared by every mesh that uses it, so `clearLevel` can
+   tell a pooled material from a per-part one and leave it alone. */
+const matCache = {};
+const mat = (c) => matCache[c] || (matCache[c] = new THREE.MeshStandardMaterial({
+  color: PAL[c] ?? PAL.cream,
+  roughness: c === 'metal' || c === 'steel' || c === 'gold' ? 0.3 : 0.52,
+  metalness: c === 'metal' || c === 'steel' || c === 'gold' ? 0.6 : 0,
+}));
+/* A shared material is anything the pool would hand to the next level; a per-part material
+   belongs to one mesh and must be disposed with it.  Keep every pooled material in a name
+   starting with `__` so this stays a cheap lookup rather than a scan. */
+const inMatPool = (m) => !!m && Object.values(matCache).includes(m);
+const perPartMat = (m) => { m.userData.perPart = true; return m; };
+/* the pool holds both palette materials and the few specials, which are re-coloured here */
+function refreshPooled() {
+  if (matCache.__glass) matCache.__glass.color.setHex(PAL.glassy);
+  if (matCache.__jar) matCache.__jar.color.setHex(PAL.treat);
+}
+
+const pooledMat = (key, make) => matCache[key] || (matCache[key] = make());
+const glassMat = () => pooledMat('__glass', () => new THREE.MeshStandardMaterial(
+  { color: PAL.glassy, transparent: true, opacity: .5, metalness: .12, roughness: .1 }));
+const jarMat = () => pooledMat('__jar', () => new THREE.MeshStandardMaterial(
+  { color: PAL.treat, transparent: true, opacity: .72, metalness: .05, roughness: .2 }));
+const zoneArtMat = () => pooledMat('__zone', () => new THREE.MeshStandardMaterial(
+  { vertexColors: true, roughness: 0.55, metalness: 0.05 }));
+const starMat = () => pooledMat('__star', () => new THREE.MeshStandardMaterial(
+  { color: 0xffd04a, emissive: 0xa96a00, emissiveIntensity: .4, roughness: .25 }));
+/* a moving part carries all its moulding as one mesh, so it gets one in-between finish */
+const partMoveMat = () => pooledMat('__partMove', () => new THREE.MeshStandardMaterial(
+  { vertexColors: true, roughness: 0.42, metalness: 0.28 }));
+/* the two batches every static part's moulding is merged into: matte plastic and bright metalwork */
+const partMatteMat = () => pooledMat('__partMatte', () => new THREE.MeshStandardMaterial(
+  { vertexColors: true, roughness: 0.55, metalness: 0.02 }));
+const partMetalMat = () => pooledMat('__partMetal', () => new THREE.MeshStandardMaterial(
+  { vertexColors: true, roughness: 0.3, metalness: 0.62 }));
+
+/* ---- geometry toolbox ------------------------------------------------------------
+   Every helper is cached, and `build` bakes a (rotation, scale, translation) into a plain
+   geometry so the caller never has to add a mesh.  Boxes get a chamfer rather than a full
+   rounded-box: a moulded edge reads at phone distance and costs 30 verts, not 600. */
+const CHAMFER_BOX = (w, h, d) => {
+  const b = new THREE.BoxGeometry(w, h, d, 1, 1, 1).toNonIndexed();
+  const pos = b.attributes.position, nrm = b.attributes.normal;
+  // pull every vertex a hair off its face along its own normal, then scale the whole box
+  // in by that hair: the silhouette grows a bevel and the hull stays inside the collider.
+  const k = Math.min(0.028, w / 6, h / 6, d / 6), sx = (w - k * 2) / w, sy = (h - k * 2) / h, sz = (d - k * 2) / d;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    if (Math.abs(x) > w * 0.49 && Math.abs(y) < h * 0.49 && Math.abs(z) < d * 0.49) pos.setX(i, x * sx);
+    if (Math.abs(y) > h * 0.49 && Math.abs(x) < w * 0.49 && Math.abs(z) < d * 0.49) pos.setY(i, y * sy);
+    if (Math.abs(z) > d * 0.49 && Math.abs(x) < w * 0.49 && Math.abs(y) < h * 0.49) pos.setZ(i, z * sz);
+  }
+  pos.needsUpdate = true;
+  return b;
+};
+const geoCache = new Map();
+const geo = (kind, ...spec) => {
+  const key = kind + ':' + spec.join(',');
+  let g = geoCache.get(key);
+  if (g) return g;
+  if (kind === 'box') g = CHAMFER_BOX(spec[0], spec[1], spec[2]);
+  else if (kind === 'panel') g = CHAMFER_BOX(spec[0], spec[1], spec[2] ?? 1.5);
+  else if (kind === 'cyl') g = new THREE.CylinderGeometry(spec[0], spec[0], spec[1], spec[2] ?? 20, 1, false).toNonIndexed();
+  else if (kind === 'tube') g = new THREE.CylinderGeometry(spec[0], spec[0], spec[1], spec[2] ?? 16, 1, true).toNonIndexed();
+  else if (kind === 'sphere') g = new THREE.SphereGeometry(spec[0], spec[1] ?? 12, spec[2] ?? 8).toNonIndexed();
+  else if (kind === 'cone') g = new THREE.ConeGeometry(spec[0], spec[1], spec[2] ?? 12).toNonIndexed();
+  else if (kind === 'torus') g = new THREE.TorusGeometry(spec[0], spec[1], spec[2] ?? 8, spec[3] ?? 20).toNonIndexed();
+  else if (kind === 'plate') g = new THREE.CircleGeometry(spec[0], spec[1] ?? 16).toNonIndexed();
+  else g = new THREE.BoxGeometry(1, 1, 1).toNonIndexed();
+  geoCache.set(key, g);
+  return g;
+};
+/* colour a source geometry white so the merged mesh can own the actual colour */
+function tinted(g, col) {
+  if (!g.attributes.color) {
+    const n = g.attributes.position.count, a = new Float32Array(n * 3);
+    for (let i = 0; i < n * 3; i++) a[i] = 1;
+    g.setAttribute('color', new THREE.BufferAttribute(a, 3));
+  }
+  return g;
+}
+/* ---- the merged ornament batch ----------------------------------------------------
+   Moulded hardware goes into at most three meshes per level: one for shells, one for
+   metalwork, one for the honey accents.  Each carries vertex colours, so a single batch
+   can hold cream rails, a rose cap and a steel stud without splitting into more calls.
+   The three materials are pooled — a level swap disposes the geometry, never the material
+   the next level is about to reuse. */
+const MERGED_MATS = () => ({
+  shell: pooledMat('__shell', () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.55, metalness: 0.02 })),
+  metal: pooledMat('__metal', () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0.62 })),
+  glow: pooledMat('__glow', () => new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.4, metalness: 0.2,
+    emissive: ART_THEMES.factory.honey, emissiveIntensity: 0.16 })),
+});
+
+class OrnamentBatch {
+  constructor() {
+    this.positions = []; this.normals = []; this.colors = [];
+    this.count = 0;
+  }
+  /* bake one primitive into the batch; geo/rot/scale/pos are all plain numbers */
+  push(g, col, pos = [0, 0, 0], rot = null, scale = null) {
+    const p = g.attributes.position, n = g.attributes.normal;
+    const c = new THREE.Color(col ?? 0xffffff);
+    const s = scale || [1, 1, 1];
+    const cr = rot ? Math.cos(rot[0]) : 1, sr = rot ? Math.sin(rot[0]) : 0;
+    const cp2 = rot ? Math.cos(rot[1]) : 1, sp2 = rot ? Math.sin(rot[1]) : 0;
+    const cy = rot ? Math.cos(rot[2]) : 1, sy = rot ? Math.sin(rot[2]) : 0;
+    for (let i = 0; i < p.count; i++) {
+      let x = p.getX(i) * s[0], y = p.getY(i) * s[1], z = p.getZ(i) * s[2];
+      let nx = n.getX(i), ny = n.getY(i), nz = n.getZ(i);
+      if (rot) {                                       // X, then Y, then Z — small angles, so order barely shows
+        let y1 = y * cr - z * sr, z1 = y * sr + z * cr, x1 = x;
+        let ny1 = ny * cr - nz * sr, nz1 = ny * sr + nz * cr, nx1 = nx;
+        let x2 = x1 * cp2 + z1 * sp2, z2 = -x1 * sp2 + z1 * cp2;
+        let nx2 = nx1 * cp2 + nz1 * sp2, nz2 = -nx1 * sp2 + nz1 * cp2;
+        x = x2 * cy - y1 * sy; y = x2 * sy + y1 * cy; z = z2;
+        nx = nx2 * cy - ny1 * sy; ny = nx2 * sy + ny1 * cy; nz = nz2;
+      }
+      this.positions.push(x + pos[0], y + pos[1], z + pos[2]);
+      this.normals.push(nx, ny, nz);
+      this.colors.push(c.r, c.g, c.b);
+      this.count++;
+    }
+  }
+  /* copy another batch into this one, moved to (dx, dy) and turned `ang` about z.  This is how a
+     static part's moulding, written in the part's own frame, lands in the level-wide batch in
+     world space.  Plain loops: spreading a large array into push() can overflow the stack. */
+  append(src, dx = 0, dy = 0, ang = 0) {
+    const c = Math.cos(ang), s = Math.sin(ang), P = src.positions, N = src.normals, C = src.colors;
+    for (let i = 0; i < src.count; i++) {
+      const k = i * 3, x = P[k], y = P[k + 1], nx = N[k], ny = N[k + 1];
+      this.positions.push(x * c - y * s + dx, x * s + y * c + dy, P[k + 2]);
+      this.normals.push(nx * c - ny * s, nx * s + ny * c, N[k + 2]);
+      this.colors.push(C[k], C[k + 1], C[k + 2]);
+    }
+    this.count += src.count;
+  }
+  geometry() {
+    if (!this.count) return null;
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
+    g.setAttribute('normal', new THREE.Float32BufferAttribute(this.normals, 3));
+    g.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
+    g.computeBoundingSphere();
+    return g;
+  }
+  mesh(material) {
+    if (!this.count) return null;
+    const g = this.geometry();
+    const m = new THREE.Mesh(g, material);
+    // Ornament plates do not cast shadows.  A merged batch is one big hull around the whole
+    // level, so letting it into the shadow pass would both cost a second draw per batch and
+    // throw one silhouette across the play space.  The shells underneath still cast.
+    m.castShadow = false; m.receiveShadow = true;
+    m.userData.artOrnament = true;
+    return m;
+  }
+}
+
 
 /* ============================ SOUND ============================ */
 /* Everything is synthesised, and everything is soft: triangle and sine voices,
@@ -2066,18 +2688,19 @@ const MUSIC = (() => {
    the coins buy a stronger sling.  The level is 2.5-D: the bear lives between
    two glass panes at z = ±DEPTH, the machines are extruded in z. */
 Object.assign(I18N.en, {
+  gDetails: 'Score details',
   wsTitle: 'Level workshop', wsHelp: 'Drag objects; red is the start and green is the goal. Custom levels earn no campaign coins.',
   wsAdd: 'Add', wsDelete: 'Delete', wsApply: 'Apply', wsUndo: 'Undo', wsRedo: 'Redo', wsPlay: 'Test play', wsShare: 'Copy link', wsImport: 'Import', wsBack: 'Back to editor',
   snap: 'STRING SNAPPED',
-  play: 'Play · Gummy Adventures', playSub: 'chapter 1', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
+  play: 'Play · Gummy Adventures', playSub: '3 maps · 21 levels', gBack: 'Sandbox', gScoreLbl: 'Ordeal points',
   gHintAim: 'Short pull from the middle of the screen, release to fling', gRetry: 'Retry', gNext: 'Next level', gGo: 'Start', gGoal: 'Goal',
   gRule: 'Hit harder, stretch longer, break more pieces: <b>everything scores</b>', gGoalMark: 'GOAL',
   tipBreak: 'Broken bits score too — the more it breaks, the more points',
   nextStar: (n, s) => `${n} more points for ${s}`, failNote: 'Reach the goal to earn stars and set a best',
   notCounted: 'Not delivered: this run doesn\'t count', coinsComfort: (n) => `+${n} consolation coins`,
   gShare: 'Copy a brag', gShop: 'Upgrades', gWorkshop: 'Back-alley workshop', gClose: 'Close',
-  gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Chapter clear!', gEndHead: 'This batch is ready to ship', gEndFree: 'Go play freely',
-  lvNo: (n) => `Factory · ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
+  gTitle: 'Gummy Adventures', gMap: 'Gummy City', gEndTitle: 'Journey complete!', gEndHead: 'This batch is ready to ship', gEndFree: 'Go play freely',
+  lvNo: (n) => `${['Gummy Factory', 'Dessert Street', 'Fun Fair'][Math.floor((n - 1) / 7)] || 'Workshop'} · ${n}`, newBest: 'NEW BEST', best: (n) => `best ${n}`,
   st: ['Impact', 'Stretch', 'Contraptions', 'Hardest hit', 'Pieces lost', 'Best combo'],
   copied: 'Copied — paste it to a friend',
   brag: (n, lv, s) => `I put a gummy bear through ${s} ordeal points in "${lv}" (★${n}). Your turn: `,
@@ -2085,28 +2708,29 @@ Object.assign(I18N.en, {
   goal: { box: 'Land the bear in the packing box', syrup: 'Drop the bear into the syrup vat', grinder: 'Feed the bear to the grinder' },
   clear: 'Cleared!', fail: 'Not delivered…', why: { stuck: 'The bear got stuck.', out: 'It flew out of the factory.', time: 'Out of time.' },
   coinsGot: (n) => `+${n} candy coins`, starsNeed: (a, b) => ['★ reach the goal', `★★ ${a}`, `★★★ ${b}`],
-  allClear: 'Chapter clear →', soon: 'Coming soon',
-  end: (s, c) => `This batch survived the production line with ${s} stars and is ready to ship.<br>Next stop: Dessert Street — coming soon.<br>Your ${c} candy coins carry over.`,
+  allClear: 'Journey complete →', soon: 'Coming soon',
+  end: (s, c) => `This batch survived the production line with ${s} stars and is ready to ship.<br>The factory, Dessert Street and Fun Fair are all cleared!<br>Your ${c} candy coins carry over.`,
   part: { head: 'HEADBUTT', face: 'FACEPLANT', arm: 'ARM TWIST', leg: 'SHIN BANG', body: 'BODY SLAM', butt: 'BUTT FIRST', land: 'NICE LANDING' },
   cut: { neck: 'OFF WITH ITS HEAD', armL: 'ARM OFF', armR: 'ARM OFF', legL: 'LEG OFF', legR: 'LEG OFF', waist: 'SLICED IN TWO' },
   broke: 'SNAPPED!', burst: 'GUMMY BURST!', ground: 'GROUND UP',
   lbl: { bumper: 'BONK', spring: 'BOING', roller: 'ROLLED', juice: 'JUICED', press: 'FLATTENED', crusher: 'STEAMROLLED', syrup: 'SYRUP BATH', box: 'DELIVERED', grinder: 'INTO THE GRINDER', stretch: 'STREEETCH' },
   up: { sling: ['Stronger sling', 'Launch speed +8% per level'], bounce: ['Bouncy recipe', 'Bounces off everything harder'], magnet: ['Coin magnet', '+15% candy coins per level'] },
-  buy: (c) => `🍬 ${c}`, maxed: 'MAX', districts: [['Gummy Factory', 'Stop 1'], ['Dessert Street', 'Stop 2'], ['Fun Fair', 'Stop 3'], ['The Sewers', 'Stop 4']],
+  buy: (c) => `🍬 ${c}`, maxed: 'MAX', districts: [['Gummy Factory', '01 — learn & play'], ['Dessert Street', '02 — precision'], ['Fun Fair', '03 — expert combinations']],
 });
 Object.assign(I18N.zh, {
+  gDetails: '查看得分明细',
   wsTitle: '关卡创意工坊', wsHelp: '拖动物件搭关卡；红点是起点，绿框是终点。自制关不获得主线糖币。',
   wsAdd: '添加', wsDelete: '删除', wsApply: '应用', wsUndo: '撤销', wsRedo: '重做', wsPlay: '立即试玩', wsShare: '复制链接', wsImport: '导入', wsBack: '返回编辑',
   snap: '扯断了！',
-  play: '开始游戏 · 软糖历险记', playSub: '第一章', gBack: '自由玩', gScoreLbl: '受难值',
+  play: '开始游戏 · 软糖历险记', playSub: '3 张地图 · 21 关', gBack: '自由玩', gScoreLbl: '受难值',
   gHintAim: '在屏幕中间短短往后拉，松手发射', gRetry: '重来', gNext: '下一关', gGo: '开始', gGoal: '目标',
   gRule: '撞得越狠、拉得越长、切得越碎，<b>受难值越高</b>', gGoalMark: '终点',
   tipBreak: '断了也加分！碎得越多，受难值越高',
   nextStar: (n, s) => `再拿 ${n} 分到 ${s}`, failNote: '送达终点才计星和最佳纪录',
   notCounted: '没送到，本局不计分', coinsComfort: (n) => `+${n} 安慰糖币`,
   gShare: '复制战绩', gShop: '升级', gWorkshop: '后巷工坊', gClose: '关闭',
-  gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '第一章 通关！', gEndHead: '这批软糖出厂了', gEndFree: '去自由玩',
-  lvNo: (n) => `黑心软糖厂 · 第 ${n} 关`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
+  gTitle: '软糖历险记', gMap: '软糖城', gEndTitle: '三大街区 全通关！', gEndHead: '这批软糖出厂了', gEndFree: '去自由玩',
+  lvNo: (n) => `${['黑心软糖厂', '甜品街', '糖果游乐园'][Math.floor((n - 1) / 7)] || '创意工坊'} · 第 ${n} 关`, newBest: '新纪录！', best: (n) => `最佳 ${n}`,
   st: ['冲击分', '拉伸分', '机关分', '最大撞击', '掉落部位', '最长连击'],
   copied: '已复制，发给朋友吧',
   brag: (n, lv, s) => `我在《软糖历险记》「${lv}」把小熊折腾出 ${s} 受难值（★${n}），你来试试：`,
@@ -2114,21 +2738,22 @@ Object.assign(I18N.zh, {
   goal: { box: '把小熊弹进包装盒', syrup: '把小熊送进糖浆池', grinder: '把小熊送进碎糖机' },
   clear: '通关！', fail: '没送到…', why: { stuck: '小熊卡住了', out: '小熊飞出了工厂', time: '时间到了' },
   coinsGot: (n) => `+${n} 糖币`, starsNeed: (a, b) => ['★ 送达终点', `★★ ${a}`, `★★★ ${b}`],
-  allClear: '第一章通关 →', soon: '敬请期待',
-  end: (s, c) => `这批软糖经过整条流水线，带着 ${s} 颗星出厂了。<br>下一站：甜品街，敬请期待。<br>你的 ${c} 糖币会保留下来。`,
+  allClear: '全地图通关 →', soon: '敬请期待',
+  end: (s, c) => `这批软糖经过整条流水线，带着 ${s} 颗星出厂了。<br>黑心软糖厂、甜品街、糖果游乐园，全部征服！<br>你的 ${c} 糖币会保留下来。`,
   part: { head: '头槌！', face: '脸着地！', arm: '手臂扭了！', leg: '撞到腿了！', body: '侧腰重击！', butt: '屁股着地！', land: '稳稳落地' },
   cut: { neck: '斩首！', armL: '断臂！', armR: '断臂！', legL: '断腿！', legR: '断腿！', waist: '腰斩！' },
   broke: '撞断了！', burst: '软糖爆浆！', ground: '碎成渣了',
   lbl: { bumper: '咚！', spring: '弹！', roller: '擀！', juice: '榨汁！', press: '压扁！', crusher: '碾过去了！', syrup: '糖浆浴', box: '装盒出厂', grinder: '进了碎糖机', stretch: '拉——长' },
   up: { sling: ['加强弹弓', '每级发射速度 +8%'], bounce: ['弹力配方', '撞到什么都弹得更高'], magnet: ['糖币磁铁', '每级糖币收入 +15%'] },
-  buy: (c) => `🍬 ${c}`, maxed: '满级', districts: [['黑心软糖厂', '第一站'], ['甜品街', '第二站'], ['游乐园', '第三站'], ['下水道', '第四站']],
+  buy: (c) => `🍬 ${c}`, maxed: '满级', districts: [['黑心软糖厂', '第一站 · 热身与机关'], ['甜品街', '第二站 · 精准与连击'], ['糖果游乐园', '第三站 · 综合挑战']],
 });
 applyLang();
 
 RIG.total = RIG.mass.reduce((a, m) => a + m, 0);
 const DEPTH = 0.65;                          // the glass panes, front and back
-const PAL = { cream: 0xf3ead9, pink: 0xf2a7b8, mint: 0x9fd8c3, butter: 0xf5d36e, lilac: 0xc6b3e6,
-              ink: 0x2b2a27, metal: 0xb9bec7, rose: 0xe2667c, sky: 0x9cc7ef, steel: 0x8d939c };
+/* PAL lives in parts/art-style.js now, together with the three map themes.  It is the
+   same object every time, re-tinted in place by applyArtTheme, so any mesh built after a
+   theme switch picks up the new colours without touching this file. */
 
 /* body parts: which bone a point hangs on, and how a hit there is named and paid */
 const BONES = { neck: ['head', 'snout', 'earL', 'earR'], armL: ['handL'], armR: ['handR'],
@@ -2170,7 +2795,14 @@ const saveGame = () => {
     localStorage.setItem('gummy-game-v3', JSON.stringify(stable));
   } catch (e) { /* private mode */ }
 };
-LEVELS.forEach((lv, i) => { lv.id = LEVEL_IDS[i]; });
+LEVELS.forEach((lv, i) => {
+  lv.id = LEVEL_IDS[i];
+  // Art tags only — the simulation never reads these, and nothing here ever overwrites a
+  // value the level already carries, so an expanded level table keeps its own chapter/theme.
+  // Three chapters when the table has no opinion: 0..6 factory, 7..13 dessert, 14..20 fair.
+  lv.chapter ??= Math.floor(i / 7);
+  lv.theme ||= THEME_BY_CHAPTER[lv.chapter] || 'factory';
+});
 const unlocked = (i) => i === 0 || !!gSave.clear[i - 1];
 const zh = () => document.documentElement.lang === 'zh';
 const lname = (lv) => lv.name[zh() ? 'zh' : 'en'];
@@ -2207,13 +2839,19 @@ function stripes(a, b, n = 8) {
       g.moveTo(x, h); g.lineTo(x + w / n / 2, h); g.lineTo(x + w / n, 0); g.lineTo(x + w / n / 2, 0); g.fill(); }
   }, true));
 }
-function wallTex() {
-  return TEX.wall || (TEX.wall = canvasTex(512, 512, (g, w, h) => {
-    g.fillStyle = '#efe7da'; g.fillRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(120,100,80,.10)'; g.lineWidth = 2;
-    for (let y = 0; y <= h; y += 64) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
-    for (let row = 0; row < 8; row++) for (let x = (row % 2) * 64; x <= w; x += 128) {
-      g.beginPath(); g.moveTo(x, row * 64); g.lineTo(x, row * 64 + 64); g.stroke(); }
+/* The wall is moulded panels, not brickwork: a few very low-contrast plate breaks in one
+   axis, a service rail, and nothing that competes with the play space.  Keyed per theme so
+   a map switch draws its own wall; the painted backdrop, when it loads, replaces the face
+   and this canvas stays the fallback. */
+function wallTex(themeName = curThemeName) {
+  const key = 'wall-' + themeName, T = ART_THEMES[themeName] || ART_THEMES.factory;
+  return TEX[key] || (TEX[key] = canvasTex(256, 256, (g, w, h) => {
+    g.fillStyle = hex(T.wall); g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(80,62,48,.05)';
+    for (let x = 0; x < w; x += 128) g.fillRect(x, 0, 2, h);          // two panel joints
+    g.fillStyle = 'rgba(80,62,48,.035)'; g.fillRect(0, 96, w, 3);      // one horizontal rail
+    g.fillStyle = 'rgba(255,255,255,.30)';
+    for (let x = 4; x < w; x += 128) g.fillRect(x, 0, 1, h);           // thin lit edge per panel
   }, true));
 }
 function posterTex(lines, bg, fg, accent, w = 512, h = 640) {
@@ -2233,22 +2871,40 @@ function posterTex(lines, bg, fg, accent, w = 512, h = 640) {
   });
 }
 
-/* ---- the factory: back wall, posters, ground shadows ---- */
+/* ---- the factory: back wall, posters, ground shadows ----
+   The wall is two planes: the painted backdrop sits a hair in front of the procedural panel
+   canvas, so a failed or slow image load leaves a plainer factory rather than a hole.  Both
+   use the same UV scale, and the picture carries its own panel rhythm, so the swap does not
+   shift anything the player is reading. */
 const factory = new THREE.Group();
 factory.visible = false;
 scene.add(factory);
+let wallMesh = null, wallMesh2 = null;
+const farLayers = {};
 {
   const t = wallTex(); t.repeat.set(20, 6);
-  const wall = new THREE.Mesh(new THREE.PlaneGeometry(80, 24), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }));
-  wall.position.set(0, 12, -1.7); wall.receiveShadow = true;
-  factory.add(wall);
-  const dt = stripes(0xf2a7b8, 0xf7c7d2, 6).clone(); dt.repeat.set(60, 1); dt.needsUpdate = true;
+  wallMesh = new THREE.Mesh(new THREE.PlaneGeometry(80, 24), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }));
+  wallMesh.position.set(0, 12, -1.72); wallMesh.receiveShadow = true;
+  factory.add(wallMesh);
+  // the painted backdrop: empty until the image arrives, then artWall() points the top plane at it
+  wallMesh2 = new THREE.Mesh(new THREE.PlaneGeometry(80, 24),
+    new THREE.MeshStandardMaterial({ roughness: 0.92, depthWrite: false }));
+  wallMesh2.position.set(0, 12, -1.71); wallMesh2.receiveShadow = true;
+  wallMesh2.material.visible = false;
+  factory.add(wallMesh2);
+  const dt = stripes(PAL.pink, PAL.rose, 6).clone(); dt.repeat.set(60, 1); dt.needsUpdate = true;
   const dado = new THREE.Mesh(new THREE.PlaneGeometry(80, 1.2), new THREE.MeshStandardMaterial({ map: dt, roughness: 0.9 }));
   dado.position.set(0, 0.6, -1.69); dado.receiveShadow = true;
   factory.add(dado);
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 6).rotateX(-Math.PI / 2), new THREE.ShadowMaterial({ opacity: 0.16 }));
   ground.position.set(0, 0.002, 1.2); ground.receiveShadow = true;
   factory.add(ground);
+  // a service rail where the wall meets the dado, so the two planes read as one moulded room
+  const rail = new THREE.Mesh(geo('box', 80, 0.16, 0.3), mat('cream'));
+  rail.position.set(0, 1.2, -1.68); rail.receiveShadow = true;
+  factory.add(rail);
+  // far silhouettes, one per map, built once; buildLevel's applyArtTheme shows the right one
+  for (const k of Object.keys(ART_THEMES)) { const m = artFarLayer(k); if (m) { m.visible = false; factory.add(m); farLayers[k] = m; } }
 }
 const posters = [];
 function placePosters(lv, li) {
@@ -2259,70 +2915,244 @@ function placePosters(lv, li) {
     m.position.set(x, y, -1.66); m.receiveShadow = true;
     factory.add(m); posters.push(m);
   };
-  const [x0, x1] = lv.span;
-  add(posterTex(zh() ? [['黑心', 120, 'a'], ['软糖厂', 96], ['', 30], ['GUMMY FACTORY', 34], [`第 ${li + 1} 关`, 44, 'a'], [lname(lv), 64]]
-                     : [['GUMMY', 104, 'a'], ['FACTORY', 84], ['', 30], ['since today', 34], [`LEVEL ${li + 1}`, 40, 'a'], [lname(lv), 58]],
-    '#2b2a27', '#f3ead9', '#f2a7b8'), x0 + 3.6, 6.3, 3.0);
-  add(posterTex(zh() ? [['安全生产', 70], ['', 20], ['0', 300, 'a'], ['天', 70]] : [['DAYS WITHOUT', 52], ['AN ACCIDENT', 52], ['0', 300, 'a']],
-    '#f5d36e', '#2b2a27', '#e2667c'), (x0 + x1) / 2 + 0.6, 7.6, 2.4);
-  add(posterTex(zh() ? [['今日产量', 64], ['', 10], ['99,999', 92, 'a'], ['只', 64], ['', 40], ['微笑服务 :)', 44]]
-                     : [['MADE TODAY', 52], ['', 10], ['99,999', 92, 'a'], ['bears', 52], ['', 40], ['service with', 40], ['a smile :)', 40]],
-    '#9fd8c3', '#2b2a27', '#e2667c'), x1 - 2.4, 6.8, 2.4);
+  // the poster frames and their stamp colours follow the map; `lv.theme` is available to the
+  // subtitle line whenever it gets localised per district
+  const th = ART_THEMES[lv.theme] ? lv.theme : 'factory', P = ART_THEMES[th].poster;
+  const [x0, x1] = lv.span || [-8, 8], L1 = zh(), no = li % 7 + 1;
+  // one set of three posters per map, so no map wears another map's signage
+  const SET = {
+    factory: [
+      L1 ? [['黑心', 120, 'a'], ['软糖厂', 96], ['', 30], ['GUMMY FACTORY', 34], [`第 ${no} 关`, 44, 'a'], [lname(lv), 64]]
+         : [['GUMMY', 104, 'a'], ['FACTORY', 84], ['', 30], ['since today', 34], [`LEVEL ${no}`, 40, 'a'], [lname(lv), 58]],
+      L1 ? [['安全生产', 70], ['', 20], ['0', 300, 'a'], ['天', 70]] : [['DAYS WITHOUT', 52], ['AN ACCIDENT', 52], ['0', 300, 'a']],
+      L1 ? [['今日产量', 64], ['', 10], ['99,999', 92, 'a'], ['只', 64], ['', 40], ['微笑服务 :)', 44]]
+         : [['MADE TODAY', 52], ['', 10], ['99,999', 92, 'a'], ['bears', 52], ['', 40], ['service with', 40], ['a smile :)', 40]]],
+    dessert: [
+      L1 ? [['甜品街', 110, 'a'], ['', 24], ['软糖烘焙坊', 62], ['', 30], [`第 ${no} 站`, 44, 'a'], [lname(lv), 60]]
+         : [['DESSERT', 96, 'a'], ['STREET', 84], ['', 24], ['fresh-baked bears', 34], [`STOP ${no}`, 40, 'a'], [lname(lv), 56]],
+      L1 ? [['今日特价', 66], ['', 20], ['软糖挂面包', 54], ['买一送一', 70, 'a']] : [['TODAY ONLY', 52], ['', 16], ['gummy on toast', 46], ['2 for 1', 84, 'a']],
+      L1 ? [['出炉', 80, 'a'], ['', 20], ['还热乎', 60], ['小熊饼干', 54]] : [['JUST OUT', 70, 'a'], ['', 20], ['of the oven', 46], ['bear cookies', 46]]],
+    fair: [
+      L1 ? [['软糖', 120, 'a'], ['游乐园', 96], ['', 30], ['GUMMY FAIR', 34], [`第 ${no} 站`, 44, 'a'], [lname(lv), 60]]
+         : [['GUMMY', 104, 'a'], ['FAIR', 96], ['', 30], ['rides for bears', 34], [`RIDE ${no}`, 40, 'a'], [lname(lv), 56]],
+      L1 ? [['最高飞行纪录', 54], ['', 20], ['9.9', 220, 'a'], ['米', 64]] : [['LONGEST FLIGHT', 50], ['', 20], ['9.9', 220, 'a'], ['metres', 54]],
+      L1 ? [['身高不够', 64], ['', 14], ['也能上', 74, 'a'], ['因为是软糖', 44]] : [['YOU MUST BE', 52], ['THIS SOFT', 52], ['TO RIDE', 70, 'a']]],
+  }[th];
+  if (li >= LEVEL_IDS.length) SET[0] = L1 ? [['创意工坊', 90, 'a'], ['', 35], [lname(lv), 66], ['自己的软糖路线', 42]] : [['WORKSHOP', 84, 'a'], ['', 35], [lname(lv), 54], ['your gummy route', 36]];
+  const sub = [hex(PAL.butter), hex(PAL.mint)];
+  add(posterTex(SET[0], P.bg, P.fg, P.ac), x0 + 3.6, 6.3, 3.0);
+  add(posterTex(SET[1], sub[0], hex(PAL.ink), hex(PAL.accent)), (x0 + x1) / 2 + 0.6, 7.6, 2.4);
+  add(posterTex(SET[2], sub[1], hex(PAL.ink), hex(PAL.accent)), x1 - 2.4, 6.8, 2.4);
 }
 
 /* ---- building a level ---- */
 const level = new THREE.Group();
 scene.add(level);
-const matCache = {};
-const mat = (c) => matCache[c] || (matCache[c] = new THREE.MeshStandardMaterial({ color: PAL[c],
-  roughness: c === 'metal' || c === 'steel' ? 0.28 : 0.5, metalness: c === 'metal' || c === 'steel' ? 0.65 : 0 }));
+/* `mat` and `matCache` come from parts/art-style.js: one shared material per palette name,
+   so a theme switch re-tints every moulded shell without rebuilding the level. */
 const D = 1.5;
-const rbox = (w, h, d) => new RoundedBoxGeometry(w, h, d, 3, Math.min(0.08, w / 2.5, h / 2.5));
+/* a moulded panel, not a bare box: the chamfer is what makes a shell read as injection
+   plastic at phone distance.  Dimensions are unchanged, so nothing moves against the physics. */
+const rbox = (w, h, d) => new RoundedBoxGeometry(w, h, d, 4, Math.min(0.11, w / 2.5, h / 2.5));
+/* Moulding on a part is decoration, and most parts never move.  Rather than give every part
+   its own two batches (which is what pushed the draw count up), a part that is static and
+   unrotated hands its ornament geometry to the level-wide batch, so the whole level's matte
+   plastic is one mesh and all its metalwork is another.  Only parts that actually move keep
+   ornaments of their own — a spinning panel, a slamming press or a turning roller, whose
+   decoration has to travel with it. */
+/* Moulding on a part is decoration, so it is merged rather than added mesh by mesh.  A part
+   that neither turns nor travels hands its ornaments to the level-wide batch (see `flushLoose`),
+   so an entire level's plastic is one mesh and its metalwork is another, however many parts it
+   has.  Only a part that actually moves keeps ornaments of its own. */
+const partBatch = () => ({ matte: new OrnamentBatch(), metal: new OrnamentBatch(), fixed: new OrnamentBatch(), has: false });
+/* `glow` (the rose caps on a jar, bumper or blade) is a colour, not a third mesh: it merges
+   into the matte batch.  Any key that is not a known batch also falls back to matte, so a
+   typo can never take a level build down. */
+const partAdd = (B, which, shape, col, pos, rot) => {
+  (B[which] instanceof OrnamentBatch ? B[which] : B.matte).push(shape, col, pos || [0, 0, 0], rot || null);
+  B.has = true;
+};
+let LOOSE = null;                              // the current level's collection of static-part moulding
+/* A part keeps its moulding on its own group when that moulding has to follow it: it spins,
+   slams, rolls, squashes, or disappears (a smashed pane or jar).  Everything else — plain
+   panels at any fixed angle, and belts, whose texture scrolls but whose body never moves —
+   is baked into the level batch at its fixed pose. */
+const MOVING = new Set(['roller', 'crusher', 'bumper', 'spring', 'press', 'blade', 'saw', 'glass', 'jar']);
+const partMoves = (P) => !!(P.spin || P.amp || MOVING.has(P.t));
+function partFinish(g, B) {
+  if (!B.has) return g;
+  // `fixed` hardware stays put whatever its part does (guide rails, bearing housings): it is
+  // anchored at the part's rest position inside the level batch, never on the moving group
+  if (B.fixed.count && LOOSE) LOOSE.push({ matte: B.fixed, metal: new OrnamentBatch(), P: { cx: B.P.x, cy: B.P.y, ang: 0 } });
+  if (LOOSE && !partMoves(B.P)) { LOOSE.push(B); return g; }
+  // a part that moves gets ONE mesh for all its moulding, matte and metal together
+  const one = new OrnamentBatch();
+  one.append(B.matte); one.append(B.metal);
+  const mesh = one.mesh(partMoveMat());
+  if (mesh) g.add(mesh);
+  return g;
+}
+/* bake every static part's moulding (and any zone frames) into the level's two shared meshes,
+   each part moved to its fixed pose: its group would sit at (cx, cy) turned by `ang`, so the
+   baked copy is placed the same way */
+function flushLoose(group, loose) {
+  if (!loose || !loose.length) return;
+  const matte = new OrnamentBatch(), metal = new OrnamentBatch();
+  for (const B of loose) {
+    const P = B.P || { cx: 0, cy: 0, ang: 0 };
+    matte.append(B.matte, P.cx || 0, P.cy || 0, P.ang || 0);
+    metal.append(B.metal, P.cx || 0, P.cy || 0, P.ang || 0);
+  }
+  for (const [b, m] of [[matte, partMatteMat()], [metal, partMetalMat()]]) {
+    const mesh = b.mesh(m);
+    if (mesh) group.add(mesh);
+  }
+}
 function partMesh(P) {
   const g = new THREE.Group();
-  const add = (geo, m) => { const o = new THREE.Mesh(geo, m); o.castShadow = o.receiveShadow = true; g.add(o); return o; };
+  const B = partBatch();
+  B.P = P;                                    // lets partFinish decide whether the moulding travels
+  // a few shapes still need their own mesh: the ones with a texture map, and the breakables
+  const add = (shape, m) => { const o = new THREE.Mesh(shape, m); o.castShadow = o.receiveShadow = true; g.add(o); return o; };
   if (P.t === 'roller' || P.t === 'crusher') {
-    const juice = P.kind === 'juice', big = P.t === 'crusher';
-    const m = new THREE.MeshStandardMaterial({ map: stripes(juice ? 0xf5d36e : big ? 0xe2667c : 0xf3ead9, juice ? 0xe2667c : big ? 0xf7c7d2 : 0xd9b98c, 10), roughness: 0.45 });
-    add(new THREE.CylinderGeometry(P.r, P.r, D, 48).rotateX(Math.PI / 2), m);
-    add(new THREE.CylinderGeometry(P.r * 0.28, P.r * 0.28, D + 0.9, 16).rotateX(Math.PI / 2), mat(big ? 'steel' : 'cream'));
+    // The shell turns (the group is rotated by syncLevel), so its own texture band turns with
+    // it.  The axle, bearings and brackets sit on the spin axis, where rotation is invisible,
+    // and they stay back at |z| > 0.9 so the roller's underside — the one face a gummy
+    // touches — keeps its exact collider radius.  The moulding ribs do turn, so they are the
+    // one decoration that must live inside the part's own rotating group.
+    const juice = P.kind === 'juice', big = P.t === 'crusher', r = P.r;
+    const shell = juice ? [PAL.butter, PAL.rose] : big ? [PAL.accent, PAL.pink] : [PAL.cream, PAL.seam];
+    add(new THREE.CylinderGeometry(r, r, D, 32).rotateX(Math.PI / 2),
+        new THREE.MeshStandardMaterial({ map: stripes(shell[0], shell[1], 10), roughness: 0.45 }));
+    for (const s of [-1, 1]) {
+      partAdd(B, 'matte', geo('cyl', r * 0.24, 1.0, 12), PAL.ink, [0, 0, s * 0.85], [Math.PI / 2, 0, 0]);
+      partAdd(B, 'metal', geo('cyl', r * 0.52, 0.2, 16), PAL.metal, [0, 0, s * 1.12], [Math.PI / 2, 0, 0]);
+      partAdd(B, 'metal', geo('cyl', r * 0.3, 0.26, 11), PAL.steel, [0, 0, s * 1.3], [Math.PI / 2, 0, 0]);
+      for (let k = 0; k < 6; k++) {                      // bolt ring: symmetric, so it rolls with the shell
+        const a = (k / 6) * Math.PI * 2;
+        partAdd(B, 'metal', geo('sphere', 0.03, 5, 4), PAL.steel, [Math.cos(a) * r * 0.4, Math.sin(a) * r * 0.4, s * 1.24]);
+      }
+      // the bearing housing never turns, so it is fixed in the world; a crusher travels, so it has none
+      if (!big) partAdd(B, 'fixed', geo('box', r * 1.0, r * 1.0, 0.16), PAL.cream, [0, 0, s * 1.02]);
+    }
+    if (!big) for (let k = 0; k < 4; k++) {                  // ribs turn with the shell
+      const a = (k / 4) * Math.PI * 2;
+      partAdd(B, 'matte', geo('box', 0.05, r * 0.8, 1.34), PAL.cream,
+        [Math.cos(a) * r * 0.94, Math.sin(a) * r * 0.94, 0], [0, 0, a]);
+    }
   } else if (P.t === 'glass') {
-    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ color: 0x9fd8c3, transparent: true, opacity: .55, metalness: .1, roughness: .12 }));
+    // sugar glass: a thin moulded pane with a cream frame that stops short of its outline
+    add(rbox(P.w, P.h, D), glassMat());
+    const f = Math.min(0.055, P.w * 0.3, P.h * 0.12);
+    for (const s of [-1, 1]) {
+      partAdd(B, 'matte', geo('box', f, P.h * 0.96, 1.66), PAL.cream, [s * (P.w / 2 - f / 2), 0, 0]);
+      partAdd(B, 'matte', geo('box', P.w * 0.92, f, 1.66), PAL.cream, [0, s * (P.h / 2 - f / 2), 0]);
+      partAdd(B, 'metal', geo('sphere', 0.045, 7, 6), PAL.metal, [0, s * (P.h / 2 - f / 2), 0.85]);
+    }
   } else if (P.t === 'jar') {
-    add(new THREE.CylinderGeometry(P.w / 2, P.w / 2, P.h, 16), mat('butter'));
-    add(new THREE.CylinderGeometry(P.w * .55, P.w * .55, .12, 16), mat('rose')).position.y = P.h / 2;
+    // a candy jar: glass body, metal neck ring, cream lid
+    add(new THREE.CylinderGeometry(P.w / 2, P.w / 2, P.h, 16), jarMat());
+    partAdd(B, 'metal', geo('torus', P.w / 2 * 0.96, 0.03, 5, 16), PAL.metal, [0, P.h / 2 - 0.1, 0], [Math.PI / 2, 0, 0]);
+    partAdd(B, 'matte', geo('cyl', P.w * 0.56, 0.14, 16), PAL.cream, [0, P.h / 2 + 0.02, 0]);
+    partAdd(B, 'glow', geo('cyl', P.w * 0.2, 0.08, 11), PAL.rose, [0, P.h / 2 + 0.11, 0]);
+    partAdd(B, 'metal', geo('torus', P.w / 2 * 1.01, 0.016, 5, 16), PAL.metal, [0, -P.h * 0.28, 0], [Math.PI / 2, 0, 0]);
   } else if (P.t === 'bumper') {
-    add(new THREE.CylinderGeometry(P.r, P.r, 0.9, 40).rotateX(Math.PI / 2), mat('rose'));
-    add(new THREE.TorusGeometry(P.r * 0.78, P.r * 0.12, 12, 40), mat('cream')).position.z = 0.46;
+    // the bumper's own disc and ring are the readable silhouette; the caps are pooled moulding
+    partAdd(B, 'glow', geo('cyl', P.r, 0.9, 30), PAL.rose, [0, 0, 0], [Math.PI / 2, 0, 0]);
+    partAdd(B, 'matte', geo('torus', P.r * 0.78, P.r * 0.12, 8, 26), PAL.cream, [0, 0, 0.4]);
+    for (const s of [-1, 1]) {
+      partAdd(B, 'metal', geo('cyl', P.r * 0.26, 0.34, 11), PAL.ink, [0, 0, s * 0.58], [Math.PI / 2, 0, 0]);
+      partAdd(B, 'metal', geo('cyl', P.r * 0.46, 0.14, 14), PAL.metal, [0, 0, s * 0.8], [Math.PI / 2, 0, 0]);
+    }
   } else if (P.t === 'saw') {
-    // a toothed disc: a star-shaped outline, extruded thin, polished steel
+    // The teeth own the silhouette, so the arbor is thin and on the axis, and the collar is
+    // drawn BEHIND the disc at |z| = 0.44.  The blade itself stays a separate mesh because it
+    // is the one surface the player has to read as dangerous.
     const sh = new THREE.Shape(), T = 18;
     for (let i = 0; i <= T * 2; i++) {
       const a = (i / (T * 2)) * Math.PI * 2, rr = i % 2 ? P.r : P.r * 0.84;
       if (i === 0) sh.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); else sh.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
     }
-    const geo = new THREE.ExtrudeGeometry(sh, { depth: 0.08, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 1 });
-    geo.translate(0, 0, -0.04);
-    add(geo, mat('metal'));
-    add(new THREE.CylinderGeometry(0.12, 0.12, 0.3, 16).rotateX(Math.PI / 2), mat('ink'));
+    const sg = new THREE.ExtrudeGeometry(sh, { depth: 0.08, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 1 });
+    sg.translate(0, 0, -0.04);
+    add(sg, mat('metal'));
+    partAdd(B, 'metal', geo('cyl', 0.1, 0.32, 10), PAL.ink, [0, 0, 0], [Math.PI / 2, 0, 0]);
+    for (const s of [-1, 1]) {
+      partAdd(B, 'metal', geo('cyl', P.r * 0.4, 0.1, 14), PAL.steel, [0, 0, s * 0.44], [Math.PI / 2, 0, 0]);
+      for (let k = 0; k < 3; k++) {
+        const a = (k / 3) * Math.PI * 2;
+        partAdd(B, 'metal', geo('sphere', 0.032, 5, 5), PAL.metal, [Math.cos(a) * P.r * 0.28, Math.sin(a) * P.r * 0.28, s * 0.44]);
+      }
+    }
   } else if (P.t === 'spring') {
-    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: stripes(0xf5d36e, 0x2b2a27, 6), roughness: 0.5 }));
+    // a stacking spring: the striped body keeps its map, the collars and the booster plate merge
+    add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: stripes(PAL.butter, PAL.ink, 6), roughness: 0.5 }));
+    for (const s of [-1, 1]) {
+      partAdd(B, 'matte', geo('box', P.w * 0.94, 0.05, 1.56), PAL.cream, [0, s * P.h / 2, 0]);
+      partAdd(B, 'metal', geo('box', P.w * 0.52, 0.07, 0.4), PAL.metal, [s * P.w * 0.44, 0, 0.8]);
+    }
   } else if (P.t === 'press') {
+    // a thick moulded ram: the metal body reads through its own material, the cream cheek
+    // plates and rails are moulding.  The rod keeps its own mesh because it is long and thin.
     add(rbox(P.w, P.h, D), mat('metal'));
+    const amp = P.amp || 0, yTop = P.h / 2 + 0.3, yBot = -amp - P.h / 2, len = yTop - yBot;
+    for (const s of [-1, 1]) {
+      partAdd(B, 'matte', geo('box', 0.1, P.h, 1.62), PAL.cream, [s * (P.w / 2 - 0.05), 0, 0]);       // cheek: inside the collider
+      partAdd(B, 'fixed', geo('box', 0.14, len, 0.16), PAL.steel, [s * (P.w / 2 + 0.24), (yTop + yBot) / 2, -0.95]);   // guide rail: behind the bear, fixed
+    }
+    partAdd(B, 'fixed', geo('box', P.w + 0.62, 0.14, 0.2), PAL.cream, [0, yTop, -0.95]);      // yoke tying the rails together
+    partAdd(B, 'matte', geo('box', P.w * 1.06, 0.1, 1.6), PAL.cream, [0, P.h / 2 - 0.03, 0]);
     add(new THREE.BoxGeometry(0.22, 8, 0.22), mat('ink')).position.y = 4 + P.h / 2;
   } else if (P.t === 'blade') {
+    // a guillotine: bright edge and carrier above it, both merged; only the long rod is separate
     add(rbox(P.w, P.h, 1.2), mat('metal'));
-    add(rbox(0.5, 0.35, 1.25), mat('rose')).position.y = P.h / 2;
+    partAdd(B, 'metal', geo('box', P.w, 0.1, 1.26), PAL.steel, [0, -P.h / 2 + 0.05, 0]);          // bright cutting edge, flush
+    partAdd(B, 'glow', geo('box', 0.5, 0.35, 1.25), PAL.rose, [0, P.h / 2, 0]);
     add(new THREE.BoxGeometry(0.1, 8, 0.1), mat('ink')).position.y = 4 + P.h / 2;
   } else if (P.t === 'belt') {
+    // the running belt keeps its animated stripe texture; the end caps, legs and cleats merge
     const t = stripes(0x3a3835, 0x55524d, 12).clone(); t.repeat.set(P.w / 1.2, 1); t.needsUpdate = true;
     P.tex = t;
     add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
+    for (const s of [-1, 1]) {
+      const x = s * (P.w / 2 - P.h / 2);
+      partAdd(B, 'metal', geo('cyl', P.h * 0.5, 1.5, 14), PAL.steel, [x, 0, 0], [Math.PI / 2, 0, 0]);
+      partAdd(B, 'metal', geo('cyl', P.h * 0.5 + 0.04, 0.16, 14), PAL.metal, [x, 0, 0.8], [Math.PI / 2, 0, 0]);
+      partAdd(B, 'matte', geo('box', 0.09, P.h * 2.4, 1.5), PAL.cream, [s * (P.w / 2 - 0.1), -P.h * 0.7, 0]);
+    }
+    const n = Math.max(2, Math.min(9, Math.round(P.w / 1.3)));
+    for (let k = 0; k < n; k++) {
+      const u = (k + 0.5) / n - 0.5;
+      partAdd(B, 'matte', geo('box', 0.09, 0.07, 1.3), PAL.ink, [u * P.w * 0.92, -P.h / 2 - 0.045, 0]);
+    }
   } else {
+    // a moulded panel: the shell keeps its own colour material, the frame rails, seam line and
+    // corner rivets merge into the two batches
     add(rbox(P.w, P.h, D), mat(P.c || 'cream'));
-    if (P.spin) add(new THREE.CylinderGeometry(0.16, 0.16, D + 0.3, 16).rotateX(Math.PI / 2), mat('ink'));
+    const ang = 0;                                  // the group is already turned by the part's angle
+    const along = Math.max(0.06, Math.min(0.075, P.w / 2.6, P.h / 2.6));
+    if (Math.min(P.w, P.h) > 0.34) {
+      if (P.w >= P.h) partAdd(B, 'metal', geo('box', P.w * 0.86, 0.022, 0.02), PAL.seam, [0, 0, 0.76], [0, 0, ang]);
+      else partAdd(B, 'metal', geo('box', 0.022, P.h * 0.86, 0.02), PAL.seam, [0, 0, 0.76], [0, 0, ang]);
+    }
+    for (const s of [-1, 1]) {
+      const off = s * (P.h / 2 - along * 0.5);
+      partAdd(B, 'matte', geo('box', P.w * 0.99, along, 1.56), PAL.cream,
+        [-Math.sin(ang) * off, Math.cos(ang) * off, 0], [0, 0, ang]);
+    }
+    const nx = P.w > 0.9 ? 3 : 2, ny = P.h > 1.2 ? 3 : 2;
+    if (P.w > 0.4 && P.h > 0.3) {
+      for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
+        if ((i + j) % 2 && nx > 2 && ny > 2) continue;
+        const lx = nx === 1 ? 0 : (i / (nx - 1) - 0.5) * P.w * 0.74;
+        const ly = ny === 1 ? 0 : (j / (ny - 1) - 0.5) * P.h * 0.74;
+        partAdd(B, 'metal', geo('sphere', 0.032, 5, 5), PAL.metal,
+          [lx * Math.cos(ang) - ly * Math.sin(ang), lx * Math.sin(ang) + ly * Math.cos(ang), 0.77]);
+      }
+    }
+    if (P.spin) for (const s of [-1, 1]) partAdd(B, 'metal', geo('cyl', 0.1, 0.3, 11), PAL.metal, [0, 0, s * 0.85], [Math.PI / 2, 0, 0]);
   }
-  return g;
+  return partFinish(g, B);
 }
 function signTex(text, sub, bg) {
   return canvasTex(512, 256, (g, w, h) => {
@@ -2333,18 +3163,47 @@ function signTex(text, sub, bg) {
   });
 }
 function zoneMesh(Z) {
-  const w = Z.x1 - Z.x0, h = Z.y1 - Z.y0, g = new THREE.Group();
+  const w = Z.x1 - Z.x0, h = Z.y1 - Z.y0, cx = (Z.x0 + Z.x1) / 2, cy = (Z.y0 + Z.y1) / 2, g = new THREE.Group();
+  // the frame around a zone is decoration, so it is merged into one mesh: a zone costs at
+  // most two draw calls (the body plus its frame) regardless of how many rails it has.
+  const frame = new OrnamentBatch();
+  // No rail ever crosses a zone's opening: a frame over the entry would read as a lid the
+  // bear has to get past, which is a lie — there is no collider there.  Only side walls, a
+  // floor, and a back panel behind the rear pane; the safe area stays visually open.
   if (Z.kind === 'syrup') {
+    // the vat: an open-topped box of syrup inside a cream container.  The frame sits on the
+    // zone's own boundary, so the safe area the player aims at keeps its exact size.
     const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.3),
-      new THREE.MeshStandardMaterial({ color: 0xd98a2b, transparent: true, opacity: 0.55, roughness: 0.15, depthWrite: false }));
-    o.position.set((Z.x0 + Z.x1) / 2, (Z.y0 + Z.y1) / 2, 0); g.add(o);
+      new THREE.MeshStandardMaterial({ color: PAL.treat, transparent: true, opacity: 0.6, roughness: 0.15, depthWrite: false }));
+    o.position.set(cx, cy, 0); g.add(o);
+    for (const s of [-1, 1]) frame.push(geo('box', 0.14, h, 1.56), PAL.cream, [cx + s * (w / 2 + 0.07), cy, 0]);
+    frame.push(geo('box', w + 0.28, 0.16, 1.6), PAL.cream, [cx, Z.y0 + 0.08, 0]);
+    frame.push(geo('box', w + 0.28, h * 0.9, 0.12), PAL.cream, [cx, cy, -0.98]);      // back panel
   } else if (Z.kind === 'grinder') {
-    const o = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, 1.4), mat('ink'));
-    o.position.set((Z.x0 + Z.x1) / 2, 0.15, 0); g.add(o);
+    // the grinder mouth: a dark floor plate between two cream cheeks, with a small collar on
+    // each cheek only — the mouth itself stays open from above, where the bear falls in
+    const o = new THREE.Mesh(geo('box', w, 0.3, 1.4), mat('ink'));
+    o.position.set(cx, 0.15, 0); g.add(o);
+    for (const s of [-1, 1]) {
+      frame.push(geo('box', 0.18, h, 1.58), PAL.cream, [cx + s * (w / 2 + 0.09), cy, 0]);
+      frame.push(geo('torus', 0.13, 0.04, 5, 14), PAL.metal, [cx + s * (w / 2 + 0.09), Z.y1 - 0.22, 0], [Math.PI / 2, 0, 0]);
+    }
   } else {
-    const o = new THREE.Mesh(rbox(w, 0.12, 1.4), mat('pink'));
-    o.position.set((Z.x0 + Z.x1) / 2, 0.06, 0); o.receiveShadow = true; g.add(o);
+    // the packing crate: a cream tray with thin side rails and the back panel.  Nothing spans
+    // the opening, so the drop the player is aiming for reads plainly.
+    const tray = new THREE.Mesh(rbox(w, 0.12, 1.4), mat('pink'));
+    tray.position.set(cx, 0.06, 0); tray.receiveShadow = true; g.add(tray);
+    const rail = 0.14;
+    for (const s of [-1, 1]) {
+      frame.push(geo('box', rail, h * 0.82, 1.58), PAL.cream, [cx + s * (w / 2 + rail / 2), cy - h * 0.06, 0]);
+      for (let k = 0; k < 2; k++) {
+        frame.push(geo('sphere', 0.04, 6, 5), PAL.metal, [cx + s * (w / 2 + rail / 2), Z.y0 + 0.2 + k * (h - 0.4) * 0.9, 0.81]);
+      }
+    }
+    frame.push(geo('box', w + rail * 2, h, rail), PAL.cream, [cx, cy, -0.98]);   // behind the back pane
   }
+  if (LOOSE) LOOSE.push({ matte: frame, metal: new OrnamentBatch(), P: null });   // joins the level's shared meshes
+  else { const fm = frame.mesh(zoneArtMat()); if (fm) g.add(fm); }
   if (Z.goal) {
     // a bobbing sign over the goal, so nobody has to guess where the level ends
     const words = zh() ? ['终点', Z.kind === 'syrup' ? '糖浆池 ↓' : Z.kind === 'grinder' ? '碎糖机 ↓' : '包装盒 ↓']
@@ -2356,20 +3215,29 @@ function zoneMesh(Z) {
   }
   return g;
 }
+/* A level's own geometry is disposed here; the shared material pool and the art batches are
+   owned by parts/art-style.js and survive the swap, so a rebuild re-tints rather than reloads. */
 function clearLevel() {
   for (const o of [...level.children]) {
     level.remove(o);
     o.traverse((m) => {
       if (!m.isMesh) return;
       m.geometry.dispose();
-      if (!Object.values(matCache).includes(m.material)) { m.material.map?.dispose?.(); m.material.dispose(); }
+      if (!inMatPool(m.material)) { m.material.map?.dispose?.(); m.material.dispose(); }
     });
   }
 }
 function buildLevel(li) {
   clearLevel();
   const lv = LEVELS[li];
+  // the map's palette first, so every shell built below comes out in the right colour and
+  // the wall matches; returns the wall colour, which nobody but the coordinator needs
+  applyArtTheme(lv.theme || THEME_BY_CHAPTER[lv.chapter] || 'factory');
+  artLoadWall();
   const W = { parts: [], zones: [], collectibles: [], t: -1, lv, physics: createWorld(lv, gSave.up.bounce) };
+  // one collection point for the whole level: every static part drops its moulding here and
+  // the level ends up with two meshes for all of it, instead of two per part
+  LOOSE = [];
   for (const [index, def] of lv.parts.entries()) {
     const P = { ...def, index, round: ['roller', 'bumper', 'saw', 'crusher'].includes(def.t), off: def.off || 0, last: -9, pulse: 0 };
     P.mesh = partMesh(P);
@@ -2378,10 +3246,14 @@ function buildLevel(li) {
     W.parts.push(P);
   }
   for (const z of lv.zones || []) { const Z = { ...z, hit: false }; level.add(zoneMesh(Z)); W.zones.push(Z); }
+  flushLoose(level, LOOSE);                 // after the zones, so their frames share the same two meshes
+  LOOSE = null;
   for (const [index, c] of (lv.collectibles || []).entries()) {
-    const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(.23), new THREE.MeshStandardMaterial({ color: 0xffd04a, emissive: 0xa96a00, emissiveIntensity: .4, roughness: .25 }));
+    const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(.23), starMat());
     mesh.position.set(c.x, c.y, .25); level.add(mesh); W.collectibles.push({ ...c, index, mesh });
   }
+  // the moulded hardware was authored per part and per zone above and has already been merged:
+  // static parts share two level-wide meshes (flushLoose) and a moving part carries one of its own
   placePosters(lv, li);
   return W;
 }
@@ -2541,8 +3413,14 @@ function setHint(key) {
   if (key) { hud.hint.lastChild.textContent = L[key]; hud.hint.classList.remove('off'); } else hud.hint.classList.add('off');
 }
 function sndIcons() {
-  for (const id of ['snd', 'gSnd']) $(id).textContent = SFX.on ? '🔊' : '🔇';
-  $('gMus').style.opacity = MUSIC.on ? 1 : 0.4;
+  for (const id of ['snd', 'gSnd']) {
+    const b = $(id); b.textContent = SFX.on ? '🔊' : '🔇'; b.classList.toggle('muted', !SFX.on);
+    b.setAttribute('aria-label', zh() ? (SFX.on ? '关闭音效' : '打开音效') : (SFX.on ? 'Mute effects' : 'Enable effects'));
+    b.title = b.getAttribute('aria-label'); b.setAttribute('aria-pressed', String(SFX.on));
+  }
+  $('gMus').classList.toggle('muted', !MUSIC.on);
+  $('gMus').setAttribute('aria-label', zh() ? (MUSIC.on ? '关闭音乐' : '打开音乐') : (MUSIC.on ? 'Mute music' : 'Enable music'));
+  $('gMus').setAttribute('aria-pressed', String(MUSIC.on));
 }
 function coinIcons() { for (const id of ['gCoins', 'mCoins', 'sCoins']) $(id).textContent = `🍬 ${gSave.coins.toLocaleString()}`; }
 sndIcons(); coinIcons();
@@ -2827,6 +3705,7 @@ function endRun(why) {
 function showResult(s, n, isBest, ok, coins) {
   if (!GAME.on) return;
   const li = GAME.li, last = li + 1 >= LEVEL_IDS.length;
+  const details = $('rStats').closest('details'); if (details) details.open = false;
   const v = $('rVerdict');
   v.className = 'verdict ' + (ok ? 'ok' : 'no');
   v.innerHTML = ok ? L.clear : `${L.fail}<small>${L.why[run.why] || ''}</small>`;
@@ -2868,31 +3747,28 @@ function showEnd() {
 }
 function closeSheets() { for (const s of document.querySelectorAll('.sheet')) s.classList.remove('on'); }
 
-/* ---- Gummy City: the map of stops, the first one open ---- */
+/* ---- Gummy City: three playable districts, official progress remains stable-ID based ---- */
 function showMap() {
-  const box = $('mapDistricts');
-  box.textContent = '';
+  const box = $('mapDistricts'); box.replaceChildren();
   L.districts.forEach(([name, stop], di) => {
-    const d = document.createElement('section');
-    d.className = 'district' + (di ? ' locked' : '');
-    d.innerHTML = `<header><b>${name}</b><span>${stop}</span></header>`;
-    if (di) { const p = document.createElement('p'); p.textContent = L.soon; d.appendChild(p); box.appendChild(d); return; }
+    const indices = LEVELS.slice(0, LEVEL_IDS.length).map((lv, i) => i).filter(i => Math.floor(i / 7) === di);
+    const first = indices[0], open = first === 0 || gSave.clear[first - 1];
+    const d = document.createElement('section'); d.className = 'district map-' + ['factory', 'dessert', 'fair'][di] + (open ? '' : ' locked');
+    const head = document.createElement('header'), title = document.createElement('b'), sub = document.createElement('span');
+    title.textContent = name; sub.textContent = stop; head.append(title, sub); d.append(head);
     const path = document.createElement('div'); path.className = 'path';
-    LEVELS.slice(0, LEVEL_IDS.length).forEach((lv, i) => {
-      const b = document.createElement('button');
+    for (const i of indices) {
+      const lv = LEVELS[i], n = gSave.stars[i] || 0, b = document.createElement('button');
       b.className = 'lv' + (gSave.clear[i] ? ' cleared' : '');
-      const n = gSave.stars[i] || 0;
-      b.innerHTML = `<em>${String(i + 1).padStart(2, '0')}</em><b>${lname(lv)}</b><small>${lv.tag[zh() ? 'zh' : 'en']}</small>` +
-        `<span>${'★'.repeat(n)}<s>${'★'.repeat(3 - n)}</s></span>`;
-      if (!unlocked(i)) b.disabled = true;
-      b.addEventListener('click', () => { GAME.ranked = null; enterGame(i); });
-      path.appendChild(b);
-    });
-    d.appendChild(path); box.appendChild(d);
+      b.innerHTML = '<em>' + String(i + 1).padStart(2,'0') + '</em><b></b><small></small><span>' + '★'.repeat(n) + '<s>' + '★'.repeat(3-n) + '</s></span>';
+      b.querySelector('b').textContent = lname(lv); b.querySelector('small').textContent = lv.tag[zh() ? 'zh':'en'];
+      b.disabled = !unlocked(i); b.addEventListener('click', () => { GAME.ranked = null; enterGame(i); }); path.append(b);
+    }
+    d.append(path);
+    if (!open) { const note=document.createElement('p'); note.textContent=zh() ? '通关上一张地图后解锁' : 'Clear the previous map to unlock'; d.append(note); }
+    box.append(d);
   });
-  coinIcons();
-  closeSheets();
-  $('sheetLevels').classList.add('on');
+  coinIcons(); closeSheets(); $('sheetLevels').classList.add('on');
 }
 function showShop() {
   const list = $('shopList');
@@ -2960,7 +3836,7 @@ function gameFrame(dt) {
   } else if (GAME.state === 'aim') {
     // frame the sling and the goal together; a phone too narrow for both keeps the sling and points at the goal
     const left = lv.start[0] - 1.4, right = goalOf(lv).x1 + 0.8;
-    vw = Math.max(base, Math.min(portrait ? 14 : 22, right - left));
+    vw = Math.max(base, Math.min(portrait ? 10.5 : 22, right - left));
     _tgt.set(left + vw / 2, lv.start[1] + 0.2, 0);
   } else {
     let bx = 0, by = 0;
@@ -2974,7 +3850,7 @@ function gameFrame(dt) {
   GAME.cam.lerp(_tgt, k);
   const d = (GAME.vw / 2) / (tf * aspect);
   const halfH = d * tf;
-  const cy = Math.max(GAME.cam.y, halfH * 0.72 - 0.4);          // keep the floor near the bottom edge
+  const cy = Math.max(GAME.cam.y, halfH * (portrait ? 0.42 : 0.72) - 0.4);          // keep the floor near the bottom edge
   GAME.shake = Math.max(0, GAME.shake - dt * 1.4);
   GAME.kick.multiplyScalar(Math.exp(-dt * 9));
   const sh = GAME.shake * GAME.shake;
@@ -3287,13 +4163,29 @@ function beginBattleScene() {
   for (const b of bears.slice()) drop(b);
   factory.visible = false; dots.visible = false; battleSceneOn = true;
   document.body.classList.add('battle');
-  for (const x of [-5, 5]) {
-    const o = new THREE.Mesh(rbox(4, .8, 2), mat(x < 0 ? 'pink' : 'mint'));
-    o.position.set(x, -.4, 0); level.add(o);
+  // The two platforms are the same moulded shells as the campaign machinery: a chamfered
+  // body, a cream frame rail along the front edge and studs on it.  Only the visual side of
+  // the box is dressed — the collider the shared simulation uses never sees any of this.
+  for (const s of [-1, 1]) {
+    const g = new THREE.Group();
+    const body = new THREE.Mesh(rbox(4, .8, 2), mat(s < 0 ? 'pink' : 'mint'));
+    body.castShadow = body.receiveShadow = true; g.add(body);
+    const b = new OrnamentBatch();
+    b.push(geo('box', 4.1, 0.11, 2.06), PAL.cream, [0, -0.4, 0]);
+    b.push(geo('box', 4.1, 0.11, 2.06), PAL.cream, [0, 0.44, 0]);
+    for (const e of [-1, 1]) {
+      b.push(geo('box', 0.13, 0.94, 2.06), PAL.cream, [e * 1.98, 0, 0]);
+      for (let k = 0; k < 3; k++) b.push(geo('sphere', 0.045, 6, 5), PAL.metal, [e * 2.02, -0.28 + k * 0.28, 1.0]);
+    }
+    for (let k = 0; k < 3; k++) b.push(geo('box', 3.7, 0.05, 0.05), PAL.seam, [0, 0.42, 0.98 + 0.001 * k]);
+    const bm = b.mesh(zoneArtMat());
+    if (bm) g.add(bm);
+    g.position.set(s * 5, -0.4, 0);
+    level.add(g);
   }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6 * 6), 3));
-  battleGlue = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: 0xe8b8e8 }));
+  const glueGeo = new THREE.BufferGeometry();               // named `glueGeo`, not `geo`: the art helper owns that name
+  glueGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6 * 6), 3));
+  battleGlue = new THREE.LineSegments(glueGeo, new THREE.LineBasicMaterial({ color: 0xe8b8e8 }));
   level.add(battleGlue);
   camera.clearViewOffset();
   camera.fov = 36; camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
@@ -3526,13 +4418,33 @@ async function loadPlaza() {
   } catch (e) { setBox(box, olErr(e)); }
 }
 
-/* ---- the sheet ---- */
+/* ---- the sheet (presentation only: candy-toy tokens, no protocol change) ---- */
 const OL_CSS = `#sheetOnline [hidden]{display:none!important}.ol-panel{width:min(560px,100%)}
-.ol-bar,.ol-row,.ol-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}.ol-row{justify-content:space-between;font-size:13px;padding:4px 2px;border-bottom:1px solid var(--hair)}
-.ol-row span:nth-child(2){flex:1}.ol-row.me{font-weight:700}.ol-dim{color:var(--ink-soft);font-size:12px}
-.ol-b,.ol-s,.ol-bar select,.ol-bar input{padding:9px 12px;border:1px solid var(--hair);background:#fff;border-radius:10px;font:600 12px var(--sans);color:var(--ink);cursor:pointer}
-.ol-b.pri{background:var(--ink);color:#fff}.ol-s{padding:6px 9px}.ol-tabs .on{background:var(--ink);color:#fff}.ol-bar input{cursor:text;min-width:0;flex:1}
-.ol-item{padding:8px 0;border-bottom:1px solid var(--hair)}.ol-b:disabled,.ol-s:disabled{opacity:.35}`;
+.ol-bar,.ol-row,.ol-acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.ol-row{justify-content:space-between;font-size:13px;padding:6px 2px;border-bottom:2px dashed var(--hair)}
+.ol-row span:nth-child(2){flex:1}.ol-row.me{font-weight:800;color:var(--cherry-deep)}.ol-dim{color:var(--ink-soft);font-size:12px;line-height:1.5}
+/* the same molded shell as every other button in the game */
+.ol-b,.ol-s,.ol-bar select,.ol-bar input{
+  min-height:44px; padding:9px 13px; border:2px solid var(--cocoa-edge); border-radius:11px;
+  background:linear-gradient(180deg,#fff,var(--cream-2)); font:800 12px var(--sans); color:var(--ink); cursor:pointer;
+  box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.28);
+}
+.ol-b:active,.ol-s:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.28)}
+.ol-b.pri{
+  background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border-color:var(--cherry-deep);
+  text-shadow:0 1px 0 rgba(71,51,45,.35); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--cherry-deep);
+}
+.ol-b.pri:active{box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 1px 0 var(--cherry-deep)}
+.ol-s{padding:8px 11px; min-width:44px}
+.ol-tabs .on,.ol-b.on{
+  background:linear-gradient(180deg,#a6dccb,var(--mint)); border-color:var(--mint-deep); color:var(--ink);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55), 0 3px 0 var(--mint-deep);
+}
+.ol-bar input{cursor:text;min-width:0;flex:1;background:#fff;font-weight:700}
+.ol-item{padding:10px 0;border-bottom:2px dashed var(--hair)}.ol-b:disabled,.ol-s:disabled{opacity:.38}
+.ol-t{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
+.ol-t b{font-weight:800}
+#sheetOnline .panel h3{color:var(--cherry-deep)}`;
 function drawIdentity() {
   const u = OL.ui; if (!u.idBox) return;
   const nick = u.idBox.querySelector('[data-ol=nick]'), mine = u.idBox.querySelector('[data-ol=mine]');
@@ -3607,9 +4519,9 @@ function initOnlineUI() {
   /* entries: masthead + map panel */
   const mk = (a, b, tab, cls) => lbl(el('button', { class: cls, type: 'button', on: { click: () => openOnline(tab) } }), a, b);
   const ws = $('workshopBtn');
-  if (ws && ws.parentNode) { ws.parentNode.appendChild(mk('在线榜 · 广场 · 对战', 'Online · Ranks · Battle', 'rank', 'cta rise d4')); }
+  if (ws && ws.parentNode) { ws.parentNode.appendChild(mk('在线榜 · 广场 · 对战', 'Online · Ranks · Battle', 'rank', 'cta rise d4 cta-2nd cta-trophy')); }
   const shop = $('mShop');
-  if (shop && shop.parentNode) shop.parentNode.appendChild(lbl(el('button', { class: 'chip', type: 'button', on: { click: () => openOnline('rank') } }), '🏆 在线', '🏆 Online'));
+  if (shop && shop.parentNode) shop.parentNode.appendChild(lbl(el('button', { class: 'chip icon-lead icon-trophy', type: 'button', on: { click: () => openOnline('rank') } }), '在线', 'Online'));
   const lang = $('lang'); if (lang) lang.addEventListener('click', () => setTimeout(relabel, 0));
 }
 initOnlineUI();
@@ -3628,17 +4540,71 @@ const BT_ERR = { 'not-your-turn': ['还没轮到你', 'Not your turn'], 'no-stoc
 const btErr = (c) => (BT_ERR[c] ? tr(...BT_ERR[c]) : String(c));
 
 /* ---- HUD (built once, all createElement/textContent) ---- */
-const BT_CSS = `.bt-hud{position:fixed;inset:0;z-index:5;pointer-events:none;font:600 13px var(--sans);color:var(--ink)}.bt-hud [hidden]{display:none!important}
+/* Presentation only: the same candy-toy tokens as the rest of the UI. No protocol or state touch. */
+const BT_CSS = `.bt-hud{position:fixed;inset:0;z-index:5;pointer-events:none;font:700 13px var(--sans);color:var(--ink)}.bt-hud [hidden]{display:none!important}
 body.battle .masthead,body.battle .card,body.battle .credit,body.battle #coach{opacity:0!important;visibility:hidden}
-.bt-top{position:absolute;left:0;right:0;top:0;display:flex;gap:10px;align-items:flex-start;padding:calc(12px + env(safe-area-inset-top)) 14px 0}
-.bt-side{flex:1;background:rgba(255,255,255,.85);border:1px solid var(--hair);border-radius:12px;padding:8px 10px}.bt-side.turn{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink)}
-.bt-bar{height:7px;border-radius:4px;background:#e6dfd2;margin-top:6px;overflow:hidden}.bt-bar i{display:block;height:100%;background:#4b9f64;width:100%}
-.bt-mid{text-align:center;min-width:92px}.bt-mid b{display:block;font:italic 400 28px/1 var(--serif)}.bt-b,.bt-k{pointer-events:auto;cursor:pointer;border:1px solid var(--hair);background:rgba(255,255,255,.9);border-radius:999px;padding:9px 14px;font:600 12px var(--sans);color:var(--ink)}
-.bt-bot{position:absolute;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center}.bt-k.on{background:var(--ink);color:#fff}.bt-k:disabled{opacity:.35}
-.bt-msg{position:absolute;left:50%;top:96px;transform:translateX(-50%);background:rgba(255,255,255,.92);border-radius:12px;padding:8px 14px;max-width:80vw;text-align:center}
-.bt-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border:1px solid var(--hair);border-radius:18px;padding:22px;min-width:260px;text-align:center;pointer-events:auto;box-shadow:0 30px 80px -30px rgba(20,19,15,.5)}
-.bt-card h4{margin:0 0 6px;font:italic 400 30px/1.1 var(--serif)}.bt-card .bt-row{display:flex;gap:8px;justify-content:center;margin-top:14px}.bt-code{font:700 34px/1 monospace;letter-spacing:.18em;margin:8px 0}
-.bt-svg{position:absolute;inset:0;width:100%;height:100%;display:none}`;
+.bt-top{position:absolute;left:0;right:0;top:0;display:flex;gap:8px;align-items:flex-start;padding:calc(10px + env(safe-area-inset-top)) 12px 0}
+.bt-side{
+  flex:1; min-width:0; padding:9px 11px; border-radius:14px;
+  background:linear-gradient(180deg,#fffdf8,var(--cream-2)); border:2px solid var(--cocoa-edge);
+  box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.22);
+}
+.bt-side.turn{border-color:var(--cherry-deep); box-shadow:inset 0 2px 0 #fff, 0 0 0 3px rgba(223,70,87,.28), 0 3px 0 rgba(106,81,69,.22)}
+.bt-side > div:first-child{display:flex; align-items:baseline; gap:5px; flex-wrap:wrap}
+.bt-side .ol-dim{font-weight:700}
+.bt-bar{height:9px;border-radius:6px;background:var(--cream-3);margin-top:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(71,51,45,.25)}
+.bt-bar i{display:block;height:100%;background:linear-gradient(180deg,#a6dccb,var(--mint-deep));width:100%;transition:width .25s}
+.bt-mid{text-align:center;min-width:96px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bt-mid b{
+  display:grid; place-items:center; min-width:52px; height:44px; font:800 24px/1 var(--sans);
+  color:var(--ink); background:var(--cream); border:2px solid var(--cocoa-edge); border-radius:14px;
+  box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.24); font-variant-numeric:tabular-nums;
+}
+.bt-b,.bt-k{
+  pointer-events:auto; cursor:pointer; min-height:44px; padding:9px 15px; border-radius:999px;
+  border:2px solid var(--cocoa-edge); background:linear-gradient(180deg,#fff,var(--cream-2));
+  font:800 12px var(--sans); color:var(--ink);
+  box-shadow:inset 0 2px 0 #fff, 0 3px 0 rgba(106,81,69,.3);
+  transition:transform .12s, box-shadow .12s;
+}
+.bt-b:active,.bt-k:active{transform:translateY(2px); box-shadow:inset 0 2px 0 #fff, 0 1px 0 rgba(106,81,69,.3)}
+.bt-bot{position:absolute;left:0;right:0;bottom:calc(14px + env(safe-area-inset-bottom));display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 12px}
+.bt-k.on{
+  background:linear-gradient(180deg,#ec5c6b,var(--cherry)); color:#fff; border-color:var(--cherry-deep);
+  text-shadow:0 1px 0 rgba(71,51,45,.35); box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 4px 0 var(--cherry-deep);
+}
+.bt-k.on:active{box-shadow:inset 0 2px 0 rgba(255,255,255,.5), 0 1px 0 var(--cherry-deep)}
+.bt-k:disabled{opacity:.38; cursor:default}
+.bt-msg{
+  position:absolute;left:50%;top:104px;transform:translateX(-50%);max-width:80vw;text-align:center;
+  padding:9px 15px; border-radius:14px; background:var(--cream); border:2px solid var(--cocoa-edge);
+  font-weight:800; box-shadow:0 4px 0 rgba(106,81,69,.24);
+}
+.bt-card{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:auto;text-align:center;
+  min-width:264px; padding:22px; border-radius:20px;
+  background:linear-gradient(180deg,var(--cream) 0%,#fdf0d9 60%,#eef7f2 100%);
+  border:3px solid var(--cocoa-edge);
+  box-shadow:inset 0 3px 0 #fff, 0 8px 0 rgba(106,81,69,.2), 0 30px 80px -30px rgba(71,51,45,.7);
+}
+.bt-card h4{margin:0 0 6px;font:800 27px/1.15 var(--sans);letter-spacing:-.01em}
+.bt-card .bt-row{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.bt-code{
+  font:800 32px/1 ui-monospace,monospace;letter-spacing:.16em;margin:10px auto;padding:8px 12px;max-width:max-content;
+  color:var(--ink); background:var(--cream-2); border:2px dashed var(--line); border-radius:12px;
+}
+.bt-svg{position:absolute;inset:0;width:100%;height:100%;display:none}
+@media (max-width:760px), (max-aspect-ratio:4/5){
+  .bt-top{flex-wrap:wrap;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 8px 0}
+  .bt-side{padding:7px 9px;font-size:12px}
+  .bt-mid{order:-1;flex-basis:100%;flex-direction:row;justify-content:center;gap:8px;min-width:0}
+  .bt-mid b{min-width:46px;height:40px;font-size:21px}
+  .bt-msg{top:auto;bottom:calc(74px + env(safe-area-inset-bottom))}
+  .bt-b,.bt-k{min-height:44px;padding:8px 12px;font-size:11.5px}
+  .bt-card{padding:18px 16px;min-width:0;width:calc(100% - 24px)}
+  .bt-card h4{font-size:23px}
+  .bt-code{font-size:26px}
+}`;
 function btSvg(tag, attrs) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); return e; }
 function buildHud() {
   if (BS.h) return BS.h;

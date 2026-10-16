@@ -5,7 +5,7 @@ import { RIG } from "./physics.mjs";
 
 /* bump on ANY change that can alter a replay's score / outcome.  A server must refuse to
    compare runs across versions; leaderboards are bucketed by it. */
-export const RULES_VERSION = "gummy-rules-4";
+export const RULES_VERSION = "gummy-rules-5";
 
 export const TICK_HZ = 300;
 export const TICK_DT = 1 / TICK_HZ;            // fixed substep, same as the browser's CFG.subH

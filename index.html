@@ -3033,22 +3033,13 @@ function partMesh(P) {
         partAdd(B, 'metal', geo('sphere', 0.03, 5, 4), PAL.steel, [Math.cos(a) * r * 0.4, Math.sin(a) * r * 0.4, s * 1.24]);
       }
       // the bearing housing never turns, so it is fixed in the world; a crusher travels, so it has none
-      if (!big) partAdd(B, 'fixed', geo('box', r * 1.0, r * 1.0, 0.16), PAL.cream, [0, 0, s * 1.02]);
-    }
-    if (!big) for (let k = 0; k < 4; k++) {                  // ribs turn with the shell
-      const a = (k / 4) * Math.PI * 2;
-      partAdd(B, 'matte', geo('box', 0.05, r * 0.8, 1.34), PAL.cream,
-        [Math.cos(a) * r * 0.94, Math.sin(a) * r * 0.94, 0], [0, 0, a]);
+      if (!big && s < 0) partAdd(B, 'fixed', geo('box', r * .7, r * .7, 0.12), PAL.cream, [0, 0, -1.42]);
     }
   } else if (P.t === 'glass') {
     // sugar glass: a thin moulded pane with a cream frame that stops short of its outline
     add(rbox(P.w, P.h, D), glassMat());
-    const f = Math.min(0.055, P.w * 0.3, P.h * 0.12);
-    for (const s of [-1, 1]) {
-      partAdd(B, 'matte', geo('box', f, P.h * 0.96, 1.66), PAL.cream, [s * (P.w / 2 - f / 2), 0, 0]);
-      partAdd(B, 'matte', geo('box', P.w * 0.92, f, 1.66), PAL.cream, [0, s * (P.h / 2 - f / 2), 0]);
-      partAdd(B, 'metal', geo('sphere', 0.045, 7, 6), PAL.metal, [0, s * (P.h / 2 - f / 2), 0.85]);
-    }
+    // The pane owns its edges. Front-mounted fasteners do not duplicate its six faces.
+    for (const sy of [-1, 1]) partAdd(B, 'metal', geo('sphere', .025, 6, 5), PAL.metal, [0, sy * P.h * .4, .79]);
   } else if (P.t === 'jar') {
     // a candy jar: glass body, metal neck ring, cream lid
     add(new THREE.CylinderGeometry(P.w / 2, P.w / 2, P.h, 16), jarMat());
@@ -3085,30 +3076,24 @@ function partMesh(P) {
       }
     }
   } else if (P.t === 'spring') {
-    // a stacking spring: the striped body keeps its map, the collars and the booster plate merge
+    // The striped shell alone owns the spring's contact faces.
     add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: stripes(PAL.butter, PAL.ink, 6), roughness: 0.5 }));
-    for (const s of [-1, 1]) {
-      partAdd(B, 'matte', geo('box', P.w * 0.94, 0.05, 1.56), PAL.cream, [0, s * P.h / 2, 0]);
-      partAdd(B, 'metal', geo('box', P.w * 0.52, 0.07, 0.4), PAL.metal, [s * P.w * 0.44, 0, 0.8]);
-    }
   } else if (P.t === 'press') {
     // a thick moulded ram: the metal body reads through its own material, the cream cheek
     // plates and rails are moulding.  The rod keeps its own mesh because it is long and thin.
     add(rbox(P.w, P.h, D), mat('metal'));
-    const amp = P.amp || 0, yTop = P.h / 2 + 0.3, yBot = -amp - P.h / 2, len = yTop - yBot;
-    for (const s of [-1, 1]) {
-      partAdd(B, 'matte', geo('box', 0.1, P.h, 1.62), PAL.cream, [s * (P.w / 2 - 0.05), 0, 0]);       // cheek: inside the collider
-      partAdd(B, 'fixed', geo('box', 0.14, len, 0.16), PAL.steel, [s * (P.w / 2 + 0.24), (yTop + yBot) / 2, -0.95]);   // guide rail: behind the bear, fixed
-    }
-    partAdd(B, 'fixed', geo('box', P.w + 0.62, 0.14, 0.2), PAL.cream, [0, yTop, -0.95]);      // yoke tying the rails together
-    partAdd(B, 'matte', geo('box', P.w * 1.06, 0.1, 1.6), PAL.cream, [0, P.h / 2 - 0.03, 0]);
-    add(new THREE.BoxGeometry(0.22, 8, 0.22), mat('ink')).position.y = 4 + P.h / 2;
+    const amp = P.amp || 0, top = P.h / 2 + .24, bottom = -amp - P.h / 2;
+    for (const side of [-1, 1]) partAdd(B, 'fixed', geo('box', .1, top - bottom, .12), PAL.steel,
+      [side * (P.w / 2 - .12), (top + bottom) / 2, -1.12]);
+    // The mounting frame stays within this machine's footprint: adjacent presses
+    // cannot stack their rear yokes on the same plane.
+    partAdd(B, 'fixed', geo('box', P.w + .1, .1, .12), PAL.cream, [0, top + .08, -1.12]);
   } else if (P.t === 'blade') {
     // a guillotine: bright edge and carrier above it, both merged; only the long rod is separate
     add(rbox(P.w, P.h, 1.2), mat('metal'));
-    partAdd(B, 'metal', geo('box', P.w, 0.1, 1.26), PAL.steel, [0, -P.h / 2 + 0.05, 0]);          // bright cutting edge, flush
-    partAdd(B, 'glow', geo('box', 0.5, 0.35, 1.25), PAL.rose, [0, P.h / 2, 0]);
-    add(new THREE.BoxGeometry(0.1, 8, 0.1), mat('ink')).position.y = 4 + P.h / 2;
+    partAdd(B, 'matte', geo('box', Math.max(.14, P.w * .8), .15, .06), PAL.rose, [0, P.h * .3, .67]);
+    const length = (P.amp || 0) + P.h + .3;
+    partAdd(B, 'fixed', geo('box', .08, length, .1), PAL.ink, [0, -.5 * (P.amp || 0), -1.12]);
   } else if (P.t === 'belt') {
     // the running belt keeps its animated stripe texture; the end caps, legs and cleats merge
     const t = stripes(0x3a3835, 0x55524d, 12).clone(); t.repeat.set(P.w / 1.2, 1); t.needsUpdate = true;
@@ -3116,9 +3101,9 @@ function partMesh(P) {
     add(rbox(P.w, P.h, D), new THREE.MeshStandardMaterial({ map: t, roughness: 0.7 }));
     for (const s of [-1, 1]) {
       const x = s * (P.w / 2 - P.h / 2);
-      partAdd(B, 'metal', geo('cyl', P.h * 0.5, 1.5, 14), PAL.steel, [x, 0, 0], [Math.PI / 2, 0, 0]);
-      partAdd(B, 'metal', geo('cyl', P.h * 0.5 + 0.04, 0.16, 14), PAL.metal, [x, 0, 0.8], [Math.PI / 2, 0, 0]);
-      partAdd(B, 'matte', geo('box', 0.09, P.h * 2.4, 1.5), PAL.cream, [s * (P.w / 2 - 0.1), -P.h * 0.7, 0]);
+
+      partAdd(B, 'metal', geo('cyl', P.h * 0.5 + 0.04, 0.16, 14), PAL.metal, [x, 0, 0.91], [Math.PI / 2, 0, 0]);
+
     }
     const n = Math.max(2, Math.min(9, Math.round(P.w / 1.3)));
     for (let k = 0; k < n; k++) {
@@ -3128,18 +3113,12 @@ function partMesh(P) {
   } else {
     // a moulded panel: the shell keeps its own colour material, the frame rails, seam line and
     // corner rivets merge into the two batches
-    add(rbox(P.w, P.h, D), mat(P.c || 'cream'));
-    const ang = 0;                                  // the group is already turned by the part's angle
-    const along = Math.max(0.06, Math.min(0.075, P.w / 2.6, P.h / 2.6));
-    if (Math.min(P.w, P.h) > 0.34) {
-      if (P.w >= P.h) partAdd(B, 'metal', geo('box', P.w * 0.86, 0.022, 0.02), PAL.seam, [0, 0, 0.76], [0, 0, ang]);
-      else partAdd(B, 'metal', geo('box', 0.022, P.h * 0.86, 0.02), PAL.seam, [0, 0, 0.76], [0, 0, ang]);
-    }
-    for (const s of [-1, 1]) {
-      const off = s * (P.h / 2 - along * 0.5);
-      partAdd(B, 'matte', geo('box', P.w * 0.99, along, 1.56), PAL.cream,
-        [-Math.sin(ang) * off, Math.cos(ang) * off, 0], [0, 0, ang]);
-    }
+    // Tall narrow columns are structural supports behind the route, not a second
+    // full-depth face laid over a ramp or deck at the same z plane.
+    const column = P.w <= .65 && P.h >= 1.2;
+    add(rbox(P.w, P.h, column ? 1.0 : D), mat(P.c || 'cream'));
+    const ang = 0;
+    // No full-depth frame: it used to redraw the shell's contact planes.
     const nx = P.w > 0.9 ? 3 : 2, ny = P.h > 1.2 ? 3 : 2;
     if (P.w > 0.4 && P.h > 0.3) {
       for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
@@ -3162,11 +3141,13 @@ function signTex(text, sub, bg) {
     g.font = '600 40px "PingFang SC","Microsoft YaHei",sans-serif'; g.fillText(sub, w / 2, 196, w - 60);
   });
 }
-function zoneMesh(Z) {
+function zoneMesh(Z, lv) {
   const w = Z.x1 - Z.x0, h = Z.y1 - Z.y0, cx = (Z.x0 + Z.x1) / 2, cy = (Z.y0 + Z.y1) / 2, g = new THREE.Group();
   // the frame around a zone is decoration, so it is merged into one mesh: a zone costs at
   // most two draw calls (the body plus its frame) regardless of how many rails it has.
   const frame = new OrnamentBatch();
+  const hasLanding = lv?.parts.some(P => (P.t === 'box' || P.t === 'belt') && !P.a && !P.spin
+    && P.x + P.w / 2 > Z.x0 + .02 && P.x - P.w / 2 < Z.x1 - .02 && P.y + P.h / 2 >= Z.y0);
   // No rail ever crosses a zone's opening: a frame over the entry would read as a lid the
   // bear has to get past, which is a lie — there is no collider there.  Only side walls, a
   // floor, and a back panel behind the rear pane; the safe area stays visually open.
@@ -3176,28 +3157,32 @@ function zoneMesh(Z) {
     const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, 1.3),
       new THREE.MeshStandardMaterial({ color: PAL.treat, transparent: true, opacity: 0.6, roughness: 0.15, depthWrite: false }));
     o.position.set(cx, cy, 0); g.add(o);
-    for (const s of [-1, 1]) frame.push(geo('box', 0.14, h, 1.56), PAL.cream, [cx + s * (w / 2 + 0.07), cy, 0]);
-    frame.push(geo('box', w + 0.28, 0.16, 1.6), PAL.cream, [cx, Z.y0 + 0.08, 0]);
+    for (const s of [-1, 1]) frame.push(geo('box', .1, h, .12), PAL.cream, [cx + s * (w / 2 - .12), cy, -.94]);
+    if (!hasLanding) frame.push(geo('box', w - .12, .14, 1.1), PAL.cream, [cx, Z.y0 + .08, 0]);
     frame.push(geo('box', w + 0.28, h * 0.9, 0.12), PAL.cream, [cx, cy, -0.98]);      // back panel
   } else if (Z.kind === 'grinder') {
     // the grinder mouth: a dark floor plate between two cream cheeks, with a small collar on
     // each cheek only — the mouth itself stays open from above, where the bear falls in
-    const o = new THREE.Mesh(geo('box', w, 0.3, 1.4), mat('ink'));
-    o.position.set(cx, 0.15, 0); g.add(o);
+    if (!hasLanding) {
+      const o = new THREE.Mesh(geo('box', w - .1, .26, 1.2), mat('ink'));
+      o.position.set(cx, Z.y0 + .14, 0); g.add(o);
+    }
     for (const s of [-1, 1]) {
-      frame.push(geo('box', 0.18, h, 1.58), PAL.cream, [cx + s * (w / 2 + 0.09), cy, 0]);
+      frame.push(geo('box', .1, h, .12), PAL.cream, [cx + s * (w / 2 - .12), cy, -.94]);
       frame.push(geo('torus', 0.13, 0.04, 5, 14), PAL.metal, [cx + s * (w / 2 + 0.09), Z.y1 - 0.22, 0], [Math.PI / 2, 0, 0]);
     }
   } else {
     // the packing crate: a cream tray with thin side rails and the back panel.  Nothing spans
     // the opening, so the drop the player is aiming for reads plainly.
-    const tray = new THREE.Mesh(rbox(w, 0.12, 1.4), mat('pink'));
-    tray.position.set(cx, 0.06, 0); tray.receiveShadow = true; g.add(tray);
+    if (!hasLanding) {
+      const tray = new THREE.Mesh(rbox(w - .08, .1, 1.2), mat('pink'));
+      tray.position.set(cx, Z.y0 + .07, 0); tray.receiveShadow = true; g.add(tray);
+    }
     const rail = 0.14;
     for (const s of [-1, 1]) {
-      frame.push(geo('box', rail, h * 0.82, 1.58), PAL.cream, [cx + s * (w / 2 + rail / 2), cy - h * 0.06, 0]);
+      frame.push(geo('box', .08, h * .82, .1), PAL.cream, [cx + s * (w / 2 - .1), cy - h * .06, -.87]);
       for (let k = 0; k < 2; k++) {
-        frame.push(geo('sphere', 0.04, 6, 5), PAL.metal, [cx + s * (w / 2 + rail / 2), Z.y0 + 0.2 + k * (h - 0.4) * 0.9, 0.81]);
+        frame.push(geo('sphere', .035, 6, 5), PAL.metal, [cx + s * (w / 2 - .1), Z.y0 + .24 + k * Math.max(.1, h - .5) * .8, -.79]);
       }
     }
     frame.push(geo('box', w + rail * 2, h, rail), PAL.cream, [cx, cy, -0.98]);   // behind the back pane
@@ -3210,7 +3195,7 @@ function zoneMesh(Z) {
                        : ['GOAL', Z.kind === 'syrup' ? 'syrup vat ↓' : Z.kind === 'grinder' ? 'grinder ↓' : 'packing box ↓'];
     const s = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.9),
       new THREE.MeshBasicMaterial({ map: signTex(words[0], words[1], '#2f8f5b'), transparent: true, toneMapped: false }));
-    s.position.set((Z.x0 + Z.x1) / 2, Z.y1 + 1.5, 0.3);
+    s.position.set((Z.x0 + Z.x1) / 2, Z.y1 + 1.5, 1.55);
     g.add(s); Z.sign = s;
   }
   return g;
@@ -3245,12 +3230,12 @@ function buildLevel(li) {
     pose(P, 0);
     W.parts.push(P);
   }
-  for (const z of lv.zones || []) { const Z = { ...z, hit: false }; level.add(zoneMesh(Z)); W.zones.push(Z); }
+  for (const z of lv.zones || []) { const Z = { ...z, hit: false }; level.add(zoneMesh(Z, lv)); W.zones.push(Z); }
   flushLoose(level, LOOSE);                 // after the zones, so their frames share the same two meshes
   LOOSE = null;
   for (const [index, c] of (lv.collectibles || []).entries()) {
     const mesh = new THREE.Mesh(new THREE.OctahedronGeometry(.23), starMat());
-    mesh.position.set(c.x, c.y, .25); level.add(mesh); W.collectibles.push({ ...c, index, mesh });
+    mesh.position.set(c.x, c.y, 1.05); level.add(mesh); W.collectibles.push({ ...c, index, mesh });
   }
   // the moulded hardware was authored per part and per zone above and has already been merged:
   // static parts share two level-wide meshes (flushLoose) and a moving part carries one of its own
@@ -4171,13 +4156,12 @@ function beginBattleScene() {
     const body = new THREE.Mesh(rbox(4, .8, 2), mat(s < 0 ? 'pink' : 'mint'));
     body.castShadow = body.receiveShadow = true; g.add(body);
     const b = new OrnamentBatch();
-    b.push(geo('box', 4.1, 0.11, 2.06), PAL.cream, [0, -0.4, 0]);
-    b.push(geo('box', 4.1, 0.11, 2.06), PAL.cream, [0, 0.44, 0]);
+    // The platform shell alone owns the landing surface. Front-only fascia and studs
+    // cannot overlap its top plane or invent an uncollidable lip above the king's feet.
+    b.push(geo('box', 3.7, .08, .04), PAL.cream, [0, .24, 1.08]);
     for (const e of [-1, 1]) {
-      b.push(geo('box', 0.13, 0.94, 2.06), PAL.cream, [e * 1.98, 0, 0]);
-      for (let k = 0; k < 3; k++) b.push(geo('sphere', 0.045, 6, 5), PAL.metal, [e * 2.02, -0.28 + k * 0.28, 1.0]);
+      for (let k = 0; k < 3; k++) b.push(geo('sphere', .035, 6, 5), PAL.metal, [e * 1.8, -.24 + k * .24, 1.07]);
     }
-    for (let k = 0; k < 3; k++) b.push(geo('box', 3.7, 0.05, 0.05), PAL.seam, [0, 0.42, 0.98 + 0.001 * k]);
     const bm = b.mesh(zoneArtMat());
     if (bm) g.add(bm);
     g.position.set(s * 5, -0.4, 0);

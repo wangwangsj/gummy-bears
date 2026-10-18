@@ -9,6 +9,11 @@ export const LEVEL_IDS = Object.freeze(OFFICIAL_LEVELS.map((l) => l.id));
 export const CHAPTER_COUNT = 3;
 export const LEVELS_PER_CHAPTER = 7;
 
+/* Levels are bought with candy coins, the same currency as the upgrades: a delivery always pays,
+   so progress never stalls, but a better-aimed run pays more and opens the next level sooner.
+   Level 0 is free; every later one needs the previous level cleared plus its price. */
+export const levelPrice = (i) => i <= 0 ? 0 : Math.round(120 * Math.pow(1.10, i - 1) / 10) * 10;
+
 function integer(n, max = 100000000) { return Number.isFinite(n) ? Math.max(0, Math.min(max, Math.floor(n))) : 0; }
 
 /* the old save kept best / stars / clear as positional arrays indexed by level order.  Those
@@ -16,12 +21,16 @@ function integer(n, max = 100000000) { return Number.isFinite(n) ? Math.max(0, M
    stars and best scores; the fourteen new levels simply start empty. */
 export function migrateSave(raw) {
   const input = raw && typeof raw === "object" ? raw : {};
-  const save = { version: 3, coins: integer(input.coins),
+  const save = { version: 4, coins: integer(input.coins),
     up: Object.fromEntries(['sling', 'bounce', 'magnet'].map(k => [k, integer(input.up?.[k], 5)])),
     tipBreak: input.tipBreak === true, levels: {} };
+  const keyed = input.version === 3 || input.version === 4;
+  const cleared = LEVEL_IDS.map((id, i) => keyed ? input.levels?.[id]?.clear === true : input.clear?.[i] === true);
   LEVEL_IDS.forEach((id, i) => {
-    const entry = input.version === 3 ? input.levels?.[id] : null;
-    save.levels[id] = { clear: entry ? entry.clear === true : input.clear?.[i] === true,
+    const entry = keyed ? input.levels?.[id] : null;
+    // before v4 the next level opened for free on a clear; whatever that rule opened stays open
+    const open = i === 0 || cleared[i] || (input.version === 4 ? entry?.open === true : cleared[i - 1]);
+    save.levels[id] = { clear: cleared[i], open,
       stars: integer(entry ? entry.stars : input.stars?.[i], 3),
       best: entry ? integer(entry.best) : 0,
       legacyBest: integer(entry ? entry.legacyBest : input.best?.[i]) };
@@ -33,7 +42,8 @@ export function migrateSave(raw) {
 export function exportLegacy(save) {
   const safe = migrateSave(save);
   return { ...safe, best: LEVEL_IDS.map(id => safe.levels[id].best),
-    stars: LEVEL_IDS.map(id => safe.levels[id].stars), clear: LEVEL_IDS.map(id => safe.levels[id].clear) };
+    stars: LEVEL_IDS.map(id => safe.levels[id].stars), clear: LEVEL_IDS.map(id => safe.levels[id].clear),
+    open: LEVEL_IDS.map(id => safe.levels[id].open) };
 }
 
 export function updateProgress(save, id, result) {
@@ -41,5 +51,16 @@ export function updateProgress(save, id, result) {
   const next = migrateSave(save), entry = next.levels[id];
   if (result.goal) { entry.clear = true; entry.stars = Math.max(entry.stars, integer(result.stars, 3)); entry.best = Math.max(entry.best, integer(result.score)); }
   next.coins = integer(next.coins + integer(result.coins));
+  return next;
+}
+
+export function buyLevel(save, id) {
+  const i = LEVEL_IDS.indexOf(id);
+  if (i < 0) throw new Error('Only official levels are bought');
+  const next = migrateSave(save), entry = next.levels[id];
+  if (entry.open) throw new Error('Level is already open');
+  if (!next.levels[LEVEL_IDS[i - 1]].clear) throw new Error('Clear the previous level first');
+  if (next.coins < levelPrice(i)) throw new Error('Not enough coins');
+  next.coins -= levelPrice(i); entry.open = true;
   return next;
 }

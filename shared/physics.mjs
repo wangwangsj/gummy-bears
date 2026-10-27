@@ -37,7 +37,17 @@ const RIG_DEF = [
   ['handR',  0.335, 0.385,  0.058, 0.122],
   ['footL', -0.198, 0.085,  0.072, 0.128],
   ['footR',  0.198, 0.085,  0.072, 0.128],
+  // stump points: dormant until the first cut.  A severed hand or foot then keeps a second
+  // point (its wrist / ankle), so the piece is a short limb that tumbles, not a lone ball.
+  ['stumpHL', -0.201, 0.391,  0.035, 0.100],
+  ['stumpHR',  0.201, 0.391,  0.035, 0.100],
+  ['stumpFL', -0.123, 0.205,  0.045, 0.105],
+  ['stumpFR',  0.123, 0.205,  0.045, 0.105],
 ];
+const CORE = 10;                              // the first ten points are the live rig before any cut
+// each stump sits between its limb and the body: limb + (root - limb) * t
+const STUMPS = [['stumpHL', 'handL', 'body', 0.4], ['stumpHR', 'handR', 'body', 0.4],
+                ['stumpFL', 'footL', 'body', 0.38], ['stumpFR', 'footR', 'body', 0.38]];
 // stretchy strands: rendered as interpolated field balls, thinned by stretch
 const CHAINS = [
   ['body', 'head'], ['body', 'belly'], ['head', 'snout'], ['head', 'earL'], ['head', 'earR'],
@@ -58,7 +68,8 @@ const BRACES = [
   ['earL', 'snout'], ['earR', 'snout'],
 ];
 const MASS = { body: 1.6, belly: 1.0, head: 1.15, snout: 0.25, earL: 0.18, earR: 0.18,
-               handL: 0.35, handR: 0.35, footL: 0.5, footR: 0.5 };
+               handL: 0.35, handR: 0.35, footL: 0.5, footR: 0.5,
+               stumpHL: 0.2, stumpHR: 0.2, stumpFL: 0.25, stumpFR: 0.25 };
 
 export const RIG = (() => {
   const n = RIG_DEF.length;
@@ -74,7 +85,7 @@ export const RIG = (() => {
   // shape matching needs the rest pose about its own centre of mass, otherwise the
   // target is com + rest and every bear walks itself upward through the table
   let mx = 0, my = 0, mz = 0, mm = 0;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < CORE; i++) {
     mm += mass[i];
     mx += rest[i * 3] * mass[i]; my += rest[i * 3 + 1] * mass[i]; mz += rest[i * 3 + 2] * mass[i];
   }
@@ -85,19 +96,25 @@ export const RIG = (() => {
   }
   const restY = my;                              // rest centre-of-mass height above the floor
   let minY = 1e9;                                // lowest point of the rest pose, incl. radius
-  for (let i = 0; i < n; i++) minY = Math.min(minY, rest[i * 3 + 1] - col[i]);
+  for (let i = 0; i < CORE; i++) minY = Math.min(minY, rest[i * 3 + 1] - col[i]);
   const link = (a, b, k) => {
     const i = idx[a], j = idx[b];
     const dx = rest[i * 3] - rest[j * 3], dy = rest[i * 3 + 1] - rest[j * 3 + 1],
           dz = rest[i * 3 + 2] - rest[j * 3 + 2];
     return { i, j, rest: Math.hypot(dx, dy, dz), k };
   };
+  // stump links come last: chains / braces keep their indices, and they stay off until activation
+  const stumpLinks = STUMPS.flatMap(([s, limb, root]) => [link(s, limb, 1), link(s, root, 1), link(s, 'belly', 1)]);
+  const links = [...CHAINS.map(([a, b]) => link(a, b, 1)), ...BRACES.map(([a, b]) => link(a, b, 1)), ...stumpLinks];
   return {
-    n, idx, rest, rec, restY, minY, rad, col, inv, mass,
+    n, core: CORE, idx, rest, rec, restY, minY, rad, col, inv, mass,
+    coreMass: Array.from(mass.subarray(0, CORE)).reduce((a, m) => a + m, 0),
+    stumps: STUMPS.map(([s, limb, root, t]) => ({ i: idx[s], limb: idx[limb], root: idx[root], t })),
+    stumpLinks: stumpLinks.map((_, k) => links.length - stumpLinks.length + k),
     chains: CHAINS.map(([a, b]) => link(a, b, 1)),
     carve: CARVE.map((c) => ({ i: idx[c.a], j: idx[c.b], t: c.t, off: c.off, r: c.r })),
     braces: BRACES.map(([a, b]) => link(a, b, 1)),
-    links: [...CHAINS.map(([a, b]) => link(a, b, 1)), ...BRACES.map(([a, b]) => link(a, b, 1))],
+    links,
     // strand samples per chain, and the radius factor they carry
     strandT: [0.34, 0.67],
     strandR: 0.66,
@@ -134,7 +151,8 @@ export class Bear {
   constructor(env, x, y, z, yaw, flavour, vx, vy, vz) {
     this.env = env;
     const CFG = env.cfg;
-    const n = this.n = RIG.n;
+    const n = RIG.n;
+    this.n = RIG.core;                          // live points; grows to RIG.n at the first cut
     this.f = flavour;
     this.p = new Float32Array(n * 3);
     this.q = new Float32Array(n * 3);
@@ -163,6 +181,7 @@ export class Bear {
     // pieces: every link can be cut; seg[i] says which fragment a point belongs to
     this.seg = new Int8Array(n); this.segs = null;
     this.lk = new Uint8Array(RIG.links.length).fill(1);
+    for (const li of RIG.stumpLinks) this.lk[li] = 0;
     // strands: what is left of a cut limb, a long soft string of gummy that only pulls
     this.strands = [];
     this.up = [0, 1, 0];
@@ -171,6 +190,25 @@ export class Bear {
     // per-point hit flash and lasting stress whitening, read by the shader
     this.flash = new Float32Array(n); this.dmg = new Float32Array(n);
     this.hitSp = 0; this.hitPart = -1; this.hitNx = 0; this.hitNy = 1;
+    this.trackStumps();
+  }
+
+  /* dormant stumps ride between their limb and the body; they touch nothing, so a bear that is
+     never cut runs exactly as the ten-point rig did */
+  trackStumps() {
+    const p = this.p, q = this.q;
+    for (const S of RIG.stumps) {
+      const k = S.i * 3, a = S.limb * 3, b = S.root * 3;
+      for (let c = 0; c < 3; c++) { p[k + c] = p[a + c] + (p[b + c] - p[a + c]) * S.t; q[k + c] = q[a + c] + (q[b + c] - q[a + c]) * S.t; }
+    }
+  }
+  /* first cut: the stumps go live where they are, carrying their limb's velocity and bruises */
+  activateStumps() {
+    if (this.n >= RIG.n) return;
+    this.trackStumps();
+    for (const S of RIG.stumps) { this.dmg[S.i] = this.dmg[S.limb]; this.flash[S.i] = this.flash[S.limb]; }
+    for (const li of RIG.stumpLinks) this.lk[li] = 1;
+    this.n = RIG.n;
   }
 
   /* a point took a hit of speed sp (m/s) along normal n */
@@ -186,6 +224,10 @@ export class Bear {
   /* cut every live link the test says is crossed; returns how many.  With strand, the
      main strand across the cut survives as a stretchy string, so the piece dangles */
   cutWhere(test, strand) {
+    if (this.n < RIG.n) {
+      if (!RIG.links.some((L, li) => this.lk[li] && test(L.i, L.j))) return 0;
+      this.activateStumps();
+    }
     let any = 0, first = -1;
     RIG.links.forEach((L, li) => {
       if (!this.lk[li] || !test(L.i, L.j)) return;
@@ -272,6 +314,7 @@ export class Bear {
     }
     if (this.segs) this.selfCollide();
     this.collide(h);
+    if (this.n < RIG.n) this.trackStumps();
   }
 
   /* ---- volume-preserving shape matching ---- */
@@ -496,7 +539,7 @@ export function separate(a, b) {
   const pa = a.p, pb = b.p, qa = a.q, qb = b.q, n = a.n;
   for (let i = 0; i < n; i++) {
     const ri = RIG.col[i], wi = RIG.inv[i];
-    for (let j = 0; j < n; j++) {
+    for (let j = 0; j < b.n; j++) {
       const rj = RIG.col[j], wj = RIG.inv[j];
       const min = ri + rj;
       const A = i * 3, B = j * 3;

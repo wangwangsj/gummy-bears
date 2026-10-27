@@ -15,14 +15,14 @@ import { createWorld, collideWorld, poseAll } from "./world.mjs";
 import { OFFICIAL_LEVELS, levelById, validateLevel } from "./levels.mjs";
 import {
   RULES_VERSION, TICK_DT, SCORE_EVERY, SCORE_DT, MAX_RUN_TICKS, FLY_TIMEOUT, PHYSICS_BASE, LAUNCH_PHYSICS,
-  POINT_NAMES, BONE_OF, PART_OF, PART_MUL, BONE_SIDE, createRng, checkSeed, normalizeConfig, checkCommand,
+  POINT_NAMES, BONE_OF, PART_OF, PART_MUL, BONE_SIDE, createRng, checkSeed, normalizeConfig, checkCommand, FREEZE_S,
   starsFor,
 } from "./rules.mjs";
 
 export const STATES = Object.freeze(["intro", "aim", "fly", "over"]);
 export { RULES_VERSION };
 
-const TOTAL_MASS = RIG.mass.reduce((a, m) => a + m, 0);
+const liveMass = (b) => { let s = 0; for (let i = 0; i < b.n; i++) s += RIG.mass[i]; return s; };
 
 function resolveLevel(level) {
   const lv = typeof level === "string" ? levelById(level) : level;
@@ -49,6 +49,15 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
     anchor: null, anchorT: 0, cut: new Set(), seq: 0, events: [],
   };
   const time = () => run.tick * TICK_DT;
+  // the machines' clock: it starts where the player released, and with the freeze prop it
+  // stands still for the first FREEZE_S seconds of flight before running on from there
+  const freezeTicks = cfgUser.props?.includes("freeze") ? Math.round(FREEZE_S / TICK_DT) : 0;
+  const machineTick = () => run.waitTicks + Math.max(0, run.tick - freezeTicks);
+  function syncMachines() {
+    const hold = run.tick < freezeTicks;
+    if (hold !== !!world.hold) { world.hold = hold; world.t = -1; }
+    world.simT = machineTick() * TICK_DT;
+  }
   const emit = (type, data) => run.events.push({ seq: run.seq++, tick: run.tick, t: time(), type, ...data });
   const at = (i) => [bear.p[i * 3], bear.p[i * 3 + 1], bear.p[i * 3 + 2]];
 
@@ -148,7 +157,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
     refreshUp();
     let vx = 0, vy = 0;
     for (let i = 0; i < b.n; i++) { const m = RIG.mass[i]; vx += (b.p[i * 3] - b.q[i * 3]) * m; vy += (b.p[i * 3 + 1] - b.q[i * 3 + 1]) * m; }
-    vx /= TOTAL_MASS * cfg.subH; vy /= TOTAL_MASS * cfg.subH;
+    const M = liveMass(b); vx /= M * cfg.subH; vy /= M * cfg.subH;
     const pv = run.pv; run.pv = [vx, vy];
     // impacts: how hard the bear's own velocity was changed (gravity subtracted), summed over the frames a collision takes
     const dv = Math.hypot(vx - pv[0], vy - pv[1] - cfg.gravity * dt);
@@ -156,7 +165,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
     else if (run.ev > 0) {
       const ev = run.ev; run.ev = 0;
       const part = partName();
-      const raw = Math.min(900, TOTAL_MASS * ev * ev * 0.3) * PART_MUL[part];
+      const raw = Math.min(900, RIG.coreMass * ev * ev * 0.3) * PART_MUL[part];
       run.maxHit = Math.max(run.maxHit, ev);
       const hp = b.hitPart, hn = [b.hitNx, b.hitNy];
       b.hitSp = 0;
@@ -213,7 +222,11 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
     for (const P of world.breaks) {
       const pts = Math.round((P.pts || 0) * chain());
       addPts(pts, "bonus");
-      emit("smash", { kind: P.t, part: P.index, pts, at: [P.cx, P.cy, 0], fx: { freeze: 0.05, shake: 0.2 } });
+      const contact = P.breakImpact;
+      emit("smash", { kind: P.t, part: P.index, pts, at: [P.cx, P.cy, 0],
+        impact: contact ? { normal: [...contact.normal], velocity: [...contact.velocity], point: [...contact.point], speed: contact.speed } : null,
+        surface: contact ? { ...contact.surface } : null,
+        fx: { freeze: 0.05, shake: 0.2 } });
     }
     world.breaks.length = 0;
     // collectible stars: touched by any mass point, once each, flat pts
@@ -288,7 +301,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
   function launch(cmd) {
     if (run.state !== "aim") throw new Error(`launch() needs state "aim", run is "${run.state}"`);
     const { vx, vy, waitTicks = 0 } = checkCommand(cmd, cfgUser);
-    run.waitTicks = waitTicks; world.simT = waitTicks * TICK_DT; world.t = -1; poseAll(world);
+    run.waitTicks = waitTicks; world.t = -1; syncMachines(); poseAll(world);
     const b = bear, h = cfg.subH, c = b.centre();
     cfg.upright = LAUNCH_PHYSICS.upright; cfg.maxV = LAUNCH_PHYSICS.maxV; cfg.maxV2 = cfg.maxV * cfg.maxV; cfg.air = LAUNCH_PHYSICS.air;
     cfg.restitution = LAUNCH_PHYSICS.restitutionBase + LAUNCH_PHYSICS.restitutionPerBounce * cfgUser.bounce;
@@ -302,16 +315,16 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
     }
     let mx = 0, my = 0;
     for (let i = 0; i < b.n; i++) { mx += (b.p[i * 3] - b.q[i * 3]) * RIG.mass[i]; my += (b.p[i * 3 + 1] - b.q[i * 3 + 1]) * RIG.mass[i]; }
-    run.pv = [mx / (TOTAL_MASS * h), my / (TOTAL_MASS * h)]; run.ev = 0;
+    run.pv = [mx / (liveMass(b) * h), my / (liveMass(b) * h)]; run.ev = 0;
     run.state = "fly"; run.flyT = 0;
     emit("launch", { vx, vy });
   }
 
   function tickOnce() {
-    world.simT = (run.waitTicks + run.tick) * TICK_DT;
+    syncMachines();
     bear.step(TICK_DT, solve(cfg));
     run.tick++;
-    world.simT = (run.waitTicks + run.tick) * TICK_DT;
+    syncMachines();
     if (run.tick % SCORE_EVERY === 0) scoreStep(SCORE_DT);
     if (!run.done && run.tick >= MAX_RUN_TICKS) endRun("time");
   }
@@ -323,13 +336,13 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
 
   const arr = (a) => Array.from(a);
   function snapshot() {
-    world.simT = (run.waitTicks + run.tick) * TICK_DT;
+    syncMachines();
     poseAll(world);
     const events = run.events; run.events = [];                 // consumed exactly once; step() never drops them
     return {
       rules: RULES_VERSION, levelId: lv.id, t: time(), tick: run.tick, state: run.state, score: run.score, goal: run.goal,
       bears: [{
-        id: "bear-0", p: arr(bear.p), q: arr(bear.q), flavour: bear.f,
+        id: "bear-0", n: bear.n, p: arr(bear.p), q: arr(bear.q), flavour: bear.f,
         segments: arr(bear.seg), links: arr(bear.lk),
         strands: bear.strands.map((S) => ({ i: S.i, j: S.j, rest: S.rest, len: S.len || 0, bone: S.bone || null })),
         dmg: arr(bear.dmg), flash: arr(bear.flash), cut: [...run.cut],
@@ -337,7 +350,7 @@ export function createRun({ level, seed, config, flavour = 0 } = {}) {
         lk: arr(bear.lk), seg: arr(bear.seg), up: arr(bear.up),
         segs: bear.segs ? bear.segs.map((s) => ({ ids: arr(s.ids), n: s.n, mass: s.mass })) : null,
       }],
-      physT: world.simT, machineTick: run.waitTicks + run.tick,
+      physT: world.simT, machineTick: machineTick(), frozen: !!world.hold,
       run: { impact: run.impact, stretch: run.stretch, bonus: run.bonus, maxHit: run.maxHit, lost: run.lost, bestCombo: run.bestCombo, combo: run.combo },
       collectibles: world.collectibles.map((C) => ({ index: C.index, x: C.x, y: C.y, pts: C.pts, hit: C.hit })),
       brokenParts: world.parts.filter((P) => P.broken).map((P) => P.index),

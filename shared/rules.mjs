@@ -5,7 +5,7 @@ import { RIG } from "./physics.mjs";
 
 /* bump on ANY change that can alter a replay's score / outcome.  A server must refuse to
    compare runs across versions; leaderboards are bucketed by it. */
-export const RULES_VERSION = "gummy-rules-7";
+export const RULES_VERSION = "gummy-rules-9";
 
 export const TICK_HZ = 300;
 export const TICK_DT = 1 / TICK_HZ;            // fixed substep, same as the browser's CFG.subH
@@ -26,18 +26,29 @@ export const LAUNCH_PHYSICS = Object.freeze({ upright: 0, maxV: 0.075, air: 0.06
 
 /* body parts: which bone a point hangs on, and how a hit there is named and paid (parts/game.js) */
 export const POINT_NAMES = Object.freeze(Object.keys(RIG.idx));      // RIG_DEF order
-export const BONES = Object.freeze({ neck: ["head", "snout", "earL", "earR"], armL: ["handL"], armR: ["handR"],
-  legL: ["footL"], legR: ["footR"], waist: ["belly", "footL", "footR"] });
+export const BONES = Object.freeze({ neck: ["head", "snout", "earL", "earR"], armL: ["handL", "stumpHL"], armR: ["handR", "stumpHR"],
+  legL: ["footL", "stumpFL"], legR: ["footR", "stumpFR"], waist: ["belly", "footL", "footR", "stumpFL", "stumpFR"] });
 export const BONE_OF = Object.freeze({ head: "neck", snout: "neck", earL: "neck", earR: "neck", handL: "armL", handR: "armR",
-  footL: "legL", footR: "legR", body: "waist", belly: "waist" });
+  footL: "legL", footR: "legR", body: "waist", belly: "waist",
+  stumpHL: "armL", stumpHR: "armR", stumpFL: "legL", stumpFR: "legR" });
 export const PART_OF = Object.freeze({ head: "head", earL: "head", earR: "head", snout: "face", handL: "arm", handR: "arm",
-  footL: "leg", footR: "leg", body: "body", belly: "body" });
+  footL: "leg", footR: "leg", body: "body", belly: "body",
+  stumpHL: "arm", stumpHR: "arm", stumpFL: "leg", stumpFR: "leg" });
 export const PART_MUL = Object.freeze({ head: 1.5, face: 1.7, arm: 1.2, leg: 0.9, body: 1.0, butt: 1.3, land: 0.6 });
 export const BONE_SIDE = Object.freeze(Object.fromEntries(
   Object.entries(BONES).map(([k, v]) => [k, new Set(v.map((n) => RIG.idx[n]))])));
 
 /* sling strength: 15 at level 0, +8% per sling level (parts/game.js vmax) */
 export const vmax = (sling) => 15 * (1 + 0.08 * sling);
+
+/* one-throw props (campaign only: ranked configs come from the server and never carry any).
+   aim    - presentation only: a longer trajectory guide while aiming
+   freeze - every machine holds still for the first FREEZE_S seconds of flight
+   boost  - this throw may launch up to BOOST_MUL x the sling limit */
+export const PROP_IDS = Object.freeze(["aim", "freeze", "boost"]);
+export const FREEZE_S = 3;
+export const BOOST_MUL = 1.15;
+export const launchLimit = (config) => vmax(config.sling) * (config.props?.includes("boost") ? BOOST_MUL : 1);
 
 /* mulberry32: tiny, fast, identical on every JS engine.  All gameplay randomness comes from here. */
 export function createRng(seed) {
@@ -69,11 +80,19 @@ export function normalizeConfig(cfg) {
     const x = Math.min(hi, Math.max(lo, v));
     return int ? Math.floor(x) : x;
   };
-  return Object.freeze({
+  const out = {
     sling: num("sling", DEFAULT_CONFIG.sling, 0, MAX_UPGRADE, true),
     bounce: num("bounce", DEFAULT_CONFIG.bounce, 0, MAX_UPGRADE, true),
     wobble: num("wobble", DEFAULT_CONFIG.wobble, 0, 1, false),
-  });
+  };
+  // props: a list of known ids, deduplicated and in canonical order; absent when none, so a
+  // prop-free config is exactly what it always was
+  if (c.props !== undefined) {
+    if (!Array.isArray(c.props) || c.props.some((p) => !PROP_IDS.includes(p))) throw new TypeError(`config.props must list known props (${PROP_IDS.join(", ")})`);
+    const props = PROP_IDS.filter((p) => c.props.includes(p));
+    if (props.length) out.props = Object.freeze(props);
+  }
+  return Object.freeze(out);
 }
 
 /* launch command: finite, and no stronger than the sling allows.  Strict: out-of-range throws. */
@@ -83,7 +102,7 @@ export function checkCommand(cmd, config) {
   if (typeof vx !== "number" || typeof vy !== "number" || !Number.isFinite(vx) || !Number.isFinite(vy)) {
     throw new TypeError("command.vx / vy must be finite numbers");
   }
-  const lim = vmax(config.sling);
+  const lim = launchLimit(config);
   if (Math.hypot(vx, vy) > lim + 1e-9) throw new RangeError(`launch speed ${Math.hypot(vx, vy).toFixed(3)} exceeds the sling limit ${lim.toFixed(3)}`);
   if (cmd.waitTicks !== undefined && (!Number.isSafeInteger(cmd.waitTicks) || cmd.waitTicks < 0)) throw new RangeError('waitTicks must be a non-negative safe integer');
   return cmd.waitTicks === undefined ? { vx, vy } : { vx, vy, waitTicks: cmd.waitTicks };
@@ -91,7 +110,7 @@ export function checkCommand(cmd, config) {
 /* convenience for callers that hold an over-long vector (older recorded tests): scale it down to the limit */
 export function normalizeCommand(cmd, config) {
   if (!cmd || typeof cmd !== "object" || !Number.isFinite(cmd.vx) || !Number.isFinite(cmd.vy)) throw new TypeError("command.vx / vy must be finite numbers");
-  const lim = vmax(config.sling), len = Math.hypot(cmd.vx, cmd.vy);
+  const lim = launchLimit(config), len = Math.hypot(cmd.vx, cmd.vy);
   if (len <= lim) return checkCommand(cmd, config);
   const k = lim / len * (1 - 1e-12);
   return checkCommand({ ...cmd, vx: cmd.vx * k, vy: cmd.vy * k }, config);

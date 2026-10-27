@@ -8,7 +8,7 @@ import {
   TICK_DT, PHYSICS_BASE, LAUNCH_PHYSICS, POINT_NAMES, BONE_OF, BONE_SIDE, createRng, checkSeed,
 } from "./rules.mjs";
 
-export const BATTLE_VERSION = "gummy-battle-1";
+export const BATTLE_VERSION = "gummy-battle-2";
 
 export const KINDS = Object.freeze(["soft", "hard", "gum"]);
 /* kind -> solver stiffness (Bear.stiff), wobble (solve()), mass scale (contact weighting + damage),
@@ -366,7 +366,7 @@ function build(seed, scenario) {
         refreshUp(b);
         return {
           id: b.id, owner: b.owner, kind: b.kind, type: b.king ? "king" : "candy", king: b.king,
-          p: arr(b.p), q: arr(b.q), lk: arr(b.lk), seg: arr(b.seg),
+          n: b.n, p: arr(b.p), q: arr(b.q), lk: arr(b.lk), seg: arr(b.seg),
           segs: b.segs ? b.segs.map((s) => ({ ids: arr(s.ids), n: s.n, mass: s.mass })) : null,
           strands: b.strands.map((x) => ({ i: x.i, j: x.j, rest: x.rest, len: x.len || 0, bone: x.bone || null })),
           dmg: arr(b.dmg), flash: arr(b.flash), up: arr(b.up),

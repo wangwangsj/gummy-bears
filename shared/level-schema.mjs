@@ -1,6 +1,6 @@
-const TYPES = new Set(['box', 'roller', 'bumper', 'spring', 'press', 'crusher', 'belt', 'saw', 'blade', 'glass', 'jar']);
+const TYPES = new Set(['box', 'roller', 'bumper', 'spring', 'press', 'crusher', 'belt', 'saw', 'blade', 'glass', 'jar', 'pendulum', 'piston', 'meteor', 'arrow', 'fan', 'crate']);
 const COLORS = new Set(['cream', 'pink', 'mint', 'butter', 'lilac', 'metal', 'steel', 'ink', 'rose']);
-const PART_KEYS = new Set(['t', 'x', 'y', 'w', 'h', 'r', 'a', 'spin', 'boost', 'pts', 'amp', 'period', 'off', 'belt', 'soft', 'mu', 'e', 'c', 'kind', 'cut', 'ghost', 'hp']);
+const PART_KEYS = new Set(['t', 'x', 'y', 'w', 'h', 'r', 'a', 'spin', 'boost', 'pts', 'amp', 'period', 'off', 'belt', 'soft', 'mu', 'e', 'c', 'kind', 'cut', 'ghost', 'hp', 'len', 'dx', 'dy', 'fall', 'drift']);
 const ZONE_KEYS = new Set(['kind', 'goal', 'x0', 'x1', 'y0', 'y1', 'pts']);
 function fail(message) { throw new Error(`Invalid level: ${message}`); }
 function object(value, keys) {
@@ -46,16 +46,20 @@ export function validateLevel(level) {
     number(p.x, -40, 40); number(p.y, -2, 20);
     for (const [key, value] of Object.entries(p)) {
       if (['t', 'c', 'kind', 'cut', 'ghost'].includes(key)) continue;
-      const limits = key === 'period' ? [.4, 30] : ['r', 'w', 'h'].includes(key) ? [.05, 40]
+      const limits = key === 'period' ? [.4, 30] : key === 'len' ? [.1, 16] : key === 'fall' ? [.1, 40] : (p.t === 'pendulum' && key === 'amp') ? [0, 80] : ['r', 'w', 'h'].includes(key) ? [.05, 40]
         : key === 'pts' ? [0, 1000] : key === 'hp' ? [1, 20] : key === 'a' ? [-180, 180]
         : ['mu', 'e', 'soft', 'off'].includes(key) ? [0, 1] : key === 'y' ? [-2, 20] : [-40, 40];
       number(value, ...limits);
     }
-    if (['roller', 'crusher', 'saw', 'bumper'].includes(p.t)) number(p.r, .05, 4);
+    if (['roller', 'crusher', 'saw', 'bumper', 'pendulum', 'meteor'].includes(p.t)) number(p.r, .05, 4);
     else { number(p.w, .05, 40); number(p.h, .05, 20); }
     if (['press', 'crusher', 'blade'].includes(p.t)) { number(p.period, .4, 30); number(p.amp ?? 0, 0, 8); }
+    if (['piston', 'arrow', 'meteor', 'pendulum'].includes(p.t)) number(p.period, .4, 30);
+    if (p.t === 'pendulum') { number(p.len, .1, 16); number(p.amp, 0, 80); }
+    if (p.t === 'meteor') number(p.fall, .1, 40);
+    if (p.t === 'arrow') { number(p.dx, -40, 40); if (Math.abs(p.dx) + Math.abs(p.dy || 0) < .1) fail('arrow travel'); }
     if (p.c !== undefined && !COLORS.has(p.c)) fail('color');
-    if (p.kind !== undefined && !['juice', 'bumper', 'grind'].includes(p.kind)) fail('kind');
+    if (p.kind !== undefined && !['juice', 'bumper', 'grind', 'bouncy'].includes(p.kind)) fail('kind');
     for (const flag of ['cut', 'ghost']) if (p[flag] !== undefined && typeof p[flag] !== 'boolean') fail('flag');
   }
   if (!Array.isArray(level.zones) || level.zones.length < 1 || level.zones.length > 16 || level.zones.filter(z => z.goal === true).length !== 1) fail('exactly one goal');
